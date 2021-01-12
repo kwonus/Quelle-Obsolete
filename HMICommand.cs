@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ClarityAVX
+namespace ClarityHMI
 {
-    public class AVXCommand
+    public class HMICommand
     {
-		public AVXStatement statement { get; private set; }
+		public HMIStatement statement { get; private set; }
 		public string macroName { get; private set; }
-		public AVXScope macroScope { get; private set; }
+		public HMIScope macroScope { get; private set; }
 		public string command { get; private set; }
 		public List<string> errors { get; private set; }
 		public List<string> warnings { get; private set; }
@@ -32,7 +32,7 @@ namespace ClarityAVX
 		private static string[] reservedQuoted = null;
 		private static string[] reservedReplaced = null;
 
-		public AVXCommand(String command)
+		public HMICommand(String command)
         {
 			if (reservedQuoted == null)
             {
@@ -79,8 +79,8 @@ namespace ClarityAVX
                 {
 					this.macroName = (equals > 2) ? command.Substring(0, equals).Trim() : "";
 					len = macroName.Length;
-					this.macroScope = (len > 0) && (macroName[0] == '@') ? AVXScope.Global : AVXScope.Session;
-					if (macroScope == AVXScope.Global)
+					this.macroScope = (len > 0) && (macroName[0] == '@') ? HMIScope.Global : HMIScope.Session;
+					if (macroScope == HMIScope.Global)
                     {
 						this.macroName = macroName.Substring(1).Trim();
 						len --;
@@ -110,7 +110,7 @@ namespace ClarityAVX
                 else
                 {
 					this.macroName = null;
-					this.macroScope = AVXScope.Undefined;
+					this.macroScope = HMIScope.Undefined;
 					statement = command.Trim();
 					lenStatement = statement.Length;
 				}
@@ -128,7 +128,7 @@ namespace ClarityAVX
 						if (statement.Contains(reservedQuoted[i]))
 							statement = statement.Replace(reservedQuoted[i], reservedReplaced[i]);
 					}
-					this.statement = new AVXStatement(this, 0, statement);
+					this.statement = new HMIStatement(this, 0, statement);
 				}
 			}
         }

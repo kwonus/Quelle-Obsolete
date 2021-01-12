@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ClarityAVX
+namespace ClarityHMI
 {
-    public enum AVXScope
+    public enum HMIScope
     {
         Undefined = 0,
         Global = 1,

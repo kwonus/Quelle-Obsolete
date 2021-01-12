@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ClarityAVX
+namespace ClarityHMI
 {
-    public class AVXStatement
+    public class HMIStatement
     {
-        private AVXCommand command;
+        private HMICommand command;
         public void Notify(string mode, string message)
         {
             if (this.command != null)
@@ -16,14 +16,14 @@ namespace ClarityAVX
 		public string statement { get; private set; }
 		public String[] rawSegments { get; private set; }  // right-side: each segment has a POLARITY
         private char[] polarities;
-        private Dictionary<string, AVXSegment> segmentation;
-        public Dictionary<UInt64, AVXSegment> segments { get; private set; }
+        private Dictionary<string, HMISegment> segmentation;
+        public Dictionary<UInt64, HMISegment> segments { get; private set; }
 
         private static string[] plus = new string[] { "[+]", "(+)", " + ", "\t+ ", " +\t" };
         private static string[] minus = new string[] { "[-]", "(-)", " - ", "\t- ", " -\t" };
         private static string[] delimiter = null;
         ///xxx
-        public AVXStatement(AVXCommand command, UInt16 span, string statement)
+        public HMIStatement(HMICommand command, UInt16 span, string statement)
         {
             this.command = command;
 			this.span = 0;
@@ -53,8 +53,8 @@ namespace ClarityAVX
             Array.Copy(rawSegments, 1, this.rawSegments, 0, this.rawSegments.Length);
             this.polarities = new char[this.rawSegments.Length];
 
-            this.segmentation = new Dictionary<string, AVXSegment>();
-            this.segments = new Dictionary<ulong, AVXSegment>();
+            this.segmentation = new Dictionary<string, HMISegment>();
+            this.segments = new Dictionary<ulong, HMISegment>();
 
             for (UInt32 i = 0; i < this.rawSegments.Length; i++)
             {
@@ -64,7 +64,7 @@ namespace ClarityAVX
 
                 this.rawSegments[i] = this.rawSegments[i].Trim();
                 string key = "[" + this.polarities[i] + "] " + this.rawSegments[i].ToLower();
-                var current = new AVXSegment(this, i + 1, span, polarities[i], this.rawSegments[i]);
+                var current = new HMISegment(this, i + 1, span, polarities[i], this.rawSegments[i]);
                 this.segmentation.Add(key, current);
                 this.segments.Add(current.sequence, current);
 

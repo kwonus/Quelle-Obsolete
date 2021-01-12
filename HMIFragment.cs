@@ -3,16 +3,16 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
-namespace ClarityAVX
+namespace ClarityHMI
 {
-	public class AVXFragment
+	public class HMIFragment
 	{
-		private AVXSegment segment;
-		private AVXFragment previous
+		private HMISegment segment;
+		private HMIFragment previous
 		{ // used to determine position of previous token
 			get => (this.sequence > 1) && this.segment.fragments.ContainsKey(this.sequence-1) ? this.segment.fragments[this.sequence-1] : null;
 		}
-		private AVXFragment next
+		private HMIFragment next
 		{ // used to determine position of previous token
 			get => (this.sequence >= 1) && this.segment.fragments.ContainsKey(this.sequence+1) ? this.segment.fragments[this.sequence+1] : null;
 		}
@@ -42,7 +42,7 @@ namespace ClarityAVX
 			}
         }
 		public string fragment { get; private set; }
-		public AVXToken token { get; private set; }
+		public HMIToken token { get; private set; }
 
 		private Boolean isOrdereNext()
         {
@@ -62,7 +62,7 @@ namespace ClarityAVX
 				return (this.previous != null) ? this.previous.hasElipses() : false;
 			return !this.elipses.Value;
 		}
-		public AVXFragment(AVXSegment segment, UInt32 order, UInt32 fragmentSeq, string fragment)
+		public HMIFragment(HMISegment segment, UInt32 order, UInt32 fragmentSeq, string fragment)
 		{
 			this.fragment = fragment;
 			this.segment = segment;
@@ -121,7 +121,7 @@ namespace ClarityAVX
 				this.unorderCancelled = true;
 				token = token.Substring(0, token.Length - 1).Trim();
 			}
-			this.token = new AVXToken(token);
+			this.token = new HMIToken(token);
 
 		}
 	}

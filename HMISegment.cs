@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ClarityAVX
+namespace ClarityHMI
 {
-    public class AVXSegment
+    public class HMISegment
     {
         public static string[] DirectiveVerbs(string directive)
         {
@@ -38,10 +38,10 @@ namespace ClarityAVX
             return verbs != null && verbs.Length >= 1 ? verbs[0] : null;
         }
         public static Dictionary<string, string[]> Directives = new Dictionary<string, string[]>() {
-            {"SEARCH",      new string[] {"find", "summarize" } },          // When using default segment identification, the first entry ("find") is always the implied result
+            {"SEARCH",      new string[] {"find", "summarize" } },                              // When using default segment identification, the first entry ("find") is always the implied result
             {"FILE",        new string[] {"export" /*, "import"*/  } },
-            {"PERSISTENCE", new string[] {"set", "@set" } },                // When using default segment identification, the first entry ("set") is always the implied result
-            {"STATUS",      new string[] {"get", "@get", "clear", "@clear" } }
+            {"PERSISTENCE", new string[] {"set", "@set",  "config", "@config"} },               // When using default segment identification, the first entry ("set") is always the implied result
+            {"STATUS",      new string[] {"get", "@get", "clear", "@clear", "show", "@show", "cancel", "@cancel"} } //  (config/show/cancel is for registry-like program settings)
         };
         public static string[] IsPersistencePattern(string text)
         {
@@ -183,7 +183,7 @@ namespace ClarityAVX
             return tokens;
         }
         private bool error = false;
-        private AVXStatement statement;
+        private HMIStatement statement;
         public string verb;
 
         public void Notify(string mode, string message)
@@ -202,7 +202,7 @@ namespace ClarityAVX
         private char polarity;
         private Boolean quoted;
 
-        public Dictionary<UInt64, AVXFragment> fragments { get; private set; }
+        public Dictionary<UInt64, HMIFragment> fragments { get; private set; }
         private static string[] Whitespace = new string[] { " ", "\t" };
         private static string[] EqualSign = new string[] { "=" };
 
@@ -212,7 +212,7 @@ namespace ClarityAVX
             this.rawFragments = this.segment.Split(Whitespace, StringSplitOptions.RemoveEmptyEntries);
             foreach (string frag in this.rawFragments)
             {
-                AVXFragment current = new AVXFragment(this, 0, order, frag);
+                HMIFragment current = new HMIFragment(this, 0, order, frag);
                 this.fragments.Add(order, current);
                 if (this.error)
                     break;
@@ -238,7 +238,7 @@ namespace ClarityAVX
                 statement.Notify("error", "Segment processing has been aborted.");
             }
             this.segment = this.segment.Substring(1, this.segment.Length-2);
-            this.segment = AVXSegment.UnspaceParenthetical(this.segment);
+            this.segment = HMISegment.UnspaceParenthetical(this.segment);
 
             List<string> listFragments = new List<string>();
 
@@ -279,7 +279,7 @@ namespace ClarityAVX
                 {
                     if (fragment.Length > 0)
                     {
-                        var respaced = AVXSegment.RespaceParenthetical(prefix + fragment.Trim());
+                        var respaced = HMISegment.RespaceParenthetical(prefix + fragment.Trim());
                         listFragments.Add(respaced);
                         fragment = "";
                         prefix = "";
@@ -299,20 +299,20 @@ namespace ClarityAVX
                 {
                     statement.Notify("warning", "elipses at the end of a quoted string are ignored");
                 }
-                var respaced = AVXSegment.RespaceParenthetical(prefix + fragment.Trim());
+                var respaced = HMISegment.RespaceParenthetical(prefix + fragment.Trim());
                 listFragments.Add(respaced);
             }
             UInt32 order = 1;
             this.rawFragments = listFragments.ToArray();
             foreach (string frag in this.rawFragments)
             {
-                AVXFragment current = new AVXFragment(this, order, order, frag);
+                HMIFragment current = new HMIFragment(this, order, order, frag);
                 this.fragments.Add(order, current);
 
                 order++;
             }
         }
-        public AVXSegment(AVXStatement statement, UInt32 segmentOrder, UInt16 span, char polarity, string segment)
+        public HMISegment(HMIStatement statement, UInt32 segmentOrder, UInt16 span, char polarity, string segment)
         {
             string[] normalized = NormaizeSegment(segment);
 
@@ -325,7 +325,7 @@ namespace ClarityAVX
             this.statement = statement;
             this.verb = normalized[0];
 
-            this.fragments = new Dictionary<UInt64, AVXFragment>();
+            this.fragments = new Dictionary<UInt64, HMIFragment>();
             this.sequence = segmentOrder;
  
             this.span = span;
