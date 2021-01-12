@@ -34,6 +34,7 @@ For parsing purposes spaces WILL NOT be allowed around the &. Example:
 /pronoun#2PS/&/BOV/ #run&/v/
 ^^^
 (This segment has two fragments; each fragment has two tokens)
+By restricting the tokenfgroup above, we do not need specialized parsing for AVX, the execute method will desipher meaning of tokens.
 
 Unrelated to any of this, we shouild be able to set the span to "Verse Scope".  We could represent this with a span = 0.
 
@@ -61,7 +62,7 @@ ADD specialized fragments to Clarity 2.0
 /EoC/	(end of chapter)
 /BoC/	(beginning of chapter)
 /EoB/	(end of book)
-/BoB/	(beginning of book
+/BoB/	(beginning of book)
 
 EACH SEGMENT HAS AN ANCHOR. AN ANCHOR is either a normal fragment or a specialized fragment of BoV/BoC/BoB or Open-Paren
 Bits will no longer apply to tokens, but to segments. We will limit bits to either 32, with overflow reusing the 1-bit
