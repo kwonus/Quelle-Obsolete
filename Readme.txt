@@ -22,7 +22,7 @@ segment 4: (quoted)
 	fragment 4.4:	 t 	/ position = 4 /SINGLETON
 segment 5: quoted
 	fragment 5.1:	(men women) 		 / position = 1 / SET
-	fragment 5.2:	(boy boys borcott) 	 / position = 2 / SET
+	fragment 5.2:	(boy boys boycott) 	 / position = 2 / SET
 
 
 NOTE ([p q] r s) == (p q r s) ... Therefore delete/ignore square-braces within parens
