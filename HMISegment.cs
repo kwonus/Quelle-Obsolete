@@ -51,20 +51,23 @@ namespace ClarityHMI
             string[] tokens = text.Split(Whitespace, 2, StringSplitOptions.RemoveEmptyEntries);
             string[] parts= null;
             string directive = null;
-
+            bool failed = false;
+UseDefaultVerb:
             if (tokens.Length == 2)
             {
                 directive = tokens[0];
-                directive = DirectiveIncludesVerb(directive, directive);
+                directive = DirectiveIncludesVerb("PERSISTENCE", directive);
 
                 if (directive != null)
                 {
                     string remainder = tokens[1];
-                    parts = tokens[1].Split(EqualSign, 2, StringSplitOptions.RemoveEmptyEntries);
+                    parts = remainder.Split(EqualSign, 2, StringSplitOptions.RemoveEmptyEntries);
                     if (parts.Length == 2)
                     {
-                        parts[0] = tokens[0].Trim();
-                        parts[1] = tokens[1].Trim();
+                        tokens = new string[3];
+                        tokens[0] = directive;
+                        tokens[1] = parts[0].Trim();
+                        tokens[2] = parts[1].Trim();
 
                         if (parts[0].Length == 0 || parts[1].Length == 0)
                             return null;
@@ -79,13 +82,14 @@ namespace ClarityHMI
                             return null;
                         }
                     }
+                    return tokens;
                 }
             }
-            parts = text.Split(EqualSign, 2, StringSplitOptions.RemoveEmptyEntries);
-            if (parts.Length == 2)
+            if (!failed)
             {
+                failed = true;
                 tokens = new string[] { DirectiveDefault("PERSISTENCE"), text };
-                return tokens;
+                goto UseDefaultVerb;
             }
             return null;
         }
@@ -157,6 +161,14 @@ namespace ClarityHMI
             if (text == null)
                 return null;
 
+            //  Only SEARCH and PERSISTENCE segments can be implicitly recognized
+            //
+            var tokens = HasVerb(text);
+            if ((tokens != null) && (tokens.Length > 0) && DirectiveIncludesVerb("SEARCH", tokens[0]) == null && DirectiveIncludesVerb("PERSISTENCE", tokens[0]) == null)
+            {
+                return tokens;
+            }
+
             // Persistence pattern is the most identifying pattern, because it MUST contain =
             //
             var parts = IsPersistencePattern(text);
@@ -171,16 +183,7 @@ namespace ClarityHMI
 
             //  No other segments can be implicitly recognized
             //
-            var tokens = HasVerb(text);
-
-            //  Since we already checked syntax of PERSISTANCE and SEARCH, disallow them here:
-            //
-            if ( (tokens != null) && (tokens.Length > 0) && (DirectiveIncludesVerb("SEARCH", tokens[0]) != null || DirectiveIncludesVerb("PERSISTENCE", tokens[0]) != null) )
-            {
-                return null;
-            }
-
-            return tokens;
+            return null;
         }
         private bool error = false;
         private HMIStatement statement;
@@ -203,9 +206,27 @@ namespace ClarityHMI
         private Boolean quoted;
 
         public Dictionary<UInt64, HMIFragment> fragments { get; private set; }
-        private static string[] Whitespace = new string[] { " ", "\t" };
-        private static string[] EqualSign = new string[] { "=" };
+        public readonly static string[] Whitespace = new string[] { " ", "\t" };
+        public readonly static string[] EqualSign = new string[] { "=" };
 
+        private void ProcessPreparsedFragments(string[] preparsed, uint skip = 0)
+        {
+            UInt32 order = 1;
+            this.rawFragments = skip == 0 ? preparsed : new string[preparsed.Length - skip];
+            if (skip > 0)
+                for (int i = 0; i < this.rawFragments.Length; i++)
+                    this.rawFragments[i] = preparsed[skip+i].Trim();
+
+            foreach (string frag in this.rawFragments)
+            {
+                HMIFragment current = new HMIFragment(this, 0, order, frag);
+                this.fragments.Add(order, current);
+                if (this.error)
+                    break;
+
+                order++;
+            }
+        }
         private void ParseUnquoted()
         {
             UInt32 order = 1;
@@ -332,11 +353,19 @@ namespace ClarityHMI
             this.rawFragments = null;
             this.segment = normalized[1] != null ? normalized[1] : "";
             this.polarity = polarity != '-' ? '+' : '-';
-            this.quoted = (DirectiveIncludesVerb("SEARCH", this.verb) != null) && (this.segment.Length > 2) && this.segment.StartsWith('"') && this.segment.EndsWith('"');
-            if (this.quoted)
-                this.ParseQuoted();
+
+            if (DirectiveIncludesVerb("SEARCH", this.verb) != null)
+            {
+                this.quoted = (DirectiveIncludesVerb("SEARCH", this.verb) != null) && (this.segment.Length > 2) && this.segment.StartsWith('"') && this.segment.EndsWith('"');
+                if (this.quoted)
+                    this.ParseQuoted();
+                else
+                    this.ParseUnquoted();
+            }
             else
-                this.ParseUnquoted();
+            {
+                this.ProcessPreparsedFragments(normalized, 1);
+            }
         }
         public static string UnspaceParenthetical(string text)
         {
