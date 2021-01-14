@@ -1,5 +1,4 @@
-﻿
-find a b (c d) + "(e f) g [h i] j" + "[k l] ... m ... (n o)" + "[(p q) r s] t" + "*men boy*"
+﻿find a b (c d) + "(e f) g [h i] j" + "[k l] ... m ... (n o)" + "[(p q) r s] t" + "*men boy*"
 segment 1: (unquoted)		/ NEGATIVE
 	fragment 1.1:	 a 	/ position = none / SINGLETON
 	fragment 1.2:	 b 	/ position = none / SINGLETON
