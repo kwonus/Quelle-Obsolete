@@ -40,8 +40,8 @@ namespace ClarityHMI
         public static Dictionary<string, string[]> Directives = new Dictionary<string, string[]>() {
             {"SEARCH",      new string[] {"find", "summarize" } },                              // When using default segment identification, the first entry ("find") is always the implied result
             {"FILE",        new string[] {"export" /*, "import"*/  } },
-            {"PERSISTENCE", new string[] {"set", "@set",  "config", "@config"} },               // When using default segment identification, the first entry ("set") is always the implied result
-            {"STATUS",      new string[] {"get", "@get", "clear", "@clear", "show", "@show", "cancel", "@cancel"} } //  (config/show/cancel is for registry-like program settings)
+            {"PERSISTENCE", new string[] {"set", "@set",  "config", "#config"} },               // When using default segment identification, the first entry ("set") is always the implied result
+            {"STATUS",      new string[] {"get", "@get", "clear", "@clear", "show", "#show", "remove", "#remove"} } //  (config/show/remove is for registry-like program settings)
         };
         public static string[] IsPersistencePattern(string text)
         {
@@ -72,7 +72,7 @@ UseDefaultVerb:
                         if (parts[0].Length == 0 || parts[1].Length == 0)
                             return null;
 
-                        var variable = tokens[0];
+                        var variable = tokens[1];
                         foreach (char c in variable.ToCharArray())
                         {
                             if (char.IsWhiteSpace(c))
@@ -156,7 +156,7 @@ UseDefaultVerb:
             }
             return tokens;
         }
-        public static string[] NormaizeSegment(string text)
+        public static string[] NormalizeSegment(string text)
         {
             if (text == null)
                 return null;
@@ -164,8 +164,16 @@ UseDefaultVerb:
             //  Only SEARCH and PERSISTENCE segments can be implicitly recognized
             //
             var tokens = HasVerb(text);
-            if ((tokens != null) && (tokens.Length > 0) && DirectiveIncludesVerb("SEARCH", tokens[0]) == null && DirectiveIncludesVerb("PERSISTENCE", tokens[0]) == null)
+            if (tokens != null && tokens.Length >= 2)
             {
+                string[] config = IsPersistencePattern(text);
+                if (config != null)
+                    return config;
+
+                string[] search = IsSearchPattern(text);
+                if (search != null)
+                    return search;
+
                 return tokens;
             }
 
@@ -335,7 +343,7 @@ UseDefaultVerb:
         }
         public HMISegment(HMIStatement statement, UInt32 segmentOrder, UInt16 span, char polarity, string segment)
         {
-            string[] normalized = NormaizeSegment(segment);
+            string[] normalized = NormalizeSegment(segment);
 
             if (normalized == null || normalized.Length < 2)
             {

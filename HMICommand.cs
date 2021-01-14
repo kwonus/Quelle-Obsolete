@@ -79,12 +79,21 @@ namespace ClarityHMI
                 {
 					this.macroName = (equals > 2) ? command.Substring(0, equals).Trim() : "";
 					len = macroName.Length;
-					this.macroScope = (len > 0) && (macroName[0] == '@') ? HMIScope.Global : HMIScope.Session;
-					if (macroScope == HMIScope.Global)
-                    {
-						this.macroName = macroName.Substring(1).Trim();
-						len --;
-					}
+					if (len > 0)
+						switch (macroName[0])
+                        {
+							case '@':	macroScope = HMIScope.Cloud;
+										this.macroName = macroName.Substring(1).Trim();
+										len = macroName.Length;
+										break;
+							case '#':	macroScope = HMIScope.System;
+										this.macroName = macroName.Substring(1).Trim();
+										len = macroName.Length;
+										break;
+							case '{':	macroScope = HMIScope.Session;
+										break;
+						}
+                    
 					if ((len > 2) && macroName.StartsWith('{') && macroName.EndsWith('}'))
                     {
 						this.macroName = macroName.Substring(1, len-2).Trim();

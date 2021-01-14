@@ -7,8 +7,9 @@ namespace ClarityHMI
     public enum HMIScope
     {
         Undefined = 0,
-        Global = 1,
+        Statement = 1,
         Session = 2,
-        Statement = 3
+        System = 3,
+        Cloud = 4
     }
 }
