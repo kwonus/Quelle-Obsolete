@@ -10,13 +10,83 @@ namespace ClarityHMI
         public static Dictionary<string, string> SessionConfig = new Dictionary<string, string>();
         public static Dictionary<string, string> StatementConfig = new Dictionary<string, string>();
 
-        public static string Show(string setting, HMIScope scope, bool silent = false)
+        internal class ClarityResultString: IClarityResultString
         {
-            if (setting == null)
+            public string result { get; internal set; }
+            public bool success { get; internal set; }
+            public string[] errors { get; internal set; }
+            public string[] warnings { get; internal set; }
+
+            internal ClarityResultString(string result = null, string error = null, string warning = null)
             {
-                Console.WriteLine("Program design error");
-                return "";
+                this.result = result;
+                this.success = (result != null) && (error == null);
+                this.errors = (error != null) ? new string[] { error.Trim() } : null;
+                this.warnings = (warning != null) ? new string[] { warning.Trim() } : null;
             }
+            internal ClarityResultString()
+            {
+                this.result = null;
+                this.success = false;
+                this.errors = null;
+                this.warnings = null;
+            }
+            internal ClarityResultString AddWarning(string warning)
+            {
+                int resize = this.warnings != null ? this.warnings.Length : 1;
+                string[] array = new string[resize];
+                for (int i = 0; i < resize - 1; i++)
+                    array[i] = this.warnings[i];
+                array[resize - 1] = warning;
+                this.warnings = array;
+
+                return this;
+            }
+        }
+        internal class ClarityResult : IClarityResult
+        {
+            public bool success { get; internal set; }
+            public string[] errors { get; internal set; }
+            public string[] warnings { get; internal set; }
+
+            internal ClarityResult(bool success)
+            {
+                this.success = success;
+                this.errors = null;
+                this.warnings = null;
+            }
+            internal ClarityResult(string error)
+            {
+                this.success = false;
+                this.errors = new string[] { error.Trim() };
+                this.warnings = null;
+            }
+            internal ClarityResult(string error, string warning)
+            {
+                this.success = false;
+                this.errors = new string[] { error.Trim() };
+                this.warnings = new string[] { warning.Trim() };
+            }
+            internal ClarityResult(bool success, string warning)
+            {
+                this.success = success;
+                this.errors = null;
+                this.warnings = new string[] { warning.Trim() };
+            }
+            internal ClarityResult()
+            {
+                this.success = false;
+                this.errors = null;
+                this.warnings = null;
+            }
+        }
+
+
+        public static IClarityResultString Show(string setting, HMIScope scope)
+        {
+             if (setting == null)
+                return new ClarityResultString(error: "Driver design error");
+
             Dictionary<string, string> config = null;
 
             switch (scope)
@@ -24,79 +94,90 @@ namespace ClarityHMI
                 case HMIScope.Session:      config = SessionConfig;   break;
                 case HMIScope.Statement:    config = StatementConfig; break;
                 case HMIScope.System:       config = null;            break;
-                default:                    Console.WriteLine("Program design error"); return "";
+                case HMIScope.Cloud:        return new ClarityResultString(error: "This driver does not support Cloud Drivers!");
+                default:                    return new ClarityResultString(error: "Driver design error", warning: "Unknown setting scope provided by driver");
             }
+            string result = null;
+            string warning = null;
             var normalized = setting.Trim().ToLower();
             if (config != null)
             {
                 if (normalized == "*")
                 {
+                    result = "*";
+
                     foreach (string key in config.Keys)
-                        Console.WriteLine(key + ":\t" + config[key]);
-                    return "*";
+                        if (result == null)
+                            result = key + ":\t" + config[key];
+                        else
+                            result += ("\n" + key + ":\t" + config[key]);
+
+                    if (result == null)
+                        warning = "No keys found";
                 }
                 else if (config.ContainsKey(normalized))
                 {
-                    if (!silent)
-                        Console.WriteLine(config[normalized]);
-                    return config[normalized];
+                    result = config[normalized];
                 }
             }
             else
             {
-                string value = ReadGlobalSetting(normalized);
-                if (value == null || value.Length < 1)
-                {
-                    Console.WriteLine("Error reading global setting.");
-                }
+                result = ReadGlobalSetting(normalized);
             }
-            return "";
+            if (result != null && result.Length < 1)
+                result = null;
+
+            return result != null
+                ? new ClarityResultString(result: result, warning: warning)
+                : new ClarityResultString(warning: warning).AddWarning("Unable to read setting (Maybe it has not been set");
         }
-        public static bool Reomove(string setting, HMIScope scope, bool silent = false)
-        {
+        public static IClarityResult Remove(string setting, HMIScope scope)
+        { 
             if (setting == null)
-            {
-                Console.WriteLine("Program design error");
-                return false;
-            }
+                return new ClarityResult(error: "Driver design error");
+
             Dictionary<string, string> config = null;
 
             switch (scope)
             {
-                case HMIScope.Session:   config = SessionConfig;   break;
-                case HMIScope.Statement: config = StatementConfig; break;
-                case HMIScope.System:    config = null;            break;
-                default:                 Console.WriteLine("Program design error"); return false;
+                case HMIScope.Session:      config = SessionConfig;   break;
+                case HMIScope.Statement:    config = StatementConfig; break;
+                case HMIScope.System:       config = null;            break;
+                case HMIScope.Cloud:        return new ClarityResult(error: "This driver does not support Cloud Drivers!");
+                default:                    return new ClarityResult(error: "Driver design error", warning: "Unknown scope provided by driver");
             }
+            string result = null;
+            string warning = null;
             var normalized = setting.Trim().ToLower();
             if (config != null)
             {
                 if (config.ContainsKey(normalized))
                 {
                     config.Remove(normalized);
-                    if (!silent)
-                        Console.WriteLine("ok");
+                    return new ClarityResult(true);
                 }
                 else
                 {
-                    if (!silent)
-                        Console.WriteLine("The configuration settings was not not found; nothing to cancel.");
+                    if (normalized.StartsWith("{") && normalized.EndsWith("}"))
+                        return new ClarityResult(true, warning: "The statement label was not not found; nothing to remove.");
+                    else
+                        return new ClarityResult(true, warning: "The configuration setting was not not found; nothing to remove.");
                 }
-                return true;
             }
-            else if (RemovelobalSetting(normalized) == null)
-            {
-                Console.WriteLine("Error removing global setting.");
-            }
-            return false;
+            else if (RemovelobalSetting(normalized) != null)
+                return new ClarityResult(true);
+
+            else if (normalized.StartsWith("{") && normalized.EndsWith("}"))
+                    return new ClarityResult(true, warning: "The statement label was not not found; nothing to remove.");
+
+            else
+                return new ClarityResult(true, warning: "The configuration setting was not not found; nothing to remove.");
         }
-        public static bool Config(string setting, HMIScope scope, string value, bool silent = false)
+        public static IClarityResult Config(string setting, HMIScope scope, string value)
         {
-            if (setting == null)
-            {
-                Console.WriteLine("Program design error");
-                return false;
-            }
+            if (setting == null || value == null)
+                return new ClarityResult(error: "Driver design error");
+
             Dictionary<string, string> config = null;
 
             switch (scope)
@@ -104,33 +185,26 @@ namespace ClarityHMI
                 case HMIScope.Session:      config = SessionConfig;   break;
                 case HMIScope.Statement:    config = StatementConfig; break;
                 case HMIScope.System:       config = null;            break;
-                default:                    Console.WriteLine("Program design error"); return false;
+                case HMIScope.Cloud:        return new ClarityResult(error: "This driver does not support Cloud Drivers!");
+                default:                    return new ClarityResult(error: "Driver design error", warning: "Unknown scope provided by driver");
             }
+            string result = null;
+            string warning = null;
             var normalizedSetting = setting.Trim().ToLower();
-            var normalizedValue = value.Trim();
-
+            var normalizedValue = setting.Trim().ToLower();
             if (config != null)
             {
-                if (Reomove(setting, scope, true))
-                {
-
-                    if (value == null || value.Length < 1)
-                        return true;    // Cancelled
-
-                    config[normalizedSetting] = normalizedValue;
-                    Console.WriteLine("ok");
-
-                    return true;
-                }
+                Remove(setting, scope);
+                config[normalizedSetting] = normalizedValue;
+                return new ClarityResult(success: true);
             }
-            else if (!WriteGlobalSetting(normalizedSetting, normalizedValue))
-            {
-                Console.WriteLine("Error saving global setting.");
-            }
-            return false;
+            return WriteGlobalSetting(normalizedSetting, normalizedValue)
+                ? new ClarityResult(success: true)
+                : new ClarityResult(error: "Unable to save setting.");
+
         }
         private readonly static char[] dot = new char[] { '.' };
-        private readonly static string[] delimiter = new string[] { "<|||||||>" };
+
         private static string _root = null;
         private static string root
         {
@@ -193,21 +267,6 @@ namespace ClarityHMI
             }
             return File.Exists(path);
         }
-        private static bool WriteGlobalSetting(string keypath, string[] values)
-        {
-            string path = GetSectionSpec(keypath);
-            RemovelobalSetting(path);
-
-            if (File.Exists(path))
-                return false;
-
-            // Create a file to write to.
-            using (StreamWriter sw = File.CreateText(path))
-            {
-                sw.Write(string.Join(delimiter[0], values));
-            }
-            return File.Exists(path);
-        }
         private static bool WriteGlobalSetting(string keypath, Int64 value)
         {
             string path = GetSectionSpec(keypath);
@@ -232,34 +291,6 @@ namespace ClarityHMI
                     return sr.ReadLine();
                 }
             return null;
-        }
-        private static Int64 ReadGlobalSettingAsInteger(string keypath)
-        {
-            string path = GetSectionSpec(keypath);
-            if (File.Exists(path))
-                using (StreamReader sr = File.OpenText(path))
-                {
-                    string text = sr.ReadLine();
-                    try
-                    {
-                        return Int64.Parse(text);
-                    }
-                    catch
-                    {
-                        ;
-                    }
-                }
-            return Int64.MinValue;
-        }
-        private static string[] ReadGlobalSettingStringArray(string keypath)
-        {
-            string path = GetSectionSpec(keypath);
-            if (File.Exists(path))
-                using (StreamReader sr = File.OpenText(path))
-                {
-                    return sr.ReadLine().Split(delimiter, StringSplitOptions.None);
-                }
-            return new string[0];
         }
         private static string RemovelobalSetting(string keypath)
         {
