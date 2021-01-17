@@ -1,5 +1,5 @@
-﻿With the source code contained herein, and companion github/kwonus projects, the simplicity of creating a Clarity driver
-using this ClarityHMI library is exemplified.
+﻿With the source code contained herein, and companion github/kwonus projects, the simplicity of creating a
+Clarity driver using this ClarityHMI library is exemplified.
 This code can be used as a template to create your own driver, or it can be subclassed to extend behavior:
 Specifically, the Cloud*() methods need implementations in the subclass to provide the actual search functionality.
 <br/></br>
@@ -17,6 +17,7 @@ Every attempt has been made to keep the Clarity syntax agnostic about the search
 user documentation itself [coming soon to github] is heavily biased in its syntax examples. Still, the search
 domain of the StandardClarityDriver remains unbiased.
 
+```
 find a b (c d) + "(e f) g [h i] j" + "[k l] ... m ... (n o)" + "[(p q) r s] t" + "*men boy*"
 segment 1: (unquoted)		/ NEGATIVE
 	fragment 1.1:	 a 	/ position = none / SINGLETON
@@ -98,3 +99,5 @@ NEGATIVE POLARITY APPLIES TO VERSES. THIS MIGHT BE A LITTLE TRICKY OR COUNTER IN
 Parse()
 Validate()
 Execute()
+
+```
