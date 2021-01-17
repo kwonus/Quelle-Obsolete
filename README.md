@@ -46,8 +46,6 @@ segment 5: quoted
 
 NOTE ([p q] r s) == (p q r s) ... Therefore delete/ignore square-braces within parens
 
-CHANGE - to ~ for negation (doumenttation implications)
-
 We will also add the & symbol to allow matching upon a single token (like PN and stem).
 For parsing purposes spaces WILL NOT be allowed around the &. Example:
 /pronoun#2PS/&/BOV/ #run&/v/
