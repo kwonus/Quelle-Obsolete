@@ -1,22 +1,21 @@
-﻿//  This driver implementation depends upon ClarityHMI library
-//
-//  The source code here, illustrates the simplicity of creating a Clarity driver using the ClarityHMI library.
-//  This code can be used as a template to create your own driver, or it can be subclassed to extend behavior:
-//  Specifically, the Cloud*() methods need implementations in the subclass to provide the actual search functionality.
-//
-//  A tandem project in github provides a stardard Clarity driver and a standadard Clarity interpretter.
-//	Using the StandardClarityDriver* projects (with this ClarityHMI library), there are less than 500 
-//  lines of code to extend and/or modify to customize your own Clarity compliant driver/interpretter.
-//	The value proposition here is that parsing is tedious. And starting your search CLI with a concise syntax
-//	with an easy to digest parsing library could easily save your team a person-year in design-time and coding.
-//	Clarity* source code is licensed with an MIT/BSD-style license.  The specific licence file will be added to
-//	the github projects shortly (perhaps it is already here).
-//
-//  The design incentive for ClarityHMI and the standard driver/intretter is to support the broader Digital-AV
-//	effort: That project [Digital-AV] provides a command-line interface for searching and publishing the KJV bible.
-//  Every attempt has been made to keep the Clarity syntax agnostic about the search domain, yet the Clarity
-//  user documentation itself [coming soon to github] is heavily biased in its syntax examples. Still, the search
-//  domain of the StandardClarityDriver remains unbiased.
+﻿With the source code contained herein, and companion github/kwonus projects, the simplicity of creating a Clarity driver
+using this ClarityHMI library is exemplified.
+This code can be used as a template to create your own driver, or it can be subclassed to extend behavior:
+Specifically, the Cloud*() methods need implementations in the subclass to provide the actual search functionality.
+<br/></br>
+A tandem project in github provides a stardard Clarity driver and a standadard Clarity interpretter.
+Using the StandardClarityDriver* projects (with this ClarityHMI library), there are less than 500 
+lines of code to extend and/or modify to customize your own Clarity compliant driver/interpretter.
+The value proposition here is that parsing is tedious. And starting your search CLI with a concise syntax
+with an easy to digest parsing library could easily save your team a person-year in design-time and coding.
+Clarity* source code is licensed with an MIT/BSD-style license.  The specific licence file will be added to
+the github projects shortly (perhaps it is already here).
+<br/></br>
+The design incentive for ClarityHMI and the standard driver/intretter is to support the broader Digital-AV
+effort: That project [Digital-AV] provides a command-line interface for searching and publishing the KJV bible.
+Every attempt has been made to keep the Clarity syntax agnostic about the search domain, yet the Clarity
+user documentation itself [coming soon to github] is heavily biased in its syntax examples. Still, the search
+domain of the StandardClarityDriver remains unbiased.
 
 find a b (c d) + "(e f) g [h i] j" + "[k l] ... m ... (n o)" + "[(p q) r s] t" + "*men boy*"
 segment 1: (unquoted)		/ NEGATIVE
