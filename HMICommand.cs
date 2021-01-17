@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ClarityHMI
 {
@@ -8,10 +9,13 @@ namespace ClarityHMI
 		public HMIStatement statement { get; private set; }
 		public string macroName { get; private set; }
 		public HMIScope macroScope { get; private set; }
+		public bool macroSimultaneousExecution { get; private set; }
 		public string command { get; private set; }
 		public List<string> errors { get; private set; }
 		public List<string> warnings { get; private set; }
-		public void Notify(string level, string message)
+        public object Directives { get; private set; }
+
+        public void Notify(string level, string message)
         {
 			if (level != null && level.Equals("warning", StringComparison.InvariantCultureIgnoreCase))
             {
@@ -73,11 +77,15 @@ namespace ClarityHMI
 
 				//	Process the macro definition first
 				//
-				int equals = command.IndexOf(":=");
+				int equals1 = command.IndexOf(":=");
+				int equals2 = command.IndexOf("::");
+				// Pick the minimum non-negative value:
+				int equals = (equals1 < 0 && equals2 < 0) ? -1 : (equals1 < 0) ? equals2 : (equals2 < 0) ? equals1 : (equals1 < equals2) ? equals1 : equals2;
 				int len = 0;
 				if (equals >= 0)
                 {
 					this.macroName = (equals > 2) ? command.Substring(0, equals).Trim() : "";
+					this.macroSimultaneousExecution = (equals >= 0) && (equals == equals2);
 					len = macroName.Length;
 					if (len > 0)
 						switch (macroName[0])
@@ -93,24 +101,24 @@ namespace ClarityHMI
 							case '{':	macroScope = HMIScope.Session;
 										break;
 						}
-                    
+
 					if ((len > 2) && macroName.StartsWith('{') && macroName.EndsWith('}'))
-                    {
+					{
 						this.macroName = macroName.Substring(1, len-2).Trim();
 						len = macroName.Length;
 
 						if (len > 0)
-                        {
+						{
 							statement = command.Substring(equals+2).Trim();
 							lenStatement = statement.Length;
 						}
 					}
-                    else
-                    {
+					else
+					{
 						len = 0;
-                    }
+					}
 					if (len < 1)
-                    {
+					{
 						this.macroName = command.Substring(0, equals).Trim();
 						this.Notify("error", "Ill-defined label:");
 						this.Notify("error", "Command processing has been aborted.");
@@ -141,5 +149,13 @@ namespace ClarityHMI
 				}
 			}
         }
+
+		public HMIScope HasMacro()
+		{
+			if (this.statement == null || this.macroName == null)
+				return HMIScope.Undefined;
+
+			return this.macroScope;
+		}
 	}
 }

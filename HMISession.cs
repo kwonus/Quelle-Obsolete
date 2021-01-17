@@ -10,28 +10,28 @@ namespace ClarityHMI
         public static Dictionary<string, string> SessionConfig = new Dictionary<string, string>();
         public static Dictionary<string, string> StatementConfig = new Dictionary<string, string>();
 
-        internal class ClarityResultString: IClarityResultString
+        public class ClarityResultString: IClarityResultString
         {
-            public string result { get; internal set; }
-            public bool success { get; internal set; }
-            public string[] errors { get; internal set; }
-            public string[] warnings { get; internal set; }
+            public string result { get; protected set; }
+            public bool success { get; protected set; }
+            public string[] errors { get; protected set; }
+            public string[] warnings { get; protected set; }
 
-            internal ClarityResultString(string result = null, string error = null, string warning = null)
+            public ClarityResultString(string result = null, string error = null, string warning = null)
             {
                 this.result = result;
                 this.success = (result != null) && (error == null);
                 this.errors = (error != null) ? new string[] { error.Trim() } : null;
                 this.warnings = (warning != null) ? new string[] { warning.Trim() } : null;
             }
-            internal ClarityResultString()
+            public ClarityResultString()
             {
                 this.result = null;
                 this.success = false;
                 this.errors = null;
                 this.warnings = null;
             }
-            internal ClarityResultString AddWarning(string warning)
+            public ClarityResultString AddWarning(string warning)
             {
                 int resize = this.warnings != null ? this.warnings.Length : 1;
                 string[] array = new string[resize];
@@ -42,42 +42,89 @@ namespace ClarityHMI
 
                 return this;
             }
+            private ClarityResultString(IClarityResultObject result)
+            {
+                this.result = (string) result.result;
+                this.success = result.success;
+                this.errors = result.errors;
+                this.warnings = result.warnings;
+            }
+            public static ClarityResultString Create(IClarityResultObject result)
+            {
+                return (result != null) ? new ClarityResultString(result) : new ClarityResultString();
+            }
         }
-        internal class ClarityResult : IClarityResult
+        public class ClarityResult : IClarityResult
         {
-            public bool success { get; internal set; }
-            public string[] errors { get; internal set; }
-            public string[] warnings { get; internal set; }
+            public bool success { get; protected set; }
+            public string[] errors { get; protected set; }
+            public string[] warnings { get; protected set; }
 
-            internal ClarityResult(bool success)
+            public ClarityResult(bool success)
             {
                 this.success = success;
                 this.errors = null;
                 this.warnings = null;
             }
-            internal ClarityResult(string error)
+            public ClarityResult(string error)
             {
                 this.success = false;
                 this.errors = new string[] { error.Trim() };
                 this.warnings = null;
             }
-            internal ClarityResult(string error, string warning)
+            public ClarityResult(string error, string warning)
             {
                 this.success = false;
                 this.errors = new string[] { error.Trim() };
                 this.warnings = new string[] { warning.Trim() };
             }
-            internal ClarityResult(bool success, string warning)
+            public ClarityResult(bool success, string warning)
             {
                 this.success = success;
                 this.errors = null;
                 this.warnings = new string[] { warning.Trim() };
             }
-            internal ClarityResult()
+            public ClarityResult()
             {
                 this.success = false;
                 this.errors = null;
                 this.warnings = null;
+            }
+        }
+        public class ClarityResultObject : ClarityResult, IClarityResultObject
+        {
+            public object result { get; protected set; }
+
+            public ClarityResultObject(bool success, object obj) : base(success)
+            {
+                this.result = obj;
+            }
+            internal ClarityResultObject(string error, object obj) : base(error)
+            {
+                if (this.success)
+                    this.success = (obj != null);
+                this.result = obj;
+            }
+            public ClarityResultObject(string error, string warning, object obj) : base(error, warning)
+            {
+                if (this.success)
+                    this.success = (obj != null);
+                this.result = obj;
+            }
+            public ClarityResultObject(bool success, string warning, object obj) : base(success,warning)
+            {
+                if (this.success)
+                    this.success = (obj != null);
+                this.result = obj;
+            }
+            public ClarityResultObject(object obj) : base()
+            {
+                this.success = (obj != null);
+                this.result = obj;
+            }
+            public ClarityResultObject(string error) : base(error)
+            {
+                this.result = null;
             }
         }
 

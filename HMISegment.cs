@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using static ClarityHMI.HMIStatement;
+using System.Linq;
 
 namespace ClarityHMI
 {
@@ -37,35 +39,74 @@ namespace ClarityHMI
             string[] verbs = Directives.ContainsKey(upper) ? Directives[upper] : null;
             return verbs != null && verbs.Length >= 1 ? verbs[0] : null;
         }
-        public static Dictionary<string, string[]> Directives = new Dictionary<string, string[]>() {
-            {"SEARCH",      new string[] {"find", "summarize" } },                              // When using default segment identification, the first entry ("find") is always the implied result
-            {"FILE",        new string[] {"export" /*, "import"*/  } },
-            {"PERSISTENCE", new string[] {"set", "@set",  "config", "#config"} },               // When using default segment identification, the first entry ("set") is always the implied result
-            {"STATUS",      new string[] {"get", "@get", "clear", "@clear", "show", "#show", "remove", "#remove"} } //  (config/show/remove is for registry-like program settings)
+        public const string SEARCH = "SEARCH";
+        public const string FILE = "FILE";
+        public const string PERSISTENCE = "PERSISTENCE";
+        public const string STATUS = "STATUS";
+        public const string REMOVAL = "REMOVAL";
+
+        private static Dictionary<string, string[]> Directives = new Dictionary<string, string[]>() {
+            {SEARCH,      new string[] {"find", "summarize" } },                              // When using default segment identification, the first entry ("find") is always the implied result
+            {FILE,        new string[] {"export" , "import"  } },
+            {PERSISTENCE, new string[] {"set", "#set", "@set" } },               // When using default segment identification, the first entry ("set") is always the implied result
+            {STATUS,      new string[] {"get", "#get", "@get", "expand", "#expand", "@expand" } },               //  (config/show/remove is for registry-like program settings)
+            {REMOVAL,     new string[] {"clear", "#clear", "@clear", "remove", "#remove", "@remove"} } //  (config/show/remove is for registry-like program settings)
         };
+        public static string[] Searches => Directives[SEARCH];
+        public static string[] Statuses => Directives[STATUS];
+        public static string[] Removals => Directives[REMOVAL];
+        public static string[] Files    => Directives[FILE];
+        public static string[] Persistences => Directives[PERSISTENCE];
+
+        public static string FIND => Searches[0];
+        public static string GET => Statuses[0];
+        public static string EXPAND => Statuses[3];
+        public static string CLEAR => Removals[0];
+        public static string REMOVE => Removals[3];
+        public static string EXPORT => Files[0];
+        public static string IMPORT => Files[1];
+        public static string SET => Persistences[0];
+
+        SettingOperation? IsConfig(string verb)
+        {
+            if (verb == null)
+                return null;
+            var test = verb.Trim().ToLower();
+            if (test.Length == 0)
+                return null;
+
+            foreach (var op in (from candidate in Persistences where candidate == test select HMIStatement.SettingOperation.Write))
+                return op;
+            foreach (var op in (from candidate in Statuses where candidate == test select HMIStatement.SettingOperation.Read))
+                return op;
+            foreach (var op in (from candidate in Removals where candidate == test select HMIStatement.SettingOperation.Remove))
+                return op;
+
+            return null;
+        }
         public static string[] IsPersistencePattern(string text)
         {
             if (text == null)
                 return null;
 
+            string[] parts;
             string[] tokens = text.Split(Whitespace, 2, StringSplitOptions.RemoveEmptyEntries);
-            string[] parts= null;
-            string directive = null;
+            string verb = null;
             bool failed = false;
 UseDefaultVerb:
             if (tokens.Length == 2)
             {
-                directive = tokens[0];
-                directive = DirectiveIncludesVerb("PERSISTENCE", directive);
+                verb = tokens[0];
+                verb = DirectiveIncludesVerb(PERSISTENCE, verb);
 
-                if (directive != null)
+                if (verb != null)
                 {
                     string remainder = tokens[1];
                     parts = remainder.Split(EqualSign, 2, StringSplitOptions.RemoveEmptyEntries);
                     if (parts.Length == 2)
                     {
                         tokens = new string[3];
-                        tokens[0] = directive;
+                        tokens[0] = verb;
                         tokens[1] = parts[0].Trim();
                         tokens[2] = parts[1].Trim();
 
@@ -88,23 +129,29 @@ UseDefaultVerb:
             if (!failed)
             {
                 failed = true;
-                tokens = new string[] { DirectiveDefault("PERSISTENCE"), text };
-                goto UseDefaultVerb;
+                parts = text.Split(EqualSign, 2, StringSplitOptions.None);
+
+                if (parts.Length == 2)
+                {
+                    tokens = new string[] { SET, text };
+                    goto UseDefaultVerb;
+                }
             }
             return null;
         }
-        public static string IsVerb(string verb)
+        public static (string verb, string directive) IsVerb(string verb)
         {
             if (verb == null)
-                return null;
+                return (null, null);
 
-            foreach (var verbs in Directives.Values)
+            foreach (var directive in Directives.Keys)
             {
+                var verbs = Directives[directive];
                 foreach (var candidate in verbs)
                     if (verb.Equals(candidate, StringComparison.InvariantCultureIgnoreCase))
-                        return candidate;
+                        return (candidate, directive);
             }
-            return null;
+            return (null, null);
         }
         public static string[] HasVerb(string text)
         {
@@ -114,7 +161,7 @@ UseDefaultVerb:
             string[] tokens = text.Split(Whitespace, 2, StringSplitOptions.RemoveEmptyEntries);
             if (tokens.Length == 2)
             {
-                tokens[0] = IsVerb(tokens[0]);
+                tokens[0] = IsVerb(tokens[0]).verb;
                 if (tokens[0] != null)
                     return tokens;
             }
@@ -132,7 +179,7 @@ UseDefaultVerb:
             string[] tokens = HasVerb(text);
 
             if (tokens == null)
-                tokens = new string[] { DirectiveDefault("SEARCH"), text };
+                tokens = new string[] { DirectiveDefault(SEARCH), text };
 
             if (tokens.Length == 2)
             {
@@ -362,9 +409,9 @@ UseDefaultVerb:
             this.segment = normalized[1] != null ? normalized[1] : "";
             this.polarity = polarity != '-' ? '+' : '-';
 
-            if (DirectiveIncludesVerb("SEARCH", this.verb) != null)
+            if (DirectiveIncludesVerb(SEARCH, this.verb) != null)
             {
-                this.quoted = (DirectiveIncludesVerb("SEARCH", this.verb) != null) && (this.segment.Length > 2) && this.segment.StartsWith('"') && this.segment.EndsWith('"');
+                this.quoted = (DirectiveIncludesVerb(SEARCH, this.verb) != null) && (this.segment.Length > 2) && this.segment.StartsWith('"') && this.segment.EndsWith('"');
                 if (this.quoted)
                     this.ParseQuoted();
                 else

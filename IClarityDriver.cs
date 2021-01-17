@@ -45,8 +45,8 @@ namespace ClarityHMI
         IClarityResultObject    Search(HMIStatement statement);
         IClarityResultString    Summarize(HMIStatement statement);
         IClarityResultString    Summarize(object searchResult);                             
-        IClarityResultString    Import(HMIStatement statement);
-        IClarityResultString    Export(HMIStatement statement);
+        IClarityResultObject    Import(HMIStatement statement);
+        IClarityResultObject    Export(HMIStatement statement);
 
     }
 }
