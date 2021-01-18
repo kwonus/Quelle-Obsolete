@@ -105,7 +105,7 @@ It’s that simple, now instead of typing the entire statement, we can use the l
 
  
 
-By default, labeled commands are scoped to the session. When evaluating a command label, the session is examined first, and if not defined within the session, the global label is expanded. However, when defining the label, complete control over user-scope versus session scope is available. As with all clarity directives, session-scope is the default. Prefixing a label with the at-symbol ( @ ) or hash-tag ( # ) defines the label globally. Of course, without these, the label is defined only within the current session.  The global nature of persistence [aka saving] is different between # and @. While the pound prefix will save data onto your local hard-drive for a PC or Mac, the @ prefix saves your data in the cloud (This may require becoming a registered user for the Clarity hosting service; and is not fully implemented at the time of this publication; However, the design of clarity syntax supports this feature. Digital-AV is expected to be the first available Clarity-Cloud host but that project is still in active development for its Clarity v1.5 support)
+By default, labeled commands are scoped to the session. When evaluating a command label, the session is examined first, and if not defined within the session, the global label is expanded. However, when defining the label, complete control over user-scope versus session scope is available. As with all clarity directives, session-scope is the default. Prefixing a label with the at-symbol ( @ ) or hash-tag ( # ) defines the label globally. Of course, without these, the label is defined only within the current session.  The global nature of persistence [aka saving] is different between # and @. While the pound prefix will save data onto your local hard-drive for a PC or Mac, the @ prefix saves your data in the cloud (This may require becoming a registered user for a Clarity hosting service; and is not fully implemented at the time of this publication; However, the design of clarity syntax supports this feature. Digital-AV is expected to be the first available Clarity-Cloud host but that project is still in active development for its Clarity v1.5 support)
 
 Whenever an expression begins with open-brace ( { ) and ends with close-brace ( } ), then it invokes a previously-labeled statement. As we saw earlier, if a command contains :=, then the label before the statement becomes registered as shorthand for the statement.
 
@@ -175,7 +175,7 @@ Interestingly, when PERSISTENCE  macros are combined with another verb, the key-
 
 This concludes our discussion of labeled statements. Now let’s go deeper into extended statements. Just keep in mind that regardless of the complexity of an extended command, it can be labeled for shorthand execution.
 
-However, if an execution ONLY contains PERSISTENCE  verbs, then the key-value pairs affect the session (or the program if @SET is used). SESSION scope is always implied when paired with a SEARCH or FILE directive. The primary verb of the command always defines the scope. For example, configuration variables are always execution scope when combined with a SEARCH directive. See the table below for compatibility of directives and the implicit scope of the command.
+However, if an execution ONLY contains PERSISTENCE  verbs, then the key-value pairs affect the session (or saved for future sessions if #set or @set is used). SESSION scope is always implied when paired with a SEARCH or FILE directive. The primary verb of the command always defines the scope. For example, configuration variables are always execution scope when combined with a SEARCH directive. See the table below for compatibility of directives and the implicit scope of the command.
 
 | **Primary Directive** | **Secondary Directive(s)** | **Scope**                 |
 | --------------------- | -------------------------- | ------------------------- |
@@ -191,43 +191,65 @@ However, if an execution ONLY contains PERSISTENCE  verbs, then the key-value pa
 | @REMOVAL              | REMOVAL[[1\]](#_ftn1)(ES)  | Cloud                     |
 | @STATUS               | @STATUS[[2\]](#_ftn2)(ES)  | Cloud                     |
 
- 
-
-When part of a command, the SEARCH directive or FILE directive becomes the primary directive. SEARCH directives and FILE directives cannot be part of the same statement. Similarly, when STATUS is part of a command, no other verb-class is permissible. AT-symbols and pound-signs on verbs are only permitted on the first verb in a sequence and only when the verb-class is PERSISTENCE or STATUS. However, at-symbols can be used in labeled commands and when such commands are paired with SEARCH or FILE directives, the command gets downgraded to execution-scope level, just as if the macro were defined without an at-symbol.
+When part of a command contains a SEARCH directive, then SEARCH becomes the primary directive. Likewise, when a command contains a FILE directive, then FILE becomes the primary directive. No other directive types can be combined with other directive types.  And only PERSISTENCE directives are compatible with SEARCH or FILE directives. When PERSISTENCE symbols (# or @) are included and combined with a SEARCH or FILE command, the gets PERSISTENCE setting is downgraded to execution-scope, and have so effect on the session (e.g. PERSISTENCE segments are combined with a SEARCH, they only impact the execution of the search, not the session)
 
 When multiple PERSISTENCE directives compose a single statement, then the lowest Scope of any segment ALWAYS applies to all segments of the statement.
 
-Likewise, when multiple STATUS directives compose a single statement, then the lowest Scope of any segment ALWAYS applies to all segments of the statement.
+Example:
 
-Moreover, when multiple REMOVAL directives compose a single statement, then the lowest Scope of any segment ALWAYS applies to all segments of the statement.
+@set x = 1 + #set y = 2 + set z = 3
+
+is synonymous after downgrading with:
+
+set x = 1 + set y = 2 + set z = 3
+
+Moreover, it can be expressed more concisely as (and is is synonymous with):
+
+x = 1 + y = 2 + z = 3
+
+because *set* is the default verb for PERSISTENCE and PERSISTENCE segments are auto-detected by the presence of an equals sign.  Only the *set* and *find* verbs can be auto-detected.  Therefore these two segments would both be be autodetected as *find*:
+
+beginning God + word flesh
+
+Without an explicit verb and without an equals sign, segment type always default to find. So the previous statement is expanded by Clarity to:
+
+*find* beginning God + *find* word flesh
+
+Just to be clear, if you wanted to find the word "find", the verb is no longer optional. You be required to be explicit as as folows:
+
+*find* find
+
+In fact, this applies to any other Clarity verb. To find the word "set" or the the word "get", the find verb becomes required here too:
+
+*find* set + *find* get
 
 Consider the proximity search where the search target is the bible. Here is an example search using Clarity syntax:
 
-***find\*** *source=bible + beginning created earth*
+**find** *source=bible + beginning created earth*
 
 Clarity syntax can alter the span by supplying a PERSISTENCE segment:
 
-***find\*** *source=bible + **span=8 +** beginning created earth*
+**find** *source=bible + **span=8 +** beginning created earth*
 
  
 
 Assignment clauses can also be standalone to avoid redundancy with successive find commands:
 
-***set source=bible + span=7\***
+**set source=bible + span=7**
 
-***set search=strict\***
+**set search=strict**
 
  
 
 *Now consider a different search:*
 
-***find\*** *God created earth*
+**find** *God created earth*
 
  
 
 Next, consider a search to find that God created heaven or earth:
 
-***find\*** *God created (earth heaven)*
+**find** *God created (earth heaven)*
 
  
 
@@ -235,19 +257,19 @@ The order in which the search terms are provided is insignificant. Additionally,
 
 Of course, there are times when word order is significant. Accordingly, searching for explicit strings can be accomplished using double-quotes as follows:
 
-***find\*** *“God created ... Earth”*
+**find** *“God created ... Earth”*
 
  
 
 These constructs can even be combined. For example:
 
-***find\*** *”God created ... (Heaven Earth)”*
+**find** *”God created ... (Heaven Earth)”*
 
  
 
 As Clarity supports multiple segments, the above search criteria would be equivalent to this search:
 
-***find\*** *“God created ... Heaven” + “God created ... Earth”*
+**find** *“God created ... Heaven” + “God created ... Earth”*
 
  
 
@@ -255,7 +277,7 @@ In all cases, “...” means “followed by”, but the ellipsis allows other w
 
 AV Text Ministries imagines that Clarity HMI can be applied broadly in the computing industry and can easily be applied outside of the narrow domain of biblical studies. For example, the Clarity syntax could easily handle statements such as:
 
-​     ***find: source=Wall Street Journal +\*** *“Trump ... tax cuts”*
+​     **find: source=Wall Street Journal *** *“Trump ... tax cuts”*
 
  
 
@@ -263,17 +285,19 @@ Of course, translating the commands into actual search results might not be triv
 
 Clarity is designed to be intuitive. It provides the ability to invoke Boolean logic on how term matching should be performed. Parenthesis can be used to invoke Boolean multiplication upon the terms that compose a search expression. For instance, there are situations where the exact word within a phrase is not precisely known. For example, when searching the KJV bible, one might not recall which form of the second person pronoun was used in an otherwise familiar passage. Attempting to locate the serpent’s words to Eve in Genesis, one might execute a search such as:
 
-​    ***find\*** (you thou ye) shall not surely die 
+​    **find** (you thou ye) shall not surely die 
 
 This statement uses Boolean multiplication and is equivalent to this lengthier statement:
 
-​    ***find\***  you shall not surely die + thou shall not surely die + ye shall not surely die
+​    **find**  you shall not surely die + thou shall not surely die + ye shall not surely die
 
  
 
 The example above also reveals how multiple search segments can be strung together to form a compound search: logically speaking, each segment is OR’ed together; this implies that any of the three matches is acceptable. Parenthetical Terms provide a shorthand for this type of search.
 
+Similar to PERSISTENCE scoping, when multiple STATUS directives compose a single statement, then the lowest Scope of any segment ALWAYS applies to all segments of the statement.
 
+Likewise, when multiple REMOVAL directives compose a single statement, then the lowest Scope of any segment ALWAYS applies to all segments of the statement.
 
 **Definitions:**
 
