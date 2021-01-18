@@ -163,19 +163,19 @@ This concludes our discussion of labeled statements. Now let’s go deeper into 
 
 However, if an execution ONLY contains CONTROL verbs, then the key-value pairs affect the session (or saved for future sessions if #set or @set is used). SESSION scope is always implied when paired with a SEARCH or OUPUT directive. The primary verb of the command always defines the scope. For example, configuration variables are always execution scope when combined with a SEARCH directive. See the table below for compatibility of directives and the implicit scope of the command.
 
-| **Primary Directive** | **Secondary Directive(s)** | **Scope**                            |
-| --------------------- | -------------------------- | ------------------------------------ |
-| SEARCH                | SEARCH(ES), CONTROL(S)     | SEARCH: Session; CONTROL: Execution  |
-| DISPLAY               | DISPLAY(S), CONTROL(S)     | DISPLAY: Session; CONTROL: Execution |
-| CONTROL               | CONTROL(S)                 | Session                              |
-| REMOVAL               | REMOVAL[[1\]](#_ftn1)(ES)  | Session                              |
-| STATUS                | STATUS[[2\]](#_ftn2)(ES)   | Session, System, or Cloud            |
-| #CONTROL              | #CONTROL(S)                | System                               |
-| #REMOVAL              | REMOVAL[[1\]](#_ftn1)(ES)  | System                               |
-| #STATUS               | #STATUS[[2\]](#_ftn2)(ES)  | System, or Cloud                     |
-| @CONTROL              | CONTROL(S)                 | Cloud                                |
-| @REMOVAL              | REMOVAL[[1\]](#_ftn1)(ES)  | Cloud                                |
-| @STATUS               | @STATUS[[2\]](#_ftn2)(ES)  | Cloud                                |
+| **Primary Directive** | **Secondary Directive(s)** | **Scope**                           |
+| --------------------- | -------------------------- | ----------------------------------- |
+| SEARCH                | SEARCH(ES), CONTROL(S)     | SEARCH: Session; CONTROL: Execution |
+| DISPLAY               | DISPLAY(S), CONTROL(S)     | Execution                           |
+| CONTROL               | CONTROL(S)                 | Session                             |
+| REMOVAL               | REMOVAL[[1\]](#_ftn1)(ES)  | Session                             |
+| STATUS                | STATUS[[2\]](#_ftn2)(ES)   | Session, System, or Cloud           |
+| #CONTROL              | #CONTROL(S)                | System                              |
+| #REMOVAL              | REMOVAL[[1\]](#_ftn1)(ES)  | System                              |
+| #STATUS               | #STATUS[[2\]](#_ftn2)(ES)  | System, or Cloud                    |
+| @CONTROL              | CONTROL(S)                 | Cloud                               |
+| @REMOVAL              | REMOVAL[[1\]](#_ftn1)(ES)  | Cloud                               |
+| @STATUS               | @STATUS[[2\]](#_ftn2)(ES)  | Cloud                               |
 
 When part of a command contains a SEARCH directive, then SEARCH becomes the primary directive. Likewise, when a command contains a DISPLAY directive, then DISPLAY becomes the primary directive. No other directive types can be combined with other directive types.  And only CONTROL directives are compatible with SEARCH or DISPLAY directives. When CONTROL symbols (# or @) are included and combined with a SEARCH or DISPLAY command, this causes downgrading of CONTROL to execution-scope, and have no effect on the session (e.g. When CONTROL segments are combined with a SEARCH segments, they only impact the execution of the search, not the session)
 
