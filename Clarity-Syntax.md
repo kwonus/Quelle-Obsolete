@@ -433,23 +433,23 @@ The **set** format command can be used to set the default print formats:
 
 The **get**/**set** and directives can be used to store & retrieve numerous other settings:
 
-| **SCOPE**                        | **example**                              |
-| -------------------------------- | ---------------------------------------- |
-| Session scope                    | *set span = 7*                           |
-| Cloud or System or Session scope | *get span*                               |
-| *System scope*                   | *#set cloud.search= http://avbible.net/* |
-| Cloud or System scope            | *#get cloud.search*                      |
-| Cloud scope                      | *@set display.format = docx*             |
-| Cloud scope                      | *@get display.format*                    |
+| **SCOPE**                        | **example**                            |
+| -------------------------------- | -------------------------------------- |
+| Session scope                    | *set span = 7*                         |
+| Cloud or System or Session scope | *get span*                             |
+| *System scope*                   | *#set cloud.host= http://avbible.net/* |
+| Cloud or System scope            | *#get cloud.host                       |
+| Cloud scope                      | *@set display.format = docx*           |
+| Cloud scope                      | *@get display.format*                  |
 
 The **get**/**set** and **#get/#set** command can be used to retrieve Clarity configuration settings:
 
-| **SCOPE**     | **example**                                |
-| ------------- | ------------------------------------------ |
-| Session Scope | *set cloud.search = https://avbible.net/   |
-| Session Scope | *get cloud.search*                         |
-| System scope  | *#set cloud.display = https://avbible.net/ |
-| System scope  | *#get cloud*.display                       |
+| **SCOPE**     | **example**                            |
+| ------------- | -------------------------------------- |
+| Session Scope | *set cloud.host= https://avbible.net/  |
+| Session Scope | *get cloud.host                        |
+| System scope  | *#set cloud.host= https://avbible.net/ |
+| System scope  | *#get cloud*.host                      |
 
 Macro definitions can utilize any of the three scopes:
 
