@@ -40,32 +40,31 @@ namespace ClarityHMI
             return verbs != null && verbs.Length >= 1 ? verbs[0] : null;
         }
         public const string SEARCH = "SEARCH";
-        public const string FILE = "FILE";
-        public const string PERSISTENCE = "PERSISTENCE";
+        public const string DISPLAY = "DISPLAY";    // Formerly FILE
+        public const string CONTROL = "CONTROL";    // Formerly PERSISTENCE
         public const string STATUS = "STATUS";
         public const string REMOVAL = "REMOVAL";
 
         private static Dictionary<string, string[]> Directives = new Dictionary<string, string[]>() {
-            {SEARCH,      new string[] {"find", "summarize" } },                              // When using default segment identification, the first entry ("find") is always the implied result
-            {FILE,        new string[] {"export" , "import"  } },
-            {PERSISTENCE, new string[] {"set", "#set", "@set" } },               // When using default segment identification, the first entry ("set") is always the implied result
-            {STATUS,      new string[] {"get", "#get", "@get", "expand", "#expand", "@expand" } },               //  (config/show/remove is for registry-like program settings)
-            {REMOVAL,     new string[] {"clear", "#clear", "@clear", "remove", "#remove", "@remove"} } //  (config/show/remove is for registry-like program settings)
+            {SEARCH,    new string[] {"find"  } },                              // When using default segment identification, the first entry ("find") is always the implied result
+            {DISPLAY,   new string[] {"print" } },
+            {CONTROL,   new string[] {"set", "#set", "@set" } },               // When using default segment identification, the first entry ("set") is always the implied result
+            {STATUS,    new string[] {"get", "#get", "@get", "expand", "#expand", "@expand" } },               //  (config/show/remove is for registry-like program settings)
+            {REMOVAL,   new string[] {"clear", "#clear", "@clear", "remove", "#remove", "@remove"} } //  (config/show/remove is for registry-like program settings)
         };
         public static string[] Searches => Directives[SEARCH];
         public static string[] Statuses => Directives[STATUS];
         public static string[] Removals => Directives[REMOVAL];
-        public static string[] Files    => Directives[FILE];
-        public static string[] Persistences => Directives[PERSISTENCE];
+        public static string[] Displays => Directives[DISPLAY];
+        public static string[] Controls => Directives[CONTROL];
 
         public static string FIND => Searches[0];
         public static string GET => Statuses[0];
         public static string EXPAND => Statuses[3];
         public static string CLEAR => Removals[0];
         public static string REMOVE => Removals[3];
-        public static string EXPORT => Files[0];
-        public static string IMPORT => Files[1];
-        public static string SET => Persistences[0];
+        public static string PRINT => Displays[0];
+        public static string SET => Controls[0];
 
         SettingOperation? IsConfig(string verb)
         {
@@ -75,7 +74,7 @@ namespace ClarityHMI
             if (test.Length == 0)
                 return null;
 
-            foreach (var op in (from candidate in Persistences where candidate == test select HMIStatement.SettingOperation.Write))
+            foreach (var op in (from candidate in Controls where candidate == test select HMIStatement.SettingOperation.Write))
                 return op;
             foreach (var op in (from candidate in Statuses where candidate == test select HMIStatement.SettingOperation.Read))
                 return op;
@@ -97,7 +96,7 @@ UseDefaultVerb:
             if (tokens.Length == 2)
             {
                 verb = tokens[0];
-                verb = DirectiveIncludesVerb(PERSISTENCE, verb);
+                verb = DirectiveIncludesVerb(CONTROL, verb);
 
                 if (verb != null)
                 {

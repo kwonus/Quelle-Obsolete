@@ -202,7 +202,7 @@ namespace ClarityHMI
 
             foreach (var segment in this.segments.Values)
             {
-                var verb = (from candidate in HMISegment.Files where candidate == segment.verb select candidate).FirstOrDefault();
+                var verb = (from candidate in HMISegment.Displays where candidate == segment.verb select candidate).FirstOrDefault();
                 if (verb != null)
                 {
                     conformingSegments.Add(segment);
@@ -314,7 +314,7 @@ namespace ClarityHMI
             int cnt = 0;
             foreach (var segment in this.segments.Values)
             {
-                var verb = (from candidate in HMISegment.Persistences
+                var verb = (from candidate in HMISegment.Controls
                             where candidate == segment.verb
                             select char.IsLetter(candidate[0]) ? candidate : candidate.Substring(1)).FirstOrDefault();
 
