@@ -417,19 +417,20 @@ The **set** format command can be used to set the default export formats:
 
 | **SCOPE**     | **docx**              | **html**              | **text**              |
 | ------------- | --------------------- | --------------------- | --------------------- |
-| Session Scope | *set format = docx*   | *set format = html*   | *set format = text*   |
+| Session scope | *set format = docx*   | *set format = html*   | *set format = text*   |
+| System scope  | *#set  format = docx* | *#set  format = html* | *#set  format = text* |
 | Cloud scope   | *@set  format = docx* | *@set  format = html* | *@set  format = text* |
 
-The **get**/**set** and **@get/@set** commands can be used to store & retrieve Clarity behavioral settings:
+The **get**/**set** and directives can be used to store & retrieve numerous other settings:
 
-| **SCOPE**     | **example**          |
-| ------------- | -------------------- |
-| Session Scope | *set format = docx*  |
-| Session Scope | *get format*         |
-| Cloud scope   | *@set format = docx* |
-| Cloud scope   | *@get format*        |
-
- 
+| **SCOPE**                        | **example**                            |
+| -------------------------------- | -------------------------------------- |
+| Session scope                    | *set span = 7*                         |
+| Cloud or System or Session scope | *get span*                             |
+| *System scope*                   | *#set cloud.host= http://avbible.net/* |
+| Cloud or System scope            | *#get cloud.host*                      |
+| Cloud scope                      | *@set format = docx*                   |
+| Cloud scope                      | *@get format*                          |
 
 The **get**/**set** and **#get/#set** command can be used to retrieve Clarity configuration settings:
 
@@ -455,11 +456,11 @@ Macro definitions can utilize any of the three scopes:
 
 There are two status directives. One displays the current setting for the session:
 
-***get format\***
+**get format**
 
 The other displays the current global setting:
 
-***@get format\***
+**@get format**
 
  
 
@@ -467,17 +468,17 @@ The other displays the current global setting:
 
 Defaults for SEARCH directives can be restored within the session:
 
-***clear span\***         [The global value for span will be restored for the session]
+**clear span**         [The global value for span will be restored for the session]
 
-***clear format\***       [The global value for format will be restored for the session]
+**clear format**       [The global value for format will be restored for the session]
 
  
 
 Defaults for SEARCH directives can be globally restored (for this and any future session):
 
-***@clear span\***        [equivalent to: ***save span = 7\***]
+**@clear span**        [equivalent to: ***save span = 7\***]
 
-***@clear format\***      [equivalent to: ***save format = html*** ]
+**@clear format**      [equivalent to: ***save format = html*** ]
 
  
 
@@ -487,13 +488,13 @@ In all cases, any number of spaces can be used between operators and terms.
 
 Also noteworthy: The reference Clarity implementation automatically adjusts the span of your to be inclusive of the number of search terms for the largest segment. So if you were to express:
 
-***find span=1 + in the beginning (God Lord Jesus Christ Messiah)\***
+**find span=1 + in the beginning (God Lord Jesus Christ Messiah)**
 
 The minimum span has to be four(4). So the Clarity parser will adjust the search criteria as if the following command had been issued:
 
-***find span=4 + in the beginning (God Lord Jesus Christ Messiah)\***
+**find span=4 + in the beginning (God Lord Jesus Christ Messiah)**
 
-***SPECIAL CHARACTERS & OPERATOR PRECEDENCE :\***
+**SPECIAL CHARACTERS & OPERATOR PRECEDENCE :**
 
 ​     The order for operator precedence is defined in AV Word as follows:
 
