@@ -4,7 +4,7 @@ Most modern search engines, provide a mechanism for searching via a text input b
 
 The Clarity-HMI maintains the assumption that proximity of terms to one another is an important aspect of searching unstructured data. Ascribing importance to the proximity between search terms is sometimes referred to as a *proximal* *search* technique. Proximal searches intentionally constrain the number of words that can be used to constitute a match. The Clarity HMI specification defines that range between search terms as the *span*.
 
-The Clarity specification defines a declarative syntax for specifying search criteria using the *find* verb. Clarity also defines additional verbs to round out its syntax as a simple straightforward means to interact with custom applications where searching text is the fundamental problem at hand. As mentioned earlier, AV Text Ministries provides a reference implementation. This implementation is written in C# and runs on Microsoft Windows in a command console. As source code is provided, it can be seamlessly extended by application programmers.
+The Clarity specification defines a declarative syntax for specifying search criteria using the *find* verb. Clarity also defines additional verbs to round out its syntax as a simple straightforward means to interact with custom applications where searching text is the fundamental problem at hand. As mentioned earlier, AV Text Ministries provides a reference implementation. This implementation is written in C# and runs on most operating systems (e.g. Windows, Mac, Linux, iOS, Android, etc).  As source code is provided, it can be seamlessly extended by application programmers.
 
 ***Clarity syntax:\***
 
@@ -20,7 +20,7 @@ Clarity Syntax comprises a standard set of nine (9) verbs. Each verb corresponds
 - Expand
 - Remove
 
- The verbs listed above are for the English flavor of Clarity. As Clarity is an open and extensible standard, verbs for other languages can be defined without altering the overall syntax structure of the HMI. The remainder of this document describes Version 1.5 of the Clarity-HMI specification.
+The verbs listed above are for the English flavor of Clarity. As Clarity is an open and extensible standard, verbs for other languages can be defined without altering the overall syntax structure of the HMI. The remainder of this document describes Version 1.5 of the Clarity-HMI specification.
 
 In Clarity terminology, each verb is considered to be a directive. While there are nine distinct verbs, there are only five types of directives:
 
@@ -105,7 +105,7 @@ It’s that simple, now instead of typing the entire statement, we can use the l
 
  
 
-By default, labeled commands are scoped to the session. When evaluating a command label, the session is examined first, and if not defined within the session, the global label is expanded. However, when defining the label, complete control over user-scope versus session scope is available. As with all clarity directives, session-scope is the default. Prefixing a label with the at-symbol ( @ ) defines the label globally. Of course, without the at-symbol, the label is defined only within the current session.
+By default, labeled commands are scoped to the session. When evaluating a command label, the session is examined first, and if not defined within the session, the global label is expanded. However, when defining the label, complete control over user-scope versus session scope is available. As with all clarity directives, session-scope is the default. Prefixing a label with the at-symbol ( @ ) or hash-tag ( # ) defines the label globally. Of course, without these, the label is defined only within the current session.  The global nature of persistence [aka saving] is different between $ and @. While the pound prefix will save data onto your local hard-drive for a PC or Mac, the @ prefix saves your data in the cloud (This may require becoming a registered user for the Clarity hosting service; and is not fully implemented at the time of this publication; However, the design of clarity syntax supports this feature. Digital-AV is expected to be the first available Clarity-Cloud host but that project is still in active development for its Clarity v1.5 support)
 
 Whenever an expression begins with open-brace ( { ) and ends with close-brace ( } ), then it invokes a previously-labeled statement. As we saw earlier, if a command contains :=, then the label before the statement becomes registered as shorthand for the statement.
 
@@ -114,8 +114,6 @@ It should be noted that compound statements also work with labels.
 Let’s label another statement: 
 
 {my label can contain spaces} := set span=8
-
- 
 
 Compound execution of labeled statements can be accomplished as follows:
 
@@ -499,11 +497,11 @@ The minimum span has to be four(4). So the Clarity parser will adjust the search
 
 ​     The order for operator precedence is defined in AV Word as follows:
 
-​        …
+**{ }**
 
 **:=**
 
-**{ }**
+**::**
 
 **[+] or (+)** or plus delimited by white-space on left and right
 
@@ -517,6 +515,8 @@ The minimum span has to be four(4). So the Clarity parser will adjust the search
 
 **[ ]**
 
+**. . .**
+
 **% %**
 
 **" "**
@@ -526,8 +526,6 @@ The minimum span has to be four(4). So the Clarity parser will adjust the search
 **\ quote a reserved character**
 
 **#**
-
-*****
 
 **?**
 
@@ -570,7 +568,7 @@ The minimum span has to be four(4). So the Clarity parser will adjust the search
 
  
 
-Macro definition is a command that does not automatically execute the macro once defined. If execution is also desired, the macro should use :: instead of := as follows:
+Macro definition is a command that does not automatically execute the macro once defined. If execution is also desired, the macro definition should use :: instead of := as follows to label the statement:
 
 
 
