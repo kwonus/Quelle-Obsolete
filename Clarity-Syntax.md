@@ -8,29 +8,25 @@ The Clarity specification defines a declarative syntax for specifying search cri
 
 ***Clarity syntax:\***
 
-Clarity Syntax comprises a standard set of nine (9) verbs. Each verb corresponds to a basic operation:
+Clarity Syntax comprises a standard set of seven (7) verbs. Each verb corresponds to a basic operation:
 
-- Find
-- Summarize
-- Export
-- Import
-- Set
-- Get
-- Clear
-- Expand
-- Remove
+- find
+- print
+- set
+- get
+- clear
+- expand
+- remove
 
 The verbs listed above are for the English flavor of Clarity. As Clarity is an open and extensible standard, verbs for other languages can be defined without altering the overall syntax structure of the HMI. The remainder of this document describes Version 1.5 of the Clarity-HMI specification.
 
-In Clarity terminology, each verb is considered to be a directive. While there are nine distinct verbs, there are only five types of directives:
+In Clarity terminology, each verb is considered to be a directive. While there are seven distinct verbs, there are only five types of directives:
 
 1. SEARCH Directives
    - find
-   - summarize
-2. FILE Directives
-   - export
-   - import
-3. PERSISTENCE Directives
+2. DISPLAY Directives
+   - print
+3. CONTROL Directives
    - set
    - #set
    - @set
@@ -42,14 +38,14 @@ In Clarity terminology, each verb is considered to be a directive. While there a
    - #expand   [corresponds only to the expansion of labelled statements (aka macros)]
    - @expand  [corresponds only to the expansion of labelled statements (aka macros)]
 5. REMOVAL Directives
-   - clear      [corresponds only to clearing values established via PERSISTENCE directives]
-   - #clear   [corresponds only to clearing values established via PERSISTENCE directives]
-   - @clear  [corresponds only to clearing values established via PERSISTENCE directives]
+   - clear      [corresponds only to clearing values established via CONTROL directives]
+   - #clear   [corresponds only to clearing values established via CONTROL directives]
+   - @clear  [corresponds only to clearing values established via CONTROL directives]
    - remove    [corresponds only to the removal of labelled statements (aka macros)]
    - #remove   [corresponds only to the removal of labelled statements (aka macros)]
    - @remove  [corresponds only to the removal of labelled statements (aka macros)]
 
-Most directives operate at the session level, but PERSISTENCE, STATUS, and REMOVAL directives can be qualified to operate globally for the user across the current and all future sessions.
+Most directives operate at the session level, but CONTROL, STATUS, and REMOVAL directives can be qualified to operate globally for the user across the current and all future sessions.
 
 The syntax of a Clarity statement always begins with a verb. From a linguistic standpoint, all Clarity statements begin with the verb and are they are issued in the imperative. After the verb, a Clarity statement can be broken into one or more segments. The syntax for each segment is dependent upon the type of directive for the segment. And the type of directive is controlled by the verb. We will refer to the directive of which a verb is a member as the verb-class. For example, find is a member of the SEARCH verb-class. All verbs of a verb-class share the same syntax rules.
 
@@ -65,21 +61,15 @@ Here is an example of a simple statement using a SEARCH directive:
 
 find "in the beginning"
 
- 
-
-We will get into the particular way that this statement is parsed later in this document. But for now, we should notice that we have one verb and one segment. The type of the segment agrees with the verb and there is only one segment. Consequently, this is, by definition, a simple statement. We should notice that we have not informed our search engine what to search. So here is another example of a simple statement using a PERSISTENCE  directive:
+We will get into the particular way that this statement is parsed later in this document. But for now, we should notice that we have one verb and one segment. The type of the segment agrees with the verb and there is only one segment. Consequently, this is, by definition, a simple statement. We should notice that we have not informed our search engine what to search. So here is another example of a simple statement using a CONTROL  directive:
 
 set source=bible
-
- 
 
 If we had run this configuration command prior to the search command listed above, our first match would be found in Genesis 1:1. But as the source domain of our search is a key element of our search, we should have a way to express both of these in a single command. And this is the rationale behind a compound statement. A compound statement has more than one segment. To combine the previous two statements into one compound statement, we can issue this command:
 
 find "in the beginning" + source=bible
 
- 
-
-Segments in compound statements are delimited by plus-signs. For all compound statements, at least one segment must agree with the verb-class. Each verb-class defines whether additional segment types are permissible. In the case of FILE directives and SEARCH directives, PERSISTENCE  segments are also valid segment types. All other verb-classes require that each segment agrees with the verb-class of the statement.
+Segments in compound statements are delimited by plus-signs. For all compound statements, at least one segment must agree with the verb-class. Each verb-class defines whether additional segment types are permissible. In the case of OUPUT directives and SEARCH directives, CONTROL  segments are also valid segment types. All other verb-classes require that each segment agrees with the verb-class of the statement.
 
 Before we go deep into the syntax of compound statements, we should define one more abstraction defined in the Clarity HMI specification. So far, we have considered only ordinary statements. Ordinary statements always begin with a verb and contain at least one segment.
 
@@ -97,15 +87,11 @@ In this section, we will introduce the abstraction of labelled-commands: We can 
 
 {genesis} := find “in the beginning” + source=bible
 
- 
-
 It’s that simple, now instead of typing the entire statement, we can use the label as shorthand to execute our newly saved command. Here is the command:
 
 {genesis}
 
- 
-
-By default, labeled commands are scoped to the session. When evaluating a command label, the session is examined first, and if not defined within the session, the global label is expanded. However, when defining the label, complete control over user-scope versus session scope is available. As with all clarity directives, session-scope is the default. Prefixing a label with the at-symbol ( @ ) or hash-tag ( # ) defines the label globally. Of course, without these, the label is defined only within the current session.  The global nature of persistence [aka saving] is different between # and @. While the pound prefix will save data onto your local hard-drive for a PC or Mac, the @ prefix saves your data in the cloud (This may require becoming a registered user for a Clarity hosting service; and is not fully implemented at the time of this publication; However, the design of clarity syntax supports this feature. Digital-AV is expected to be the first available Clarity-Cloud host but that project is still in active development for its Clarity v1.5 support)
+By default, labeled commands are scoped to the session. When evaluating a command label, the session is examined first, and if not defined within the session, the global label is expanded. However, when defining the label, complete control over user-scope versus session scope is available. As with all clarity directives, session-scope is the default. Prefixing a label with the at-symbol ( @ ) or hash-tag ( # ) defines the label globally. Of course, without these, the label is defined only within the current session.  The global nature of CONTROL [aka saving] is different between # and @. While the pound prefix will save data onto your local hard-drive for a PC or Mac, the @ prefix saves your data in the cloud (This may require becoming a registered user for a Clarity hosting service; and is not fully implemented at the time of this publication; However, the design of clarity syntax supports this feature. Digital-AV is expected to be the first available Clarity-Cloud host but that project is still in active development for its Clarity v1.5 support)
 
 Whenever an expression begins with open-brace ( { ) and ends with close-brace ( } ), then it invokes a previously-labeled statement. As we saw earlier, if a command contains :=, then the label before the statement becomes registered as shorthand for the statement.
 
@@ -171,29 +157,29 @@ Example of normalization for the sample2 label:
 
 FIND godhead + eternal + search=strict + span=8
 
-Interestingly, when PERSISTENCE  macros are combined with another verb, the key-value pairs apply ONLY to the execution of the other verb [SEARCH or FILE], not to the entire session.
+Interestingly, when CONTROL macros are combined with another verb, the key-value pairs apply ONLY to the execution of the other verb [SEARCH or DISPLAY], not to the entire session.
 
 This concludes our discussion of labeled statements. Now let’s go deeper into extended statements. Just keep in mind that regardless of the complexity of an extended command, it can be labeled for shorthand execution.
 
-However, if an execution ONLY contains PERSISTENCE  verbs, then the key-value pairs affect the session (or saved for future sessions if #set or @set is used). SESSION scope is always implied when paired with a SEARCH or FILE directive. The primary verb of the command always defines the scope. For example, configuration variables are always execution scope when combined with a SEARCH directive. See the table below for compatibility of directives and the implicit scope of the command.
+However, if an execution ONLY contains CONTROL verbs, then the key-value pairs affect the session (or saved for future sessions if #set or @set is used). SESSION scope is always implied when paired with a SEARCH or OUPUT directive. The primary verb of the command always defines the scope. For example, configuration variables are always execution scope when combined with a SEARCH directive. See the table below for compatibility of directives and the implicit scope of the command.
 
-| **Primary Directive** | **Secondary Directive(s)** | **Scope**                 |
-| --------------------- | -------------------------- | ------------------------- |
-| SEARCH                | SEARCH(ES), PERSISTENCE(S) | Execution                 |
-| FILE                  | PERSISTENCE(S)             | Execution                 |
-| PERSISTENCE           | PERSISTENCE(S)             | Session                   |
-| REMOVAL               | REMOVAL[[1\]](#_ftn1)(ES)  | Session                   |
-| STATUS                | STATUS[[2\]](#_ftn2)(ES)   | Session, System, or Cloud |
-| #PERSISTENCE          | #PERSISTENCE(S)            | System                    |
-| #REMOVAL              | REMOVAL[[1\]](#_ftn1)(ES)  | System                    |
-| #STATUS               | #STATUS[[2\]](#_ftn2)(ES)  | System, or Cloud          |
-| @PERSISTENCE          | @PERSISTENCE(S)            | Cloud                     |
-| @REMOVAL              | REMOVAL[[1\]](#_ftn1)(ES)  | Cloud                     |
-| @STATUS               | @STATUS[[2\]](#_ftn2)(ES)  | Cloud                     |
+| **Primary Directive** | **Secondary Directive(s)** | **Scope**                            |
+| --------------------- | -------------------------- | ------------------------------------ |
+| SEARCH                | SEARCH(ES), CONTROL(S)     | SEARCH: Session; CONTROL: Execution  |
+| DISPLAY               | DISPLAY(S), CONTROL(S)     | DISPLAY: Session; CONTROL: Execution |
+| CONTROL               | CONTROL(S)                 | Session                              |
+| REMOVAL               | REMOVAL[[1\]](#_ftn1)(ES)  | Session                              |
+| STATUS                | STATUS[[2\]](#_ftn2)(ES)   | Session, System, or Cloud            |
+| #CONTROL              | #CONTROL(S)                | System                               |
+| #REMOVAL              | REMOVAL[[1\]](#_ftn1)(ES)  | System                               |
+| #STATUS               | #STATUS[[2\]](#_ftn2)(ES)  | System, or Cloud                     |
+| @CONTROL              | CONTROL(S)                 | Cloud                                |
+| @REMOVAL              | REMOVAL[[1\]](#_ftn1)(ES)  | Cloud                                |
+| @STATUS               | @STATUS[[2\]](#_ftn2)(ES)  | Cloud                                |
 
-When part of a command contains a SEARCH directive, then SEARCH becomes the primary directive. Likewise, when a command contains a FILE directive, then FILE becomes the primary directive. No other directive types can be combined with other directive types.  And only PERSISTENCE directives are compatible with SEARCH or FILE directives. When PERSISTENCE symbols (# or @) are included and combined with a SEARCH or FILE command, the gets PERSISTENCE setting is downgraded to execution-scope, and have so effect on the session (e.g. PERSISTENCE segments are combined with a SEARCH, they only impact the execution of the search, not the session)
+When part of a command contains a SEARCH directive, then SEARCH becomes the primary directive. Likewise, when a command contains a DISPLAY directive, then DISPLAY becomes the primary directive. No other directive types can be combined with other directive types.  And only CONTROL directives are compatible with SEARCH or DISPLAY directives. When CONTROL symbols (# or @) are included and combined with a SEARCH or DISPLAY command, this causes downgrading of CONTROL to execution-scope, and have no effect on the session (e.g. When CONTROL segments are combined with a SEARCH segments, they only impact the execution of the search, not the session)
 
-When multiple PERSISTENCE directives compose a single statement, then the lowest Scope of any segment ALWAYS applies to all segments of the statement.
+When multiple CONTROL directives compose a single statement, then the lowest scope of any segment ALWAYS applies to all segments of the statement.
 
 Example:
 
@@ -207,7 +193,7 @@ Moreover, it can be expressed more concisely as (and is is synonymous with):
 
 x = 1 + y = 2 + z = 3
 
-because *set* is the default verb for PERSISTENCE and PERSISTENCE segments are auto-detected by the presence of an equals sign.  Only the *set* and *find* verbs can be auto-detected.  Therefore these two segments would both be be autodetected as *find*:
+because *set* is the default verb for CONTROL and CONTROL segments are auto-detected by the presence of an equals sign.  Only the *set* and *find* verbs can be auto-detected.  Therefore these two segments would both be be autodetected as *find*:
 
 beginning God + word flesh
 
@@ -215,7 +201,7 @@ Without an explicit verb and without an equals sign, segment type always default
 
 *find* beginning God + *find* word flesh
 
-Just to be clear, if you wanted to find the word "find", the verb is no longer optional. You be required to be explicit as as folows:
+Just to be clear, if you wanted to find the word "find", the verb is no longer optional. You be required to be explicit as as follows:
 
 *find* find
 
@@ -227,7 +213,7 @@ Consider the proximity search where the search target is the bible. Here is an e
 
 **find** *source=bible + beginning created earth*
 
-Clarity syntax can alter the span by supplying a PERSISTENCE segment:
+Clarity syntax can alter the span by supplying a CONTROL segment:
 
 **find** *source=bible + **span=8 +** beginning created earth*
 
@@ -295,7 +281,7 @@ This statement uses Boolean multiplication and is equivalent to this lengthier s
 
 The example above also reveals how multiple search segments can be strung together to form a compound search: logically speaking, each segment is OR’ed together; this implies that any of the three matches is acceptable. Parenthetical Terms provide a shorthand for this type of search.
 
-Similar to PERSISTENCE scoping, when multiple STATUS directives compose a single statement, then the lowest Scope of any segment ALWAYS applies to all segments of the statement.
+Similar to CONTROL scoping, when multiple STATUS directives compose a single statement, then the lowest Scope of any segment ALWAYS applies to all segments of the statement.
 
 Likewise, when multiple REMOVAL directives compose a single statement, then the lowest Scope of any segment ALWAYS applies to all segments of the statement.
 
@@ -305,7 +291,7 @@ While some of these concepts have already been introduced, the following section
 
  
 
-**Directives** are composed by verbs and are used to construct statements for the Clarity Command Interpreter. Each directive has specialized syntax tailored to the imperative verb used in the statement. The directive limits the type of segments that may follow. Most directives permit only a single segment type. FILE and SEARCH directives also allow SCOPE segments. There are five types of directives. These correspond exactly to five verb classes. While there are nine verbs, there are only five verb-classes. The verb-classes correspond exactly to one of the five directive types.
+**Directives** are composed by verbs and are used to construct statements for the Clarity Command Interpreter. Each directive has specialized syntax tailored to the imperative verb used in the statement. The directive limits the type of segments that may follow. Most directives permit only a single segment type. DISPLAY and SEARCH directives also allow SCOPE segments. There are five types of directives. These correspond exactly to five verb classes. While there are nine verbs, there are only five verb-classes. The verb-classes correspond exactly to one of the five directive types.
 
 **Segments:** the verb is followed by one or more segments. Each segment has a type, and the type of the segment must be compatible with the directive. As there are five types of directives, it not a coincidence that there are five types of segments. It is noteworthy that the syntax of a STATUS segment is identical to the syntax of a RESET segment, but we still consider the segment types to be distinct.
 
@@ -423,47 +409,47 @@ in a beginning, God created heaven and earth
 
  
 
-The "*export*" verb has very limited grammar. For simplicity, consider the basic variants:
+The "*print*" verb has very limited grammar. For simplicity, consider the basic variants:
 
-export output="C:\user\me\Documents\genesis.txt" + format = text + selection=genesis 
+print output="C:\user\me\Documents\genesis.txt" + format = text + selection=genesis 
 
-export format = text + output="C:\user\me\Documents\genesis.txt" + selection=genesis 
+print format = text + output="C:\user\me\Documents\genesis.txt" + selection=genesis 
 
-export format = html + output = "C:\user\me\Documents\exodus.html" + selection=exodus
+print format = html + output = "C:\user\me\Documents\exodus.html" + selection=exodus
 
-export format = docx + "C:\user\me\Documents\Leviticus.docx" + selection=leviticus
+print format = docx + "C:\user\me\Documents\Leviticus.docx" + selection=leviticus
 
  
 
-**PERSISTENCE directives:**
+**CONTROL directives:**
 
-The **set** format command can be used to set the default export formats:
+The **set** format command can be used to set the default print formats:
 
-| **SCOPE**     | **docx**              | **html**              | **text**              |
-| ------------- | --------------------- | --------------------- | --------------------- |
-| Session scope | *set format = docx*   | *set format = html*   | *set format = text*   |
-| System scope  | *#set  format = docx* | *#set  format = html* | *#set  format = text* |
-| Cloud scope   | *@set  format = docx* | *@set  format = html* | *@set  format = text* |
+| **SCOPE**     | **docx**                      | **html**                      | **text**                      |
+| ------------- | ----------------------------- | ----------------------------- | ----------------------------- |
+| Session scope | *set display.format = docx*   | *set display.format = html*   | *set display.format = text*   |
+| System scope  | *#set  display.format = docx* | *#set  display.format = html* | *#set  display.format = text* |
+| Cloud scope   | *@set display.format = docx*  | *@set display.format = html*  | *@set display.format = text*  |
 
 The **get**/**set** and directives can be used to store & retrieve numerous other settings:
 
-| **SCOPE**                        | **example**                            |
-| -------------------------------- | -------------------------------------- |
-| Session scope                    | *set span = 7*                         |
-| Cloud or System or Session scope | *get span*                             |
-| *System scope*                   | *#set cloud.host= http://avbible.net/* |
-| Cloud or System scope            | *#get cloud.host*                      |
-| Cloud scope                      | *@set format = docx*                   |
-| Cloud scope                      | *@get format*                          |
+| **SCOPE**                        | **example**                              |
+| -------------------------------- | ---------------------------------------- |
+| Session scope                    | *set span = 7*                           |
+| Cloud or System or Session scope | *get span*                               |
+| *System scope*                   | *#set cloud.search= http://avbible.net/* |
+| Cloud or System scope            | *#get cloud.search*                      |
+| Cloud scope                      | *@set display.format = docx*             |
+| Cloud scope                      | *@get display.format*                    |
 
 The **get**/**set** and **#get/#set** command can be used to retrieve Clarity configuration settings:
 
-| **SCOPE**     | **example**                                   |
-| ------------- | --------------------------------------------- |
-| Session Scope | *set cloud = https://avbible.net/clarityAVX*  |
-| Session Scope | *get cloud*                                   |
-| System scope  | *#set cloud = https://avbible.net/clarityAVX* |
-| System scope  | *#get cloud*                                  |
+| **SCOPE**     | **example**                                |
+| ------------- | ------------------------------------------ |
+| Session Scope | *set cloud.search = https://avbible.net/   |
+| Session Scope | *get cloud.search*                         |
+| System scope  | *#set cloud.display = https://avbible.net/ |
+| System scope  | *#get cloud*.display                       |
 
 Macro definitions can utilize any of the three scopes:
 
@@ -488,21 +474,17 @@ The other displays the current global setting:
 
  
 
-**RESET directives:**
+**REMOVAL directives:**
 
-Defaults for SEARCH directives can be restored within the session:
+Global control settings for SEARCH directives can be restored within the session:
 
-**clear span**         [The global value for span will be restored for the session]
-
-**clear format**       [The global value for format will be restored for the session]
-
- 
+**clear search.***         [All search control settings will be cleared with a single command]
 
 Defaults for SEARCH directives can be globally restored (for this and any future session):
 
-**@clear span**        [equivalent to: ***save span = 7\***]
+**@clear search.span**
 
-**@clear format**      [equivalent to: ***save format = html*** ]
+**@clear display.format**
 
  
 
