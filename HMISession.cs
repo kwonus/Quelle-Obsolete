@@ -11,6 +11,7 @@ namespace ClarityHMI
         public Type type;
         public string[] values;
         public Int64?[] MinMax;
+        public bool hidden;
 
         public ControlInfo()
         {
@@ -18,20 +19,23 @@ namespace ClarityHMI
             type = typeof(string);
             values = null;
             MinMax = null;
+            hidden = false;
     }
-        public ControlInfo(string[] values)
+        public ControlInfo(string[] values, bool hidden = false)
         {
             this.Default = values[0];
             this.type = typeof(string);
             this.values = values;
             this.MinMax = null;
+            this.hidden = hidden;
         }
-        public ControlInfo(Int64? def, Int64? min, Int64? max)
+        public ControlInfo(Int64? def, Int64? min, Int64? max, bool hidden = false)
         {
             this.Default = def.HasValue ? def.Value.ToString() : null;
             this.type = typeof(Int64);
             this.values = null;
             this.MinMax = new Int64?[] { min, max };
+            this.hidden = hidden;
         }
     }
     public class HMISession
@@ -75,12 +79,12 @@ namespace ClarityHMI
         private static Dictionary<string, ControlInfo> StandardConfig_SEARCH = new Dictionary<string, ControlInfo>()
         {
             { "span",    new ControlInfo(0, 0, 1000) },
- //         { "data",    new ControlInfo(new string[] { "binary", "json", "xml", "pb" }) }
-            { "data",    new ControlInfo(new string[] { "binary" }) }
+ //         { "data",    new ControlInfo(new string[] { "binary", "json", "xml", "pb" }, hidden:true) }
+            { "data",    new ControlInfo(new string[] { "binary" }, hidden:true) }
         };
         private static Dictionary<string, ControlInfo> StandardConfig_CLARITY = new Dictionary<string, ControlInfo>()
         {
-            { "debug",   new ControlInfo(0, 0, 1) },
+            { "debug",   new ControlInfo(0, 0, 1, hidden:true) },
             { "host",    new ControlInfo() }
         };
 

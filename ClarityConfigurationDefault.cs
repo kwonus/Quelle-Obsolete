@@ -58,8 +58,8 @@ namespace ClarityHMI
 
             if (key.section == null)
             {
-                foreach (string configSection in this.Configuration.Keys)
-                    if (this.Configuration.ContainsKey(key.setting))
+                foreach (string configSection in this.StandardConfig.Keys)
+                    if (this.StandardConfig[configSection].ContainsKey(key.setting))
                     {
                         key.section = configSection;
                         break;
@@ -76,13 +76,20 @@ namespace ClarityHMI
             }
             return (key.section, key.setting, null);
         }
+        private HMIScope ValidateScope(string section, HMIScope scope)
+        {
+            if (section != null && section == "clarity" && scope == HMIScope.Cloud)
+                scope = HMIScope.System;
+
+            return scope;
+        }
         public IClarityResultString Read(string setting, HMIScope scope)
         {
             (string section, string setting, IClarityResultString error) key = GetPair(setting);
             if (key.error != null)
                 return key.error;
 
-            switch (scope)
+            switch (ValidateScope(key.section, scope))
             {
                 case HMIScope.Session:  
                 case HMIScope.System:   break;
@@ -92,23 +99,37 @@ namespace ClarityHMI
             string result = null;
             string warning = null;
 
+            var standard = this.StandardConfig[key.section];
             var config = this.Configuration[key.section];
             if (key.setting == "*")
             {
-                result = "*";
+                foreach (string item in standard.Keys)
+                {
+                    var std = standard[item];
 
-                foreach (string item in this.Configuration.Keys)
+                    if (std.hidden)
+                        continue;
+                    var entry = item + ":";
+                    if (config.ContainsKey(item))
+                        entry += ("\t" + config[item].Trim());
+                    else if (std.Default != null)
+                        entry += ("\t" + std.Default + "\t[default]");
+                    
                     if (result == null)
-                        result = item + ":\t" + config[item];
+                        result = entry;
                     else
-                        result += ("\n" + key + ":\t" + config[item]);
-
+                        result += ("\n" + entry);
+                }
                 if (result == null)
                     warning = "No control variables found";
             }
             else if (config.ContainsKey(key.setting))
             {
                 result = config[key.setting];
+            }
+            else if (standard.ContainsKey(key.setting))
+            {
+                result = standard[key.setting].Default; // + "\t[default]";
             }
 
             if (result != null && result.Length < 1)
@@ -130,7 +151,7 @@ namespace ClarityHMI
             if (key.error != null)
                 return key.error;
 
-            switch (scope)
+            switch (ValidateScope(key.section, scope))
             {
                 case HMIScope.Session:
                 case HMIScope.System:   break;
@@ -174,12 +195,12 @@ namespace ClarityHMI
             if (key.error != null)
                 return key.error;
 
-            switch (scope)
+            switch (ValidateScope(key.section, scope))
             {
                 case HMIScope.Session:
-                case HMIScope.System: break;
-                case HMIScope.Cloud: return new ClarityResultString(error: "This driver does not support Cloud Drivers!");
-                default: return new ClarityResultString(error: "Driver design error", warning: "Unknown setting scope provided by driver");
+                case HMIScope.System:   break;
+                case HMIScope.Cloud:    return new ClarityResultString(error: "This driver does not support Cloud Drivers!");
+                default:                return new ClarityResultString(error: "Driver design error", warning: "Unknown setting scope provided by driver");
             }
             var normalizedValue = value.Trim().ToLower();
             if (string.IsNullOrWhiteSpace(value))
@@ -187,10 +208,10 @@ namespace ClarityHMI
 
             var config = this.Configuration[key.section];
             if (config.ContainsKey(key.setting))
-            {
                 config.Remove(key.setting);
-                config[key.setting] = normalizedValue;
-            }
+
+            config[key.setting] = normalizedValue;
+
             return new ClarityResult(success: true);
         }
         public IClarityResult Write(string setting, HMIScope scope, Int64 value)
