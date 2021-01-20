@@ -78,14 +78,13 @@ namespace ClarityHMI
         };
         private static Dictionary<string, ControlInfo> StandardConfig_SEARCH = new Dictionary<string, ControlInfo>()
         {
-            { "span",    new ControlInfo(0, 0, 1000) },
- //         { "data",    new ControlInfo(new string[] { "binary", "json", "xml", "pb" }, hidden:true) }
-            { "data",    new ControlInfo(new string[] { "binary" }, hidden:true) }
+            { "span",    new ControlInfo(0, 0, 1000) }
         };
         private static Dictionary<string, ControlInfo> StandardConfig_CLARITY = new Dictionary<string, ControlInfo>()
         {
+            { "host",    new ControlInfo() },
             { "debug",   new ControlInfo(0, 0, 1, hidden:true) },
-            { "host",    new ControlInfo() }
+            { "data",    new ControlInfo(new string[] { "binary", "json", "xml", "pb" }, hidden:true) }
         };
 
         public class ClarityResultString: IClarityResultString

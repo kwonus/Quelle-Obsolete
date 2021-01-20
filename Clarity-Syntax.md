@@ -445,12 +445,12 @@ print format = docx + "C:\user\me\Documents\Leviticus.docx" + selection=leviticu
 
 
 
-| **SCOPE**     | **example**                            |
-| ------------- | -------------------------------------- |
-| Session Scope | *set cloud.host= https://avbible.net/  |
-| Session Scope | *get cloud.host                        |
-| System scope  | *#set cloud.host= https://avbible.net/ |
-| System scope  | *#get cloud*.host                      |
+| **SCOPE**     | **example**                                 |
+| ------------- | ------------------------------------------- |
+| Session Scope | **set* *clarity*.host= https://avbible.net/ |
+| Session Scope | *get* *clarity*.host                        |
+| System scope  | *#set* *clarity*.host= https://avbible.net/ |
+| System scope  | *#get clarity*.host                         |
 
 **TABLE 4** - **get**/**set** and **#get/#set** command can be used to retrieve Clarity configuration settings
 
@@ -501,27 +501,27 @@ When multiple segments contain the same setting, the last setting in the list is
 
  set format = docx + set format = text `>> implies >>` set format = text
 
-| Control Name    | Short Name | Meaning     | Values    | Applicable Verbs | Maximum Scope |
-| --------------- | ---------- | ----------- | --------- | ---------------- | ------------- |
-| search.span     | span       | proximity   | 0 to 1000 | set, get, clear  | cloud         |
-| search.span     | span       | proximity   | 0 to 1000 | set, get, clear  | cloud         |
-| display.heading | heading    | annotation  | string    | set, get, clear  | cloud         |
-| display.record  | record     | annotation  | string    | set, get, clear  | cloud         |
-| display.format  | format     | string      | Table 2   | set, get, clear  | cloud         |
-| clarity.debug   | debug      | on or off   | 0 or 1    | set, get, clear  | system        |
-| clarity.host    | host       | url of host | string    | set, get, clear  | system        |
+| Control Name    | Short Name | Meaning                   | Values        | Visibility | Max Scope |
+| --------------- | ---------- | ------------------------- | ------------- | ---------- | --------- |
+| search.span     | span       | proximity                 | 0 to 1000     | normal     | cloud     |
+| display.heading | heading    | heading of results        | string        | normal     | cloud     |
+| display.record  | record     | annotation of results     | string        | normal     | cloud     |
+| display.format  | format     | display format of results | *see* Table 2 | normal     | cloud     |
+| clarity.host    | host       | URL of driver             | string        | normal     | system    |
+| clarity.debug   | debug      | on or off                 | 0 or 1        | *hidden*   | system    |
+| clarity.data    | span       | clarity data format       | binary        | *hidden*   | system    |
 
-**TABLE 6 - List of Controls**
+**TABLE 6 - List of Controls** (The control parameters are applicable to ***set***, ***get*** and ***clear*** verbs)
 
 
 
-| Representation | Short Name | Applicable Verbs | Maximum Scope |
-| -------------- | ---------- | ---------------- | ------------- |
-| display.*      | display    | get, clear       | cloud         |
-| search.*       | search     | get, clear       | cloud         |
-| clarity.*      | clarity    | get, clear       | system        |
+| Representation | Abbreviated Name | Max Scope |
+| -------------- | ---------------- | --------- |
+| display.*      | display          | cloud     |
+| search.*       | search           | cloud     |
+| clarity.*      | clarity          | system    |
 
-**TABLE 7 - Wildcard usage on Controls**
+**TABLE 7 - Wildcard usage on Controls** (wildcard usage only applies to ***get*** and ***clear*** verbs)
 
 
 
