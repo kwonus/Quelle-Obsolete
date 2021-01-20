@@ -7,29 +7,24 @@ using System.Linq;
 
 namespace ClarityHMI
 {
-    public class ClarityConfigurationDefault : IClarityConfig
+    public class ClarityConfigurationDefault : HMISession, IClarityConfig
     {
-        public class ClarityResultInt: IClarityResultInt
+        public string seachConf { get => Path.Combine(appdir, HMISession.SEARCH + ".conf"); }
+        public string displayConf { get => Path.Combine(appdir, HMISession.DISPLAY + ".conf"); }
+        public string clarityConf { get => Path.Combine(appdir, HMISession.CLARITY + ".conf"); }
+
+        private string appdir;
+        public ClarityConfigurationDefault()
+        {
+            this.appdir = HMISession.ClarityHome;
+        }
+        public class ClarityResultInt : IClarityResultInt
         {
             public Int64 result { get; internal set; }
             public bool success { get; internal set; }
             public string[] errors { get; internal set; }
             public string[] warnings { get; internal set; }
 
-            public ClarityResultInt(Int64? result = null, string error = null, string warning = null)
-            {
-                this.result = result != null ? result.Value : Int64.MinValue;
-                this.success = (result != null) && (error == null);
-                this.errors = (error != null) ? new string[] { error.Trim() } : null;
-                this.warnings = (warning != null) ? new string[] { warning.Trim() } : null;
-            }
-            public ClarityResultInt()
-            {
-                this.result = Int64.MinValue;
-                this.success = false;
-                this.errors = null;
-                this.warnings = null;
-            }
             public ClarityResultInt(IClarityResultString sresult)
             {
                 if (sresult != null)
@@ -48,80 +43,159 @@ namespace ClarityHMI
                 }
             }
         }
-        public class ClarityResultArray : IClaritResultStringyArray
+
+        protected (string section, string setting, IClarityResultString error) GetPair(string spec)
         {
-            public string[] results { get; internal set; }
-            public bool success { get; internal set; }
-            public string[] errors { get; internal set; }
-            public string[] warnings { get; internal set; }
+            if (spec == null)
+                return (null, null, new ClarityResultString(error: "Driver design error"));
 
-            public ClarityResultArray(string[] results, string error = null, string warning = null)
+            string[] parts = spec.Split(dot, StringSplitOptions.RemoveEmptyEntries);
+
+            if (parts.Length > 2 || parts.Length < 1)
+                return (null, null, new ClarityResultString(error: "Driver design error"));
+
+            (string section, string setting) key = (parts.Length == 1) ? (null, parts[0].Trim().ToLower()) : (parts[0].Trim().ToLower(), parts[1].Trim().ToLower());
+
+            if (key.section == null)
             {
-                this.results = results;
-                this.success = (results != null) && (error == null);
-                this.errors = (error != null) ? new string[] { error.Trim() } : null;
-                this.warnings = (warning != null) ? new string[] { warning.Trim() } : null;
+                foreach (string configSection in this.Configuration.Keys)
+                    if (this.Configuration.ContainsKey(key.setting))
+                    {
+                        key.section = configSection;
+                        break;
+                    }
             }
-            public ClarityResultArray()
+            if (key.section == null)
             {
-                this.results = null;
-                this.success = false;
-                this.errors = null;
-                this.warnings = null;
-            }
-            public ClarityResultArray(IClarityResultString sresult)
-            {
-                if (sresult != null)
-                {
-                    this.results = sresult.result != null ? sresult.result.Split(delimiter, StringSplitOptions.RemoveEmptyEntries) : null;
-                    this.success = sresult.success;
-                    this.errors = sresult.errors;
-                    this.warnings = sresult.warnings;
-                }
+                if (key.setting == "*")
+                    return (null, null, new ClarityResultString(error: "* here is a syntax error; please specify: " + SEARCH + ", " + DISPLAY + ", or " + CLARITY + "to enumerate all available control settins."));
+                else if (key.setting == SEARCH || key.setting == DISPLAY || key.setting == CLARITY)
+                    return (key.setting, "*", null);  // swap positions
                 else
-                {
-                    this.results = null;
-                    this.success = false;
-                    this.errors = null;
-                    this.warnings = null;
-                }
+                    return (null, null, new ClarityResultString(error: "Driver design error"));
             }
+            return (key.section, key.setting, null);
         }
-        private readonly static string[] delimiter = new string[] { "<|||||||>" };
-
         public IClarityResultString Read(string setting, HMIScope scope)
         {
-            return HMISession.Show(setting, scope);
-        }
-        public IClaritResultStringyArray ReadArray(string setting, HMIScope scope)
-        {
-            IClarityResultString result = HMISession.Show(setting, scope);
-            return new ClarityResultArray(result);
+            (string section, string setting, IClarityResultString error) key = GetPair(setting);
+            if (key.error != null)
+                return key.error;
 
+            switch (scope)
+            {
+                case HMIScope.Session:  
+                case HMIScope.System:   break;
+                case HMIScope.Cloud:    return new ClarityResultString(error: "This driver does not support Cloud Drivers!");
+                default:                return new ClarityResultString(error: "Driver design error", warning: "Unknown setting scope provided by driver");
+            }
+            string result = null;
+            string warning = null;
+
+            var config = this.Configuration[key.section];
+            if (key.setting == "*")
+            {
+                result = "*";
+
+                foreach (string item in this.Configuration.Keys)
+                    if (result == null)
+                        result = item + ":\t" + config[item];
+                    else
+                        result += ("\n" + key + ":\t" + config[item]);
+
+                if (result == null)
+                    warning = "No control variables found";
+            }
+            else if (config.ContainsKey(key.setting))
+            {
+                result = config[key.setting];
+            }
+
+            if (result != null && result.Length < 1)
+                result = null;
+
+            return result != null
+                ? new ClarityResultString(result: result, warning: warning)
+                : new ClarityResultString(warning: warning).AddWarning("Unable to read setting (Maybe it has not been set");
         }
         public IClarityResultInt ReadInt(string setting, HMIScope scope)
         {
-            IClarityResultString result = HMISession.Show(setting, scope);
+            IClarityResultString result = this.Read(setting, scope);
             return new ClarityResultInt(result);
         }
 
         public IClarityResult Remove(string setting, HMIScope scope)
         {
-            return HMISession.Remove(setting, scope);
+            (string section, string setting, IClarityResultString error) key = GetPair(setting);
+            if (key.error != null)
+                return key.error;
+
+            switch (scope)
+            {
+                case HMIScope.Session:
+                case HMIScope.System:   break;
+                case HMIScope.Cloud:    return new ClarityResultString(error: "This driver does not support Cloud Drivers!");
+                default:                return new ClarityResultString(error: "Driver design error", warning: "Unknown setting scope provided by driver");
+            }
+            string result = null;
+            string warning = null;
+
+            var config = this.Configuration[key.section];
+            if (key.setting == "*")
+            {
+                result = "*";
+
+                foreach (string item in this.StandardConfig[key.section].Keys)
+                {
+                    if (config.ContainsKey(item))
+                        config.Remove(item);
+
+                    var info = this.StandardConfig[key.section][item];
+                    if (info.Default != null)
+                        config[item] = info.Default;
+                }
+            }
+            else if (config.ContainsKey(key.setting))
+            {
+                result = config[key.setting];
+            }
+
+            if (result != null && result.Length < 1)
+                result = null;
+
+            return result != null
+                ? new ClarityResultString(result: result, warning: warning)
+                : new ClarityResultString(warning: warning).AddWarning("Unable to read setting (Maybe it has not been set");
         }
 
         public IClarityResult Write(string setting, HMIScope scope, string value)
         {
-            return HMISession.Config(setting, scope, value);
-        }
-        public IClarityResult Write(string setting, HMIScope scope, string[] values)
-        {
-            string value = values != null ? string.Join(delimiter[0], values) : null;
-            return HMISession.Config(setting, scope, value);
+            (string section, string setting, IClarityResultString error) key = GetPair(setting);
+            if (key.error != null)
+                return key.error;
+
+            switch (scope)
+            {
+                case HMIScope.Session:
+                case HMIScope.System: break;
+                case HMIScope.Cloud: return new ClarityResultString(error: "This driver does not support Cloud Drivers!");
+                default: return new ClarityResultString(error: "Driver design error", warning: "Unknown setting scope provided by driver");
+            }
+            var normalizedValue = value.Trim().ToLower();
+            if (string.IsNullOrWhiteSpace(value))
+                new ClarityResult(error: "A value must be specified when defining control variables; use a removal command instead if you want to meove the value");
+
+            var config = this.Configuration[key.section];
+            if (config.ContainsKey(key.setting))
+            {
+                config.Remove(key.setting);
+                config[key.setting] = normalizedValue;
+            }
+            return new ClarityResult(success: true);
         }
         public IClarityResult Write(string setting, HMIScope scope, Int64 value)
         {
-             return HMISession.Config(setting, scope, value.ToString());
+            return Write(setting, scope, value.ToString());
         }
     }
 }

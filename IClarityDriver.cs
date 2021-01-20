@@ -31,22 +31,16 @@ namespace ClarityHMI
     public interface IClarityConfig
     {
         IClarityResultString        Read(string setting, HMIScope scope);                     // Show *
-        IClaritResultStringyArray   ReadArray(string setting, HMIScope scope);                // SHow
         IClarityResultInt           ReadInt(string setting, HMIScope scope);                  // Show
 
         IClarityResult              Remove(string setting, HMIScope scope);                  // Remove *
 
         IClarityResult              Write(string setting, HMIScope scope, string value);     // Config *
-        IClarityResult              Write(string setting, HMIScope scope, string[] value);   // Config
         IClarityResult              Write(string setting, HMIScope scope, Int64 value);      // Config
     }
     public interface IClarityDriver : IClarityConfig
     {
         IClarityResultObject    Search(HMIStatement statement);
-        IClarityResultString    Summarize(HMIStatement statement);
-        IClarityResultString    Summarize(object searchResult);                             
-        IClarityResultObject    Import(HMIStatement statement);
-        IClarityResultObject    Export(HMIStatement statement);
-
+        IClarityResultObject    Display(HMIStatement statement, string specification);                        
     }
 }

@@ -18,34 +18,38 @@ Clarity Syntax comprises a standard set of seven (7) verbs. Each verb correspond
 - expand
 - remove
 
-The verbs listed above are for the English flavor of Clarity. As Clarity is an open and extensible standard, verbs for other languages can be defined without altering the overall syntax structure of the HMI. The remainder of this document describes Version 1.5 of the Clarity-HMI specification.
+The verbs listed above are for the English flavor of Clarity. As Clarity is an open and extensible standard, verbs for other languages can be defined without altering the overall syntax structure of the HMI. The remainder of this document describes Version 3.0 of the Clarity-HMI specification.  It should be noted that Clarity 1.0 involved the rebranding of "Simple Imperative v2.0", and thus the skipping of Version 2.0.
 
-In Clarity terminology, each verb is considered to be a directive. While there are seven distinct verbs, there are only five types of directives:
+In Clarity terminology, each verb is considered to be a directive. While there are seven distinct verbs, there are only four types of directives:
 
 1. SEARCH Directives
    - find
+   
 2. DISPLAY Directives
    - print
-3. CONTROL Directives
+   
+3. CONTROL Directives [setting and clearing]
    - set
    - #set
    - @set
-4. STATUS Directives
-   - get
-   - #get
-   - @get
-   - expand      [corresponds only to the expansion of labelled statements (aka macros)]
-   - #expand   [corresponds only to the expansion of labelled statements (aka macros)]
-   - @expand  [corresponds only to the expansion of labelled statements (aka macros)]
-5. REMOVAL Directives
+   
    - clear      [corresponds only to clearing values established via CONTROL directives]
    - #clear   [corresponds only to clearing values established via CONTROL directives]
    - @clear  [corresponds only to clearing values established via CONTROL directives]
    - remove    [corresponds only to the removal of labelled statements (aka macros)]
    - #remove   [corresponds only to the removal of labelled statements (aka macros)]
    - @remove  [corresponds only to the removal of labelled statements (aka macros)]
+   
+4. STATUS Directives [getting]
 
-Most directives operate at the session level, but CONTROL, STATUS, and REMOVAL directives can be qualified to operate globally for the user across the current and all future sessions.
+   - get
+   - #get
+   - @get
+   - expand      [corresponds only to the expansion of labelled statements (aka macros)]
+   - #expand   [corresponds only to the expansion of labelled statements (aka macros)]
+   - @expand  [corresponds only to the expansion of labelled statements (aka macros)]
+
+Most directives operate at the session level, but CONTROL and STATUS directives can be qualified to operate globally for the user across the current and all future sessions.
 
 The syntax of a Clarity statement always begins with a verb. From a linguistic standpoint, all Clarity statements begin with the verb and are they are issued in the imperative. After the verb, a Clarity statement can be broken into one or more segments. The syntax for each segment is dependent upon the type of directive for the segment. And the type of directive is controlled by the verb. We will refer to the directive of which a verb is a member as the verb-class. For example, find is a member of the SEARCH verb-class. All verbs of a verb-class share the same syntax rules.
 
@@ -91,7 +95,7 @@ It’s that simple, now instead of typing the entire statement, we can use the l
 
 {genesis}
 
-By default, labeled commands are scoped to the session. When evaluating a command label, the session is examined first, and if not defined within the session, the global label is expanded. However, when defining the label, complete control over user-scope versus session scope is available. As with all clarity directives, session-scope is the default. Prefixing a label with the at-symbol ( @ ) or hash-tag ( # ) defines the label globally. Of course, without these, the label is defined only within the current session.  The global nature of CONTROL [aka saving] is different between # and @. While the pound prefix will save data onto your local hard-drive for a PC or Mac, the @ prefix saves your data in the cloud (This may require becoming a registered user for a Clarity hosting service; and is not fully implemented at the time of this publication; However, the design of clarity syntax supports this feature. Digital-AV is expected to be the first available Clarity-Cloud host but that project is still in active development for its Clarity v1.5 support)
+By default, labeled commands are scoped to the session. When evaluating a command label, the session is examined first, and if not defined within the session, the global label is expanded. However, when defining the label, complete control over user-scope versus session scope is available. As with all clarity directives, session-scope is the default. Prefixing a label with the at-symbol ( @ ) or hash-tag ( # ) defines the label globally. Of course, without these, the label is defined only within the current session.  The global nature of CONTROL [aka saving] is different between # and @. While the pound prefix will save data onto your local hard-drive for a PC or Mac, the @ prefix saves your data in the cloud (This may require becoming a registered user for a Clarity hosting service; and is not fully implemented at the time of this publication; However, the design of clarity syntax supports this feature. Digital-AV is expected to be the first available Clarity-Cloud host but that project is still in active development for its Clarity v3.0 support)
 
 Whenever an expression begins with open-brace ( { ) and ends with close-brace ( } ), then it invokes a previously-labeled statement. As we saw earlier, if a command contains :=, then the label before the statement becomes registered as shorthand for the statement.
 
@@ -157,27 +161,26 @@ Example of normalization for the sample2 label:
 
 FIND godhead + eternal + search=strict + span=8
 
-Interestingly, when CONTROL macros are combined with another verb, the key-value pairs apply ONLY to the execution of the other verb [SEARCH or DISPLAY], not to the entire session.
-
 This concludes our discussion of labeled statements. Now let’s go deeper into extended statements. Just keep in mind that regardless of the complexity of an extended command, it can be labeled for shorthand execution.
 
-However, if an execution ONLY contains CONTROL verbs, then the key-value pairs affect the session (or saved for future sessions if #set or @set is used). SESSION scope is always implied when paired with a SEARCH or OUPUT directive. The primary verb of the command always defines the scope. For example, configuration variables are always execution scope when combined with a SEARCH directive. See the table below for compatibility of directives and the implicit scope of the command.
+However, if an execution ONLY contains CONTROL verbs, then the key-value pairs affect the session (or saved for future sessions if #set or @set is used). SESSION scope is always implied when paired with a SEARCH or OUPUT directive. The primary verb of the command always defines the scope. For example, CONTROL variables are always session scope when combined with a SEARCH or DISPLAY directives. See the table below for compatibility of directives and the implicit scope of the command.
 
-| **Primary Directive** | **Secondary Directive(s)** | **Scope**                           |
-| --------------------- | -------------------------- | ----------------------------------- |
-| SEARCH                | SEARCH(ES), CONTROL(S)     | SEARCH: Session; CONTROL: Execution |
-| DISPLAY               | DISPLAY(S), CONTROL(S)     | Execution                           |
-| CONTROL               | CONTROL(S)                 | Session                             |
-| REMOVAL               | REMOVAL[[1\]](#_ftn1)(ES)  | Session                             |
-| STATUS                | STATUS[[2\]](#_ftn2)(ES)   | Session, System, or Cloud           |
-| #CONTROL              | #CONTROL(S)                | System                              |
-| #REMOVAL              | REMOVAL[[1\]](#_ftn1)(ES)  | System                              |
-| #STATUS               | #STATUS[[2\]](#_ftn2)(ES)  | System, or Cloud                    |
-| @CONTROL              | CONTROL(S)                 | Cloud                               |
-| @REMOVAL              | REMOVAL[[1\]](#_ftn1)(ES)  | Cloud                               |
-| @STATUS               | @STATUS[[2\]](#_ftn2)(ES)  | Cloud                               |
+| **Primary Directive** | **Secondary Directive(s)**      | **Scope**                 |
+| --------------------- | ------------------------------- | ------------------------- |
+| SEARCH                | SEARCH(ES), CONTROL(S), DISPLAY | Session                   |
+| DISPLAY               | CONTROL(S)                      | Session                   |
+| CONTROL               | CONTROL(S)                      | Session                   |
+| STATUS                | STATUS(ES)                      | Session, System, or Cloud |
+| #CONTROL              | #CONTROL(S)                     | System                    |
+| #STATUS               | #STATUS(ES)                     | System, or Cloud          |
+| @CONTROL              | @CONTROL(S)                     | Cloud                     |
+| @STATUS               | @STATUS(ES)                     | Cloud                     |
 
-When part of a command contains a SEARCH directive, then SEARCH becomes the primary directive. Likewise, when a command contains a DISPLAY directive, then DISPLAY becomes the primary directive. No other directive types can be combined with other directive types.  And only CONTROL directives are compatible with SEARCH or DISPLAY directives. When CONTROL symbols (# or @) are included and combined with a SEARCH or DISPLAY command, this causes downgrading of CONTROL to execution-scope, and have no effect on the session (e.g. When CONTROL segments are combined with a SEARCH segments, they only impact the execution of the search, not the session)
+**TABLE 1** - **Primary** directives, **Secondary** directives and **Scope**
+
+There are only two <u>operative</u> directives: SEARCH and DISPLAY. When both are invoked, then SEARCH becomes the primary directive. Of all directives, only STATUS cannot be combined with CONTROL directives.  When both CONTROL
+
+When CONTROL symbols (# or @) are included and combined with a SEARCH or DISPLAY command, this causes downgrading of CONTROL to session-scope.
 
 When multiple CONTROL directives compose a single statement, then the lowest scope of any segment ALWAYS applies to all segments of the statement.
 
@@ -283,13 +286,9 @@ The example above also reveals how multiple search segments can be strung togeth
 
 Similar to CONTROL scoping, when multiple STATUS directives compose a single statement, then the lowest Scope of any segment ALWAYS applies to all segments of the statement.
 
-Likewise, when multiple REMOVAL directives compose a single statement, then the lowest Scope of any segment ALWAYS applies to all segments of the statement.
-
 **Definitions:**
 
 While some of these concepts have already been introduced, the following section can be used as a glossary for the terminology used in the Clarity HMI specification.
-
- 
 
 **Directives** are composed by verbs and are used to construct statements for the Clarity Command Interpreter. Each directive has specialized syntax tailored to the imperative verb used in the statement. The directive limits the type of segments that may follow. Most directives permit only a single segment type. DISPLAY and SEARCH directives also allow SCOPE segments. There are five types of directives. These correspond exactly to five verb classes. While there are nine verbs, there are only five verb-classes. The verb-classes correspond exactly to one of the five directive types.
 
@@ -421,9 +420,7 @@ print format = docx + "C:\user\me\Documents\Leviticus.docx" + selection=leviticu
 
  
 
-**CONTROL directives:**
-
-The **set** format command can be used to set the default print formats:
+**CONTROL::SETTING directives:**
 
 | **SCOPE**     | **docx**                      | **html**                      | **text**                      |
 | ------------- | ----------------------------- | ----------------------------- | ----------------------------- |
@@ -431,18 +428,22 @@ The **set** format command can be used to set the default print formats:
 | System scope  | *#set  display.format = docx* | *#set  display.format = html* | *#set  display.format = text* |
 | Cloud scope   | *@set display.format = docx*  | *@set display.format = html*  | *@set display.format = text*  |
 
-The **get**/**set** and directives can be used to store & retrieve numerous other settings:
+**TABLE 2** - **set** format command can be used to set the default print formats
 
-| **SCOPE**                        | **example**                            |
+
+
+| SCOPE                            | example                                |
 | -------------------------------- | -------------------------------------- |
-| Session scope                    | *set span = 7*                         |
-| Cloud or System or Session scope | *get span*                             |
-| *System scope*                   | *#set cloud.host= http://avbible.net/* |
-| Cloud or System scope            | *#get cloud.host                       |
+| Session scope                    | set span = 7                           |
+| Cloud or System or Session scope | get span                               |
+| System scope                     | #set clarity.host= http://avbible.net/ |
+| Cloud or System scope            | *#get clarity.host                     |
 | Cloud scope                      | *@set display.format = docx*           |
 | Cloud scope                      | *@get display.format*                  |
 
-The **get**/**set** and **#get/#set** command can be used to retrieve Clarity configuration settings:
+**TABLE 3** - **get**/**set** and directives can be used to store & retrieve numerous other settings
+
+
 
 | **SCOPE**     | **example**                            |
 | ------------- | -------------------------------------- |
@@ -451,7 +452,9 @@ The **get**/**set** and **#get/#set** command can be used to retrieve Clarity co
 | System scope  | *#set cloud.host= https://avbible.net/ |
 | System scope  | *#get cloud*.host                      |
 
-Macro definitions can utilize any of the three scopes:
+**TABLE 4** - **get**/**set** and **#get/#set** command can be used to retrieve Clarity configuration settings
+
+
 
 | **SCOPE**     | **example**                 | **explanation**                                      |
 | ------------- | --------------------------- | ---------------------------------------------------- |
@@ -461,6 +464,10 @@ Macro definitions can utilize any of the three scopes:
 | Session Scope | *remove {my macro}*         | *removes session-defined macro*                      |
 | System scope  | *#remove {my macro}*        | *removes macro stored on local file system  or PC*   |
 | Cloud scope   | *@remove {my macro}*        | *removes macro stored in cloud*                      |
+
+**TABLE 5 - Macro definitions can utilize any of the three scopes**
+
+
 
 **STATUS directives:**
 
@@ -474,7 +481,7 @@ The other displays the current global setting:
 
  
 
-**REMOVAL directives:**
+**CONTROL::REMOVAL directives:**
 
 Global control settings for SEARCH directives can be restored within the session:
 
@@ -486,7 +493,37 @@ Defaults for SEARCH directives can be globally restored (for this and any future
 
 **@clear display.format**
 
- 
+When *clear* verbs are used alongside *set* verbs, clear verbs are always executed after *set* verbs. 
+
+@clear span + set span = 7 `>> implies >>` @clear span
+
+When multiple segments contain the same setting, the last setting in the list is preserved.  Example:
+
+ set format = docx + set format = text `>> implies >>` set format = text
+
+| Control Name    | Short Name | Meaning     | Values    | Applicable Verbs | Maximum Scope |
+| --------------- | ---------- | ----------- | --------- | ---------------- | ------------- |
+| search.span     | span       | proximity   | 0 to 1000 | set, get, clear  | cloud         |
+| search.span     | span       | proximity   | 0 to 1000 | set, get, clear  | cloud         |
+| display.heading | heading    | annotation  | string    | set, get, clear  | cloud         |
+| display.record  | record     | annotation  | string    | set, get, clear  | cloud         |
+| display.format  | format     | string      | Table 2   | set, get, clear  | cloud         |
+| clarity.debug   | debug      | on or off   | 0 or 1    | set, get, clear  | system        |
+| clarity.host    | host       | url of host | string    | set, get, clear  | system        |
+
+**TABLE 6 - List of Controls**
+
+
+
+| Representation | Short Name | Applicable Verbs | Maximum Scope |
+| -------------- | ---------- | ---------------- | ------------- |
+| display.*      | display    | get, clear       | cloud         |
+| search.*       | search     | get, clear       | cloud         |
+| clarity.*      | clarity    | get, clear       | system        |
+
+**TABLE 7 - Wildcard usage on Controls**
+
+
 
 **ADDITIONAL NOTES:** 
 
@@ -582,6 +619,70 @@ Macro definition is a command that does not automatically execute the macro once
 {my macro} :: @set span = 7
 
 
+
+**PRINTING**
+
+The DISPLAY directive has only a single verb, called *print*.
+
+To print all matching synopses of the most recently executed search:
+
+*print* *
+
+or
+
+*print* [*]
+
+To print only the first entry:
+
+*print* [1]
+
+To print only the first three entries:
+
+*print* [1,2,3]
+
+or:
+
+*print* [1] [2] [3]
+
+or:
+
+*print* [1:3]
+
+To print the first three entries with a single display-coordinate:
+
+*print* genesis:1:1
+
+NOTE: Display-coordinates are driver-specific and not part of standard Clarity driver definition; The display-coordinate in the example above is compatible with the Clarity-AVX implementation
+
+We can also decorate/annotate each record that we find. Using Clarity-AVX extensions, adding an annotation to each search result can be accomplished by adding this to the print statement:
+
+*print* [1,2,3] + display.record = %book% %chapter%\\:%verse% \\(KJV\\\)\\:\\n%text%
+
+A more vanilla decoration might be:
+
+*print* [1,2,3] + display.record= \<a href=\\"%url%\\"\>%abstract%\</a\>
+
+Keep in mind, however, the above two examples above are purely notional, your Clarity driver must such record annotations for them to render as expected. Consult the documentation for your Clarity cloud-capable driver to determine what record annotations are available in your driver.
+
+So to break open the fragment from the *print* example above:
+
+In a separate example, we can label all results using the heading command:
+
+*print* display.heading = Verses containing 'Godhead' + %heading% %label% *
+
+The syntax above, while biased towards ClarityAVX search results is standard Clarity-HMI syntax and supported in the standard Clarity driver implementation.
+
+Final notes about *print*:
+
+%heading% and %record% are always implied if not cleared)
+
+**PROGRAM HELP**
+
+There is one final variant of the print statement:
+
+*print* help
+
+This will provide a help message in a Clarity interpreter.
 
 ------
 

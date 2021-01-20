@@ -104,7 +104,7 @@ namespace ClarityHMI
 
             var search      = NormalizeSearchSegments(errors);
             var file        = NormalizeFileSegments(errors);
-            var persistence = NormalizePersistenceSegments(errors, (search.scope == HMIScope.Statement) || (file.scope == HMIScope.Statement) ? HMIScope.Statement : HMIScope.Cloud);   // FILE or SEARCH segments coerce PERSISTENCE segments to Statement scope
+            var persistence = NormalizePersistenceSegments(errors, (search.scope == HMIScope.Session) || (file.scope == HMIScope.Session) ? HMIScope.Session : HMIScope.Cloud);   // FILE or SEARCH segments coerce PERSISTENCE segments to Statement scope
             var status      = NormalizeStatusSegments(errors);
             var removal     = NormalizeRemovalSegments(errors);
 
@@ -172,7 +172,7 @@ namespace ClarityHMI
                 }
             }
             var normalizedVerb = verbs.Count >= 1 ? verbs[0] : null;
-            var scoped = normalizedVerb != null ? HMIScope.Statement : HMIScope.Undefined;
+            var scoped = normalizedVerb != null ? HMIScope.Session : HMIScope.Undefined;
             if (verbs.Count >= 2)
             {
                 normalizedVerb = null;  // // if it cannot be normalized/upgraded to a find verb, then the list of verbs cannot be normalized
@@ -211,7 +211,7 @@ namespace ClarityHMI
                 }
             }
             var normalizedVerb = verbs.Count == 1 ? verbs[0] : null;
-            var scoped = verbs.Count == 1 ? HMIScope.Statement : HMIScope.Undefined;
+            var scoped = verbs.Count == 1 ? HMIScope.Session : HMIScope.Undefined;
             if (verbs.Count > 1)
                 errors.Add(GetStandardMultiverbErrorMessage(verbs));
 
@@ -338,7 +338,7 @@ namespace ClarityHMI
 
         protected static void AddConformingVerb(List<string> verbs, string verb, ref HMIScope scope)
         {
-            if (scope != HMIScope.Statement)
+            if (scope != HMIScope.Session)
             {
                 var segmentScope = GetScope(verb[0]);
                 if ((int)segmentScope < (int)scope)
