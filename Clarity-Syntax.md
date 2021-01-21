@@ -41,16 +41,16 @@ In Clarity terminology, each verb is considered to be a directive. While there a
 
 Each of the seven verbs has a minimum and maximum number of parameters. Some of the verbs have required and/or optional punctuation.  See the Table 1 below:
 
-| Verb   | Silent     | Verb Class | Required     | Optional punctuation  | Argument Count |
-| ------ | ---------- | ---------- | ------------ | --------------------- | -------------- |
-| find   | optionally | SEARCH     |              | ( ) [ ] / \ # & space | 1 or more      |
-| print  | **never**  | DISPLAY    |              | [ ] * . : ; / \ space | 0 or more      |
-| set    | optionally | CONTROL    | =            | # . % % space         | 2              |
-| get    | **never**  | CONTROL    |              | # . *                 | 1              |
-| clear  | **never**  | CONTROL    |              | # . *                 | 1              |
-| define | **always** | MACRO      | { } := or :: | # - _ space           | 2              |
-| expand | **never**  | MACRO      | { }          | # - _ space           | 1              |
-| remove | **never**  | MACRO      | { }          | # - _ space           | 1              |
+| Verb   | Silent     | Verb Class | Required     | Special characters | Argument Count |
+| ------ | ---------- | ---------- | ------------ | ------------------ | -------------- |
+| find   | optionally | SEARCH     |              | [ ] ( ) # & / \    | 1 or more      |
+| print  | **never**  | DISPLAY    |              | [ ] * \            | 0 or more      |
+| set    | optionally | CONTROL    | =            | # . % % \          | 2              |
+| get    | **never**  | CONTROL    |              | # . *              | 1              |
+| clear  | **never**  | CONTROL    |              | # . *              | 1              |
+| define | **always** | MACRO      | { } := or :: | #                  | 2              |
+| expand | **never**  | MACRO      | { }          | #                  | 1              |
+| remove | **never**  | MACRO      | { }          | #                  | 1              |
 
 **TABLE 3-1 -- Detailed verb descriptions with syntax implications**
 
@@ -509,15 +509,16 @@ When multiple segments contain the same setting, the last setting in the list is
 
  set format = docx + set format = text `>> implies >>` set format = text
 
-| Control Name    | Short Name | Meaning                   | Values    | Visibility | Max Scope |
-| --------------- | ---------- | ------------------------- | --------- | ---------- | --------- |
-| search.span     | span       | proximity                 | 0 to 1000 | normal     | cloud     |
-| display.heading | heading    | heading of results        | string    | normal     | cloud     |
-| display.record  | record     | annotation of results     | string    | normal     | cloud     |
-| display.format  | format     | display format of results | Table 8-1 | normal     | cloud     |
-| clarity.host    | host       | URL of driver             | string    | normal     | system    |
-| clarity.debug   | debug      | on or off                 | 0 or 1    | *hidden*   | system    |
-| clarity.data    | span       | clarity data format       | binary    | *hidden*   | system    |
+| Control Name    | Short Name | Meaning                   | Values    | Visibility |
+| --------------- | ---------- | ------------------------- | --------- | ---------- |
+| search.span     | span       | proximity                 | 0 to 1000 | normal     |
+| search.domain   | domain     | the domain of the search  | string    | normal     |
+| display.heading | heading    | heading of results        | string    | normal     |
+| display.record  | record     | annotation of results     | string    | normal     |
+| display.format  | format     | display format of results | Table 8-1 | normal     |
+| clarity.host    | host       | URL of driver             | string    | normal     |
+| clarity.debug   | debug      | on or off                 | 0 or 1    | *hidden*   |
+| clarity.data    | span       | clarity data format       | binary    | *hidden*   |
 
 **TABLE 8-5 -- List of Controls** (The control parameters are applicable to ***set***, ***get*** and ***clear*** verbs)
 
@@ -643,8 +644,7 @@ The order for operator precedence is defined in AV Word as follows:
 
 **|**
 
-**
-**
+**\***
 
  
 
