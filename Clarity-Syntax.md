@@ -1,12 +1,18 @@
-# Clarity Syntax
+# Clarity Specification
+
+### I. Background
 
 Most modern search engines, provide a mechanism for searching via a text input box where the user is expected to type search terms. While primitive, this interface was pioneered by major web-search providers and represented an evolution from the far more complex interfaces that came earlier. When you search for multiple terms, however, there seems to be only one basic paradigm: “find every term”. At AV Text Ministries, we believe that the vast world of search is rife for a search-syntax that moves us past only basic search expressions. To this end, we are proposing a Human-Machine-Interface (HMI) that can be invoked within a simple text input box. The syntax fully supports basic Boolean operations such as AND, OR, and NOT. While great care has been taken to support the construction of complex queries, greater care has been taken to maintain a clear and concise syntax. As Clarity was our primary concern, it became the name of our specification. In the spirit of open source licensing, any application can implement the Clarity-HMI specification without royalty. We provide this text-based HMI specification and a corresponding reference implementation of a command interpreter. Both the specification and the reference implementation are shared with the broader community with a liberal MIT open source license.
 
+### II. Overview
+
 The Clarity-HMI maintains the assumption that proximity of terms to one another is an important aspect of searching unstructured data. Ascribing importance to the proximity between search terms is sometimes referred to as a *proximal* *search* technique. Proximal searches intentionally constrain the number of words that can be used to constitute a match. The Clarity HMI specification defines that range between search terms as the *span*.
+
+### III. Clarity Syntax
 
 The Clarity specification defines a declarative syntax for specifying search criteria using the *find* verb. Clarity also defines additional verbs to round out its syntax as a simple straightforward means to interact with custom applications where searching text is the fundamental problem at hand. As mentioned earlier, AV Text Ministries provides a reference implementation. This implementation is written in C# and runs on most operating systems (e.g. Windows, Mac, Linux, iOS, Android, etc).  As source code is provided, it can be seamlessly extended by application programmers.
 
-***Clarity syntax:\***
+**Clarity syntax:**
 
 Clarity Syntax comprises a standard set of seven (7) verbs. Each verb corresponds to a basic operation:
 
@@ -20,38 +26,41 @@ Clarity Syntax comprises a standard set of seven (7) verbs. Each verb correspond
 
 The verbs listed above are for the English flavor of Clarity. As Clarity is an open and extensible standard, verbs for other languages can be defined without altering the overall syntax structure of the HMI. The remainder of this document describes Version 3.0 of the Clarity-HMI specification.  It should be noted that Clarity 1.0 involved the rebranding of "Simple Imperative v2.0", and thus the skipping of Version 2.0.
 
-In Clarity terminology, each verb is considered to be a directive. While there are seven distinct verbs, there are only four types of directives:
+In Clarity terminology, each verb is considered to be a directive. While there are seven verbs, there are five distinct types of directives:
 
 1. SEARCH Directives
    - find
-   
 2. DISPLAY Directives
    - print
-   
-3. CONTROL Directives [setting and clearing]
-   - set
-   - #set
-   - @set
-   
-   - clear      [corresponds only to clearing values established via CONTROL directives]
-   - #clear   [corresponds only to clearing values established via CONTROL directives]
-   - @clear  [corresponds only to clearing values established via CONTROL directives]
-   - remove    [corresponds only to the removal of labelled statements (aka macros)]
-   - #remove   [corresponds only to the removal of labelled statements (aka macros)]
-   - @remove  [corresponds only to the removal of labelled statements (aka macros)]
-   
-4. STATUS Directives [getting]
-
+3. CONTROL Directives
    - get
-   - #get
-   - @get
-   - expand      [corresponds only to the expansion of labelled statements (aka macros)]
-   - #expand   [corresponds only to the expansion of labelled statements (aka macros)]
-   - @expand  [corresponds only to the expansion of labelled statements (aka macros)]
+   - set
+   - clear
+4. MACRO Directives
+   - define
+   - expand
+   - remove
 
-Most directives operate at the session level, but CONTROL and STATUS directives can be qualified to operate globally for the user across the current and all future sessions.
+Each of the seven verbs has a minimum and maximum number of parameters. Some of the verbs have required and/or optional punctuation.  See the Table 1 below:
 
-The syntax of a Clarity statement always begins with a verb. From a linguistic standpoint, all Clarity statements begin with the verb and are they are issued in the imperative. After the verb, a Clarity statement can be broken into one or more segments. The syntax for each segment is dependent upon the type of directive for the segment. And the type of directive is controlled by the verb. We will refer to the directive of which a verb is a member as the verb-class. For example, find is a member of the SEARCH verb-class. All verbs of a verb-class share the same syntax rules.
+| Verb   | Silent     | Verb Class | Required     | Optional punctuation | Argument Count |
+| ------ | ---------- | ---------- | ------------ | -------------------- | -------------- |
+| find   | optionally | SEARCH     |              | ( ) [ ] / \ # &      | 1 or more      |
+| print  | **never**  | DISPLAY    |              | [ ] *                | 0 or more      |
+| set    | optionally | CONTROL    | =            | # . % %              | 2              |
+| get    | **never**  | CONTROL    |              | # . *                | 1              |
+| clear  | **never**  | CONTROL    |              | # . *                | 1              |
+| define | **always** | MACRO      | { } := or :: | # - _                | 2              |
+| expand | **never**  | MACRO      | { }          | # - _ space          | 1              |
+| remove | **never**  | MACRO      | { }          | # - _ space          | 1              |
+
+**TABLE 3-1 -- Detailed verb descriptions with syntax implications**
+
+The final entry in Table1 above shows that the MACRO directive has an always silent verb. This is used for macro expansion of defined statement labels. It will be described explicitly later in this document, but functionally, it implies the *expand* verb.
+
+Most directives operate at the session level, but CONTROL and MACRO directives can be qualified to persist across the current <u>and</u> future sessions.
+
+The syntax of a Clarity statement always begins with a verb. From a linguistic standpoint, all Clarity statements begin with the verb and are they are issued in the imperative. After the verb, a Clarity statement can be broken into one or more segments. The syntax for each segment is dependent upon the type of directive for the segment. And the type of directive is controlled by the verb. We will refer to the directive of which a verb is a member as the verb-class. For example, find is a member of the SEARCH verb-class. All verbs of a verb-class share the same syntax rules.  A matter of distinction, when defining a macro, this is not technically a Clarity statement, but a Clarity command.  The second argument of a Clarity command is a Clarity statement.  This make MACOR directives special when it comes to Clarity syntax.  In fact, the Clarity MACRO verb *expand* is the only verb that MUST be silent when used within a statement. No other verb can be invoked within another segment type.  See "Statement Labels " for additional information on macros.
 
 Clarity supports two types of statements:
 
@@ -77,13 +86,15 @@ Segments in compound statements are delimited by plus-signs. For all compound st
 
 Before we go deep into the syntax of compound statements, we should define one more abstraction defined in the Clarity HMI specification. So far, we have considered only ordinary statements. Ordinary statements always begin with a verb and contain at least one segment.
 
-In this section, we will introduce the abstraction of labelled-commands: We can apply a label to a statement to provide a shorthand for subsequent execution. This gives rise to two new definitions:
+### IV. Statement Labels
 
-1. Labeled-Statement definitions
+In this section, we will introduce the abstraction of labelled-statements: We can apply a label to a statement to provide a shorthand for subsequent execution. This gives rise to two new definitions:
+
+1. Labeled-Statement definitions (Command Syntax)
 
    Commands that allow us to save a statement with a label.
 
-2. Labeled-Statement executions
+2. Labeled-Statement executions (Statement Syntax)
 
    The ability to execute a previously labeled statement
 
@@ -95,7 +106,7 @@ It’s that simple, now instead of typing the entire statement, we can use the l
 
 {genesis}
 
-By default, labeled commands are scoped to the session. When evaluating a command label, the session is examined first, and if not defined within the session, the global label is expanded. However, when defining the label, complete control over user-scope versus session scope is available. As with all clarity directives, session-scope is the default. Prefixing a label with the at-symbol ( @ ) or hash-tag ( # ) defines the label globally. Of course, without these, the label is defined only within the current session.  The global nature of CONTROL [aka saving] is different between # and @. While the pound prefix will save data onto your local hard-drive for a PC or Mac, the @ prefix saves your data in the cloud (This may require becoming a registered user for a Clarity hosting service; and is not fully implemented at the time of this publication; However, the design of clarity syntax supports this feature. Digital-AV is expected to be the first available Clarity-Cloud host but that project is still in active development for its Clarity v3.0 support)
+By default, labeled commands are scoped to the session. When evaluating a command label, the session is examined first, and if not defined within the session, the global label is expanded. However, when defining the label, complete control over user-scope versus session scope is available. As with all clarity directives, session-scope is the default. Prefixing a label with a hash-tag ( # ) defines the label globally. Of course, without these, the label is defined only within the current session.  The has-tag prefix will save data onto your local hard-drive for a PC or Mac.
 
 Whenever an expression begins with open-brace ( { ) and ends with close-brace ( } ), then it invokes a previously-labeled statement. As we saw earlier, if a command contains :=, then the label before the statement becomes registered as shorthand for the statement.
 
@@ -163,30 +174,30 @@ FIND godhead + eternal + search=strict + span=8
 
 This concludes our discussion of labeled statements. Now let’s go deeper into extended statements. Just keep in mind that regardless of the complexity of an extended command, it can be labeled for shorthand execution.
 
-However, if an execution ONLY contains CONTROL verbs, then the key-value pairs affect the session (or saved for future sessions if #set or @set is used). SESSION scope is always implied when paired with a SEARCH or OUPUT directive. The primary verb of the command always defines the scope. For example, CONTROL variables are always session scope when combined with a SEARCH or DISPLAY directives. See the table below for compatibility of directives and the implicit scope of the command.
+### V. More about Segmentation of Clarity Statements
 
-| **Primary Directive** | **Secondary Directive(s)**      | **Scope**                 |
-| --------------------- | ------------------------------- | ------------------------- |
-| SEARCH                | SEARCH(ES), CONTROL(S), DISPLAY | Session                   |
-| DISPLAY               | CONTROL(S)                      | Session                   |
-| CONTROL               | CONTROL(S)                      | Session                   |
-| STATUS                | STATUS(ES)                      | Session, System, or Cloud |
-| #CONTROL              | #CONTROL(S)                     | System                    |
-| #STATUS               | #STATUS(ES)                     | System, or Cloud          |
-| @CONTROL              | @CONTROL(S)                     | Cloud                     |
-| @STATUS               | @STATUS(ES)                     | Cloud                     |
+However, if an execution ONLY contains CONTROL verbs, then the key-value pairs affect the session (or saved for future sessions if #set used). SESSION scope is always implied when paired with a SEARCH or OUPUT directive. The primary verb of the command always defines the scope. For example, CONTROL variables are always session scope when combined with a SEARCH or DISPLAY directives. See the table below for compatibility of directives and the implicit scope of the command.
 
-**TABLE 1** - **Primary** directives, **Secondary** directives and **Scope**
+| **Primary Directive** | **Secondary Directives**        | *Syntax:* Example                              |
+| --------------------- | ------------------------------- | ---------------------------------------------- |
+| SEARCH                | SEARCH(ES), CONTROL(S), DISPLAY | ***Statement:*** find godhead + print          |
+| DISPLAY               | CONTROL(S)                      | ***Statement:*** print [*]                     |
+| CONTROL               | CONTROL(S)                      | ***Statement:*** *set* search.span = 7         |
+| MACRO                 | *none*                          | ***Command:*** {label} := find godhead + print |
 
-There are only two <u>operative</u> directives: SEARCH and DISPLAY. When both are invoked, then SEARCH becomes the primary directive. Of all directives, only STATUS cannot be combined with CONTROL directives.  When both CONTROL
+**TABLE 5-1** -- **Primary** and **Secondary** Directives
 
-When CONTROL symbols (# or @) are included and combined with a SEARCH or DISPLAY command, this causes downgrading of CONTROL to session-scope.
+When both SEARCH and DISPLAY segments are in the same statement, SEARCH becomes the primary directive. In fact, SEARCH is the primary directive when combined with any other directive.  Of all directives, only STATUS cannot be combined with other directives.
+
+MACRO definition cannot be combined with other directivev.
+
+When CONTROL symbols (#) are included and combined with a SEARCH or DISPLAY command, this causes downgrading of CONTROL to session-scope.
 
 When multiple CONTROL directives compose a single statement, then the lowest scope of any segment ALWAYS applies to all segments of the statement.
 
 Example:
 
-@set x = 1 + #set y = 2 + set z = 3
+#set x = 1 + #set y = 2 + set z = 3
 
 is synonymous after downgrading with:
 
@@ -199,6 +210,10 @@ x = 1 + y = 2 + z = 3
 because *set* is the default verb for CONTROL and CONTROL segments are auto-detected by the presence of an equals sign.  Only the *set* and *find* verbs can be auto-detected.  Therefore these two segments would both be be autodetected as *find*:
 
 beginning God + word flesh
+
+
+
+### VI. Clarity SEARCH Segments
 
 Without an explicit verb and without an equals sign, segment type always default to find. So the previous statement is expanded by Clarity to:
 
@@ -286,7 +301,7 @@ The example above also reveals how multiple search segments can be strung togeth
 
 Similar to CONTROL scoping, when multiple STATUS directives compose a single statement, then the lowest Scope of any segment ALWAYS applies to all segments of the statement.
 
-**Definitions:**
+### VII. Clarity SEARCH Definitions
 
 While some of these concepts have already been introduced, the following section can be used as a glossary for the terminology used in the Clarity HMI specification.
 
@@ -342,7 +357,7 @@ It should be noted that in some dialects of Clarity (e.g. Clarity AVX), hyphens 
 
 Consider a query for all passages that contain God AND created, but NOT containing earth AND NOT containing heaven:
 
-***Find source=old testament of bible + span = 15:\*** *created GOD ~ Heaven Earth*
+**find source=old testament of bible + span = 15:** *created GOD ~ Heaven Earth*
 
 *(this could be read as: find in the old testament using a span of 15, the words*
 
@@ -406,17 +421,17 @@ With this ellipsis and the final two bracketed terms, it would also match this s
 
 in a beginning, God created heaven and earth
 
- 
+### VIII. More about Segmentation of Clarity Statements
 
 The "*print*" verb has very limited grammar. For simplicity, consider the basic variants:
 
-print output="C:\user\me\Documents\genesis.txt" + format = text + selection=genesis 
+print output="C:\user\me\Documents\genesis.txt" + format = text + domain=bible.genesis 
 
-print format = text + output="C:\user\me\Documents\genesis.txt" + selection=genesis 
+print format = text + output="C:\user\me\Documents\genesis.txt" + domain=bible.genesis  
 
-print format = html + output = "C:\user\me\Documents\exodus.html" + selection=exodus
+print format = html + output = "C:\user\me\Documents\exodus.html" + domain=bible.exodus
 
-print format = docx + "C:\user\me\Documents\Leviticus.docx" + selection=leviticus
+print format = docx + "C:\user\me\Documents\Leviticus.docx" + domain=bible.leviticus
 
  
 
@@ -426,22 +441,19 @@ print format = docx + "C:\user\me\Documents\Leviticus.docx" + selection=leviticu
 | ------------- | ----------------------------- | ----------------------------- | ----------------------------- |
 | Session scope | *set display.format = docx*   | *set display.format = html*   | *set display.format = text*   |
 | System scope  | *#set  display.format = docx* | *#set  display.format = html* | *#set  display.format = text* |
-| Cloud scope   | *@set display.format = docx*  | *@set display.format = html*  | *@set display.format = text*  |
 
-**TABLE 2** - **set** format command can be used to set the default print formats
-
+**TABLE 8-1** -- **set** format command can be used to set the default print formats
 
 
-| SCOPE                            | example                                |
-| -------------------------------- | -------------------------------------- |
-| Session scope                    | set span = 7                           |
-| Cloud or System or Session scope | get span                               |
-| System scope                     | #set clarity.host= http://avbible.net/ |
-| Cloud or System scope            | *#get clarity.host                     |
-| Cloud scope                      | *@set display.format = docx*           |
-| Cloud scope                      | *@get display.format*                  |
 
-**TABLE 3** - **get**/**set** and directives can be used to store & retrieve numerous other settings
+| SCOPE                   | example                                |
+| ----------------------- | -------------------------------------- |
+| Session scope           | set span = 7                           |
+| Session or System scope | get span                               |
+| System scope            | #set clarity.host= http://avbible.net/ |
+| System scope            | #get clarity.host                      |
+
+**TABLE 8-2** -- **get**/**set** and directives can be used to store & retrieve numerous other settings
 
 
 
@@ -452,20 +464,18 @@ print format = docx + "C:\user\me\Documents\Leviticus.docx" + selection=leviticu
 | System scope  | *#set* *clarity*.host= https://avbible.net/ |
 | System scope  | *#get clarity*.host                         |
 
-**TABLE 4** - **get**/**set** and **#get/#set** command can be used to retrieve Clarity configuration settings
+**TABLE 8-3** -- **get**/**set** and **#get/#set** command can be used to retrieve Clarity configuration settings
 
 
 
-| **SCOPE**     | **example**                 | **explanation**                                      |
-| ------------- | --------------------------- | ---------------------------------------------------- |
-| Session Scope | *{my macro} := find Jesus*  | *useful for temporary macro definitions*             |
-| System scope  | *#{my macro} := find Jesus* | *macro stored on local file system or PC*            |
-| Cloud scope   | *@{my macro} := find Jesus* | *macro stored in cloud using a Clarity cloud-driver* |
-| Session Scope | *remove {my macro}*         | *removes session-defined macro*                      |
-| System scope  | *#remove {my macro}*        | *removes macro stored on local file system  or PC*   |
-| Cloud scope   | *@remove {my macro}*        | *removes macro stored in cloud*                      |
+| **SCOPE**     | **example**                 | **explanation**                                    |
+| ------------- | --------------------------- | -------------------------------------------------- |
+| Session Scope | *{my macro} := find Jesus*  | *useful for temporary macro definitions*           |
+| System scope  | *#{my macro} := find Jesus* | *macro stored on local file system or PC*          |
+| Session Scope | *remove {my macro}*         | *removes session-defined macro*                    |
+| System scope  | *#remove {my macro}*        | *removes macro stored on local file system  or PC* |
 
-**TABLE 5 - Macro definitions can utilize any of the three scopes**
+**TABLE 8-4 -- Macro definitions can utilize any of the three scopes**
 
 
 
@@ -477,7 +487,7 @@ There are two status directives. One displays the current setting for the sessio
 
 The other displays the current global setting:
 
-**@get format**
+**#get format**
 
  
 
@@ -489,29 +499,29 @@ Global control settings for SEARCH directives can be restored within the session
 
 Defaults for SEARCH directives can be globally restored (for this and any future session):
 
-**@clear search.span**
+**#clear search.span**
 
-**@clear display.format**
+**#clear display.format**
 
 When *clear* verbs are used alongside *set* verbs, clear verbs are always executed after *set* verbs. 
 
-@clear span + set span = 7 `>> implies >>` @clear span
+#clear span + set span = 7 `>> implies >>` #clear span
 
 When multiple segments contain the same setting, the last setting in the list is preserved.  Example:
 
  set format = docx + set format = text `>> implies >>` set format = text
 
-| Control Name    | Short Name | Meaning                   | Values        | Visibility | Max Scope |
-| --------------- | ---------- | ------------------------- | ------------- | ---------- | --------- |
-| search.span     | span       | proximity                 | 0 to 1000     | normal     | cloud     |
-| display.heading | heading    | heading of results        | string        | normal     | cloud     |
-| display.record  | record     | annotation of results     | string        | normal     | cloud     |
-| display.format  | format     | display format of results | *see* Table 2 | normal     | cloud     |
-| clarity.host    | host       | URL of driver             | string        | normal     | system    |
-| clarity.debug   | debug      | on or off                 | 0 or 1        | *hidden*   | system    |
-| clarity.data    | span       | clarity data format       | binary        | *hidden*   | system    |
+| Control Name    | Short Name | Meaning                   | Values    | Visibility | Max Scope |
+| --------------- | ---------- | ------------------------- | --------- | ---------- | --------- |
+| search.span     | span       | proximity                 | 0 to 1000 | normal     | cloud     |
+| display.heading | heading    | heading of results        | string    | normal     | cloud     |
+| display.record  | record     | annotation of results     | string    | normal     | cloud     |
+| display.format  | format     | display format of results | Table 8-1 | normal     | cloud     |
+| clarity.host    | host       | URL of driver             | string    | normal     | system    |
+| clarity.debug   | debug      | on or off                 | 0 or 1    | *hidden*   | system    |
+| clarity.data    | span       | clarity data format       | binary    | *hidden*   | system    |
 
-**TABLE 6 - List of Controls** (The control parameters are applicable to ***set***, ***get*** and ***clear*** verbs)
+**TABLE 8-5 -- List of Controls** (The control parameters are applicable to ***set***, ***get*** and ***clear*** verbs)
 
 
 
@@ -521,106 +531,11 @@ When multiple segments contain the same setting, the last setting in the list is
 | search.*       | search           | cloud     |
 | clarity.*      | clarity          | system    |
 
-**TABLE 7 - Wildcard usage on Controls** (wildcard usage only applies to ***get*** and ***clear*** verbs)
+**TABLE 8-6 -- Wildcard usage on Controls** (wildcard usage only applies to ***get*** and ***clear*** verbs)
 
 
 
-**ADDITIONAL NOTES:** 
-
-In all cases, any number of spaces can be used between operators and terms. 
-
-Also noteworthy: The reference Clarity implementation automatically adjusts the span of your to be inclusive of the number of search terms for the largest segment. So if you were to express:
-
-**find span=1 + in the beginning (God Lord Jesus Christ Messiah)**
-
-The minimum span has to be four(4). So the Clarity parser will adjust the search criteria as if the following command had been issued:
-
-**find span=4 + in the beginning (God Lord Jesus Christ Messiah)**
-
-**SPECIAL CHARACTERS & OPERATOR PRECEDENCE :**
-
-​     The order for operator precedence is defined in AV Word as follows:
-
-**{ }**
-
-**:=**
-
-**::**
-
-**[+] or (+)** or plus delimited by white-space on left and right
-
-**[-] or (-)** or hyphen delimited by white-space on left and right
-
-**=**
-
-**@**
-
-**( )**
-
-**[ ]**
-
-**. . .**
-
-**% %**
-
-**" "**
-
-**/ /**
-
-**\ quote a reserved character**
-
-**#**
-
-**?**
-
-**%**
-
-**&**
-
-**|**
-
- 
-
-**
-**
-
- 
-
-**VERB segment**
-
-**or**
-
-**VERB segment + segment**
-
-**or**
-
-**VERB segment + segment + segment**
-
-**etc.**
-
- 
-
-*Exactly one* **VERB** *is required.*
-
- 
-
-*At least one* **segment** *is required.*
-
- 
-
-*Directives refine the syntax generalized above.*
-
- 
-
-Macro definition is a command that does not automatically execute the macro once defined. If execution is also desired, the macro definition should use :: instead of := as follows to label the statement:
-
-
-
-{my macro} :: @set span = 7
-
-
-
-**PRINTING**
+### IX. Printing Results
 
 The DISPLAY directive has only a single verb, called *print*.
 
@@ -675,6 +590,99 @@ The syntax above, while biased towards ClarityAVX search results is standard Cla
 Final notes about *print*:
 
 %heading% and %record% are always implied if not cleared)
+
+
+
+### X. Wrap-up
+
+In all cases, any number of spaces can be used between operators and terms. 
+
+Also noteworthy: The reference Clarity implementation automatically adjusts the span of your to be inclusive of the number of search terms for the largest segment. So if you were to express:
+
+**find span=1 + in the beginning (God Lord Jesus Christ Messiah)**
+
+The minimum span has to be four(4). So the Clarity parser will adjust the search criteria as if the following command had been issued:
+
+**find span=4 + in the beginning (God Lord Jesus Christ Messiah)**
+
+**SPECIAL CHARACTERS & OPERATOR PRECEDENCE :**
+
+The order for operator precedence is defined in AV Word as follows:
+
+**{ }**
+
+**:=**
+
+**::**
+
+**[+] or (+)** or plus delimited by white-space on left and right
+
+**[-] or (-)** or hyphen delimited by white-space on left and right
+
+**=**
+
+**( )**
+
+**[ ]**
+
+**. . .**
+
+**% %**
+
+**" "**
+
+**/ /**
+
+**\ quote a reserved character**
+
+**#**
+
+**?**
+
+**%**
+
+**&**
+
+**|**
+
+**
+**
+
+ 
+
+**VERB segment**
+
+**or**
+
+**VERB segment + segment**
+
+**or**
+
+**VERB segment + segment + segment**
+
+**etc.**
+
+ 
+
+*Exactly one* **VERB** *is required.*
+
+ 
+
+*At least one* **segment** *is required.*
+
+ 
+
+*Directives refine the syntax generalized above.*
+
+ 
+
+Macro definition is a command that does not automatically execute the macro once defined. If execution is also desired, the macro definition should use :: instead of := as follows to label the statement:
+
+
+
+{my macro} :: #set span = 7
+
+
 
 **PROGRAM HELP**
 
