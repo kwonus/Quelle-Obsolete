@@ -12,8 +12,6 @@ The Clarity-HMI maintains the assumption that proximity of terms to one another 
 
 The Clarity specification defines a declarative syntax for specifying search criteria using the *find* verb. Clarity also defines additional verbs to round out its syntax as a simple straightforward means to interact with custom applications where searching text is the fundamental problem at hand. As mentioned earlier, AV Text Ministries provides a reference implementation. This implementation is written in C# and runs on most operating systems (e.g. Windows, Mac, Linux, iOS, Android, etc).  As source code is provided, it can be seamlessly extended by application programmers.
 
-**Clarity syntax:**
-
 Clarity Syntax comprises a standard set of seven (7) verbs. Each verb corresponds to a basic operation:
 
 - find
@@ -43,16 +41,16 @@ In Clarity terminology, each verb is considered to be a directive. While there a
 
 Each of the seven verbs has a minimum and maximum number of parameters. Some of the verbs have required and/or optional punctuation.  See the Table 1 below:
 
-| Verb   | Silent     | Verb Class | Required     | Optional punctuation | Argument Count |
-| ------ | ---------- | ---------- | ------------ | -------------------- | -------------- |
-| find   | optionally | SEARCH     |              | ( ) [ ] / \ # &      | 1 or more      |
-| print  | **never**  | DISPLAY    |              | [ ] *                | 0 or more      |
-| set    | optionally | CONTROL    | =            | # . % %              | 2              |
-| get    | **never**  | CONTROL    |              | # . *                | 1              |
-| clear  | **never**  | CONTROL    |              | # . *                | 1              |
-| define | **always** | MACRO      | { } := or :: | # - _                | 2              |
-| expand | **never**  | MACRO      | { }          | # - _ space          | 1              |
-| remove | **never**  | MACRO      | { }          | # - _ space          | 1              |
+| Verb   | Silent     | Verb Class | Required     | Optional punctuation  | Argument Count |
+| ------ | ---------- | ---------- | ------------ | --------------------- | -------------- |
+| find   | optionally | SEARCH     |              | ( ) [ ] / \ # & space | 1 or more      |
+| print  | **never**  | DISPLAY    |              | [ ] * . : ; / \ space | 0 or more      |
+| set    | optionally | CONTROL    | =            | # . % % space         | 2              |
+| get    | **never**  | CONTROL    |              | # . *                 | 1              |
+| clear  | **never**  | CONTROL    |              | # . *                 | 1              |
+| define | **always** | MACRO      | { } := or :: | # - _ space           | 2              |
+| expand | **never**  | MACRO      | { }          | # - _ space           | 1              |
+| remove | **never**  | MACRO      | { }          | # - _ space           | 1              |
 
 **TABLE 3-1 -- Detailed verb descriptions with syntax implications**
 
