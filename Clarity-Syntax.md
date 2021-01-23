@@ -50,19 +50,20 @@ In Clarity terminology, a statement is made up of segments. Each segment has a s
 
 Each of the seven verbs has a minimum and maximum number of parameters. Some of the verbs have required and/or optional punctuation.  See the Table 1 below:
 
-| Prefixes | Verb        | Phrase Restriction | Simple |    Silent    | Segment Type | Arguments | Operators |
-| :------: | ----------- | :----------------: | :----: | :----------: | ------------ | --------- | :-------: |
-|          | **find**    |                    |        |    **x**     | SEARCH       | 1 or more |           |
-|    #     | **set**     |                    |        |    **x**     | CONTROL      | 2         |     =     |
-|    #     | **get**     |                    |        |    **x**     | CONTROL      | 1         |    [ ]    |
-|   - #    | **clear**   |                    |        | **optional** | CONTROL      | 1         |    [ ]    |
-|    #     | **expand**  |                    |        |              | MACRO        | 1         |    { }    |
-|   - #    | **remove**  |                    |        | **optional** | MACRO        | 1         |    { }    |
-|   \| #   | **define**  |   **dependent**    |        |    **x**     | MACRO        | 1         |    { }    |
-|    \|    | **print**   |   **dependent**    |        |              | DISPLAY      | 0 or more |           |
-|    #     | **reset**   |     **simple**     | **x**  |              | ENVIRONMENT  | 1 to 3    |           |
-|    #     | **backup**  |     **simple**     | **x**  |              | ENVIRONMENT  | 1 to 3    |           |
-|    #     | **restore** |     **simple**     | **x**  |              | ENVIRONMENT  | 1 or 3    |           |
+| Prefixes | Verb        | Phrase Restriction | Silent | Segment Type | Arguments | Operators |
+| :------: | ----------- | :----------------: | :----: | ------------ | --------- | :-------: |
+|          | **find**    |                    | **x**  | SEARCH       | 1 or more |           |
+|    #     | **set**     |                    | **x**  | CONTROL      | 2         |     =     |
+|    #     | **get**     |                    | **x**  | CONTROL      | 1         |    [ ]    |
+|   - #    | **clear**   |                    | **x**  | CONTROL      | 1         |    [ ]    |
+|    #     | **expand**  |                    |        | MACRO        | 1         |    { }    |
+|   - #    | **remove**  |                    | **x**  | MACRO        | 1         |    { }    |
+|   \| #   | **define**  |   **dependent**    | **x**  | MACRO        | 1         |    { }    |
+|    \|    | **print**   |   **dependent**    |        | DISPLAY      | 0 or more |           |
+|    #     | **reset**   |     **simple**     |        | ENVIRONMENT  | 1 to 3    |           |
+|    #     | **backup**  |     **simple**     |        | ENVIRONMENT  | 1 to 3    |           |
+|    #     | **restore** |     **simple**     |        | ENVIRONMENT  | 1 or 3    |           |
+|    #     | **exit**    |     **simple**     |        | ENVIRONMENT  | 0         |           |
 
 **TABLE 3-1 -- Detailed verb descriptions with syntax implications**
 
