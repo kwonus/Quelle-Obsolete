@@ -5,7 +5,7 @@
 With the C# code contained herein, and companion github/kwonus projects, the simplicity of creating a
 Quelle driver using this Quelle HMI library is exemplified. This code can be used as a template to create your own driver, or it can be subclassed to extend behavior: Specifically, the Cloud() methods need implementations in the subclass to provide the actual search functionality.
 <br/></br>
-A tandem project in github provides a stadard Quelle driver and a standard Quelle interpreter.
+A tandem project in github provides a standard Quelle driver and a standard Quelle interpreter.
 Using the standard Quelle Driver projects (with this Quelle HMI library), there are less than 500 
 lines of code to extend and/or modify to customize your own Quelle compliant driver/interpreter.
 The value proposition here is that parsing is tedious. And starting your search CLI with a concise syntax
@@ -21,7 +21,7 @@ StandardQuelleDriver remains unbiased.
 Concise notes on how punctuation is used to represent Boolean expressions.  More complete documentation is soon to be forthcoming.
 
 ```
-find a b (c d) // "(e f) g [h i] j" // "[k l] ... m ... (n o)" + "[(p q) r s] t" // "*men boy*"
+a b (c d) // "(e f) g [h i] j" // "[k l] ... m ... (n o)" + "[(p q) r s] t" // "*men boy*"
 segment 1: (unquoted)		/ NEGATIVE
 	fragment 1.1:	 a 	/ position = none / SINGLETON
 	fragment 1.2:	 b 	/ position = none / SINGLETON
