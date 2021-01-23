@@ -2,7 +2,7 @@
 
 #### Searching sources
 
-With the source code contained herein, and companion github/kwonus projects, the simplicity of creating a
+With the C# code contained herein, and companion github/kwonus projects, the simplicity of creating a
 Quelle driver using this Quelle HMI library is exemplified. This code can be used as a template to create your own driver, or it can be subclassed to extend behavior: Specifically, the Cloud() methods need implementations in the subclass to provide the actual search functionality.
 <br/></br>
 A tandem project in github provides a stadard Quelle driver and a standard Quelle interpreter.
@@ -15,8 +15,8 @@ Quelle source code is licensed with a liberal MIT license.
 The design incentive for Quelle HMI and the standard driver/interpreter is to support the broader Digital-AV
 effort: That project [Digital-AV] provides a command-line interface for searching and publishing the KJV bible.
 Every attempt has been made to keep the Quelle syntax agnostic about the search domain, yet the Quelle
-user documentation itself [coming soon to github is heavily biased in its syntax examples. Still, the search
-domain of the StandardQuelleDriver remains unbiased.
+user documentation itself is heavily biased in its syntax examples. Still, the search domain of the
+StandardQuelleDriver remains unbiased.
 
 Concise notes on how punctuation is used to represent Boolean expressions.  More complete documentation is soon to be forthcoming.
 
