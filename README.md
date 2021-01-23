@@ -2,8 +2,11 @@
 
 #### Searching sources
 
-With the C# code contained herein, and companion github/kwonus projects, the simplicity of creating a
-Quelle driver using this Quelle HMI library is exemplified. This code can be used as a template to create your own driver, or it can be subclassed to extend behavior: Specifically, the Cloud() methods need implementations in the subclass to provide the actual search functionality.
+With the C# code contained herein, and companion github/kwonus projects, the
+simplicity of creating a Quelle driver using this Quelle HMI library is exemplified.
+This code can be used as a template to create your own driver, or it can be subclassed
+to extend behavior: Specifically, the Cloud() methods need implementations in the
+subclass to provide the actual search functionality.
 <br/></br>
 A tandem project in github provides a standard Quelle driver and a standard Quelle interpreter.
 Using the standard Quelle Driver projects (with this Quelle HMI library), there are less than 500 
@@ -54,15 +57,18 @@ For parsing purposes spaces WILL NOT be allowed around the &. Example:
 /pronoun#2PS/&/BOV/ #run&/v/
 ^^^
 (This segment has two fragments; each fragment has two tokens)
-By restricting the tokenfgroup above, we do not need specialized parsing for AVX, the execute method will desipher meaning of tokens.
+By restricting the tokenfgroup above, we do not need specialized parsing for AVX, the
+execute method will desipher meaning of tokens.
 
-Unrelated to any of this, we shouild be able to set the span to "Verse Scope".  We could represent this with a span = 0.
+Unrelated to any of this, we shouild be able to set the span to "Verse Scope".
+We could represent this with a span = 0.
 
 STEP 1
 ======
 break command into macro (left-side) and segment-array
 
-The first byte is the type: AV | AVX | AV+AVX | AV != AVX (diff) | SYM | Eo? | Lemma(AV) | Lemma(AVX) | Part-Of-Speech | WordClass | Person-Number
+The first byte is the type:
+ AV | AVX | AV+AVX | AV != AVX (diff) | SYM | Eo? | Lemma(AV) | Lemma(AVX) | Part-Of-Speech | WordClass | Person-Number
 If Specialized, then the next 3 bytes are used to identify the the type of symbol (zero-bits means any symbol for \SYM\)
 If AV and/or AVX, the the last 16-bit word is the word-key
 
@@ -84,18 +90,21 @@ ADD specialized fragments to Quelle 2.0
 /EoB/	(end of book)
 /BoB/	(beginning of book)
 
-EACH SEGMENT HAS AN ANCHOR. AN ANCHOR is either a normal fragment or a specialized fragment of BoV/BoC/BoB or Open-Paren
-Bits will no longer apply to tokens, but to segments. We will limit bits to either 32, with overflow reusing the 1-bit
-in round-robin fashion. This bit will be primarily used for display and will mark all words in the matching span. All words
-that constitute a match on the span will me marked.
+EACH SEGMENT HAS AN ANCHOR. AN ANCHOR is either a normal fragment or a specialized
+fragment of BoV/BoC/BoB or Open-Paren Bits will no longer apply to tokens, but to
+segments. We will limit bits to either 32, with overflow reusing the 1-bit in
+round-robin fashion. This bit will be primarily used for display and will mark all
+words in the matching span. All words constituting a match on the span will me marked.
 
-for each anchor-candidate, forward-scan to completion of a match within the span, and marking bits only upon success.
-As soon as a failure is noticed, call-out, but do not advance the cursor until all segments are forward scanned and
-conditionally marked (a matching word that does not consitute a matching segment will no longer be highlighted).
+For each anchor-candidate, forward-scan to completion of a match within the span, and
+marking bits only upon success. As soon as a failure is noticed, call-out, but do not
+advance the cursor until all segments are forward scanned and conditionally marked
+(matching words that do not consitute a matching segment won't be highlighted).
 
 This should be no slower than earlier implementation and way more straightforward.
 
-NEGATIVE POLARITY APPLIES TO VERSES. THIS MIGHT BE A LITTLE TRICKY OR COUNTER INTUITIVE
+NEGATIVE POLARITY APPLIES TO VERSES.
+THIS MIGHT BE A LITTLE TRICKY OR COUNTER INTUITIVE
 
 Parse()
 Validate()
