@@ -2,11 +2,13 @@
 
 ### I. Background
 
-Most modern search engines, provide a mechanism for searching via a text input box where the user is expected to type search terms. While primitive, this interface was pioneered by major web-search providers and represented an evolution from the far more complex interfaces that came earlier. When you search for multiple terms, however, there seems to be only one basic paradigm: “find every term”. At AV Text Ministries, we believe that the vast world of search is rife for a search-syntax that moves us past only basic search expressions. To this end, we are proposing a Human-Machine-Interface (HMI) that can be invoked within a simple text input box. The syntax fully supports basic Boolean operations such as AND, OR, and NOT. While great care has been taken to support the construction of complex queries, greater care has been taken to maintain a clear and concise syntax. Quelle in German means "source".  In French, it means "what". In English, it looks like "quill", which is an old-fashioned pen made from a feather.  All of these concepts seem related to what Quelle-HMI is. An earlier interpreter, Clarity-HMI served as inspiration for defining Quelle-HMI.  You could think of Quelle-HMI as version 3.0 of Clarity-HMI.  However, in order to create a linguistic consistency to the Quelle, the resulting syntax varied so much  from the Clarity baseline that a name-change was in order.  Quelle-HMI is truly a brand new specification that incorporates many lessons learned after crafting and revising Clarity-HMI for over a decade. Any application can implement the Quelle-HMI specification without royalty. We provide this text-based HMI specification and a corresponding reference implementation of a command interpreter in C#. Both the specification and the reference implementation are shared with the broader community with a liberal MIT open source license.
+Most modern search engines, provide a mechanism for searching via a text input box where the user is expected to type search terms. While primitive, this interface was pioneered by major web-search providers and represented an evolution from the far more complex interfaces that came earlier. When you search for multiple terms, however, there seems to be only one basic paradigm: “find every term”. At AV Text Ministries, we believe that the vast world of search is rife for a search-syntax that moves us past only basic search expressions. To this end, we are proposing a Human-Machine-Interface (HMI) that can be invoked within a simple text input box. The syntax fully supports basic Boolean operations such as AND, OR, and NOT. While great care has been taken to support the construction of complex queries, greater care has been taken to maintain a clear and concise syntax. Quelle in German means "source".  In French, it means "what". In English, it looks like "quill", which is an old-fashioned pen made from a feather.  All of these concepts seem related to what Quelle-HMI is. An earlier interpreter, Clarity-HMI served as inspiration for defining Quelle-HMI.  You could think of Quelle-HMI as version 3.0 of Clarity-HMI.  However, in order to create a linguistic consistency in Quelle's Human-to-Machine command language, the resulting syntax varied so greatly from the Clarity-HMI baseline that a name-change was in order.  Quelle-HMI truly is a new specification that incorporates lessons learned after crafting and revising Clarity-HMI for over a decade. 
 
 ### II. Overview
 
 The Quelle-HMI maintains the assumption that proximity of terms to one another is an important aspect of searching unstructured data. Ascribing importance to the proximity between search terms is sometimes referred to as a *proximal* *search* technique. Proximal searches intentionally constrain the number of words that can be used to constitute a match. The Quelle HMI specification defines that range between search terms as the *span*.
+
+Any application can implement the Quelle-HMI specification without royalty. We provide this text-based HMI specification and a corresponding reference implementation of a command interpreter in C#. Both the specification and the reference implementation are shared with the broader community with a liberal MIT open source license.
 
 ### III. Quelle Syntax
 
@@ -113,7 +115,7 @@ In this section, we will examine how user-defined macros are used in Quelle.  A 
 
 Let’s say we want to name our previously identified SEARCH directive with a label; We’ll call it “genesis”. To accomplish this, we would issue this command:
 
-“in the beginning”  search.domain=bible | define {genesis} 
+“in the beginning” // search.domain=bible | define {genesis} 
 
 It’s that simple, now instead of typing the entire statement, we can use the label to execute our newly saved statement. Here is how we would execute the macro:
 
@@ -123,7 +125,7 @@ By default, labeled commands are scoped to the session and are in other words vo
 
 For example:
 
-“in the beginning”  search.domain=bible | #define {genesis} 
+“in the beginning” // search.domain=bible | #define {genesis} 
 
 Labelled statements also support compounding, as follows:
 
