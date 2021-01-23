@@ -22,7 +22,7 @@ user documentation itself is heavily biased in its syntax examples. Still, the s
 StandardQuelleDriver remains unbiased.
 
 Concise notes on how punctuation is used to represent Boolean expressions.  More complete documentation can be found 
-[here]: https://github.com/kwonus/Quelle/blob/master/Quelle.md	"Quelle HMI Version 1.0"
+[here]: https://github.com/kwonus/Quelle/blob/master/Quelle.md
 
 .
 
