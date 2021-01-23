@@ -41,232 +41,203 @@ In Clarity terminology, each verb is considered to be a directive. While there a
 
 Each of the seven verbs has a minimum and maximum number of parameters. Some of the verbs have required and/or optional punctuation.  See the Table 1 below:
 
-| Option | Verb       | Definitive | Silent     | Verb Class  | Required         | Argument Count |
-| :----: | ---------- | ---------- | ---------- | ----------- | ---------------- | -------------- |
-|        | **find**   | no         | optionally | SEARCH      |                  | 1 or more      |
-|        | **print**  | no         | never      | DISPLAY     |                  | 0 or more      |
-|   #    | **set**    | np         | optionally | CONTROL     | =                | 2              |
-|   #    | **get**    | no         | never      | CONTROL     |                  | 1              |
-|   #    | **clear**  | no         | never      | CONTROL     |                  | 1              |
-|   #    | **define** | yes        | optionally | MACRO       | { } and := or :: | 2              |
-|   #    | **expand** | no         | never      | MACRO       | { }              | 1              |
-|   #    | **remove** | no         | never      | MACRO       | { }              | 1              |
-|   #    | **reset**  | yes        | never      | ENVIRONMENT |                  | 0              |
-|        | **backup** | yes        | never      | ENVIRONMENT |                  | 0 or 1         |
-|        | *restore*  | yes        | never      | ENVIRONMENT |                  | 0 or 2         |
+| Prefixes | Verb        | Phrase Restriction | Simple |    Silent    | Verb Class  | Arguments | Operators |
+| :------: | ----------- | :----------------: | :----: | :----------: | ----------- | --------- | :-------: |
+|          | **find**    |                    |        |    **x**     | SEARCH      | 1 or more |           |
+|    #     | **set**     |                    |        |    **x**     | CONTROL     | 2         |     =     |
+|    #     | **get**     |                    |        |    **x**     | CONTROL     | 1         |    [ ]    |
+|   - #    | **clear**   |                    |        | **optional** | CONTROL     | 1         |    [ ]    |
+|    #     | **expand**  |                    |        |              | MACRO       | 1         |    { }    |
+|   - #    | **remove**  |                    |        | **optional** | MACRO       | 1         |    { }    |
+|   \| #   | **define**  |   **dependent**    |        |    **x**     | MACRO       | 1         |    { }    |
+|    \|    | **print**   |   **dependent**    |        |              | DISPLAY     | 0 or more |           |
+|    #     | **reset**   |     **simple**     | **x**  |              | ENVIRONMENT | 1 to 3    |           |
+|    #     | **backup**  |     **simple**     | **x**  |              | ENVIRONMEN  | 1 to 3    |           |
+|    #     | **restore** |     **simple**     | **x**  |              | ENVIRONMENT | 1 or 3    |           |
 
 **TABLE 3-1 -- Detailed verb descriptions with syntax implications**
 
-Most directives operate at the session level, but CONTROL and MACRO directives can be qualified to persist across the current <u>and</u> future sessions.  Those verbs are identified with the # sign in the first column in Table 3-1. Definitive verbs are unique in that they cannot be part of a compound statement.
+Phrase restricted verbs are unique in that they cannot be used to construct a compound statement.  Dependent phrases can be added as the final clause after an ordinary statement, but cannot be combined in any other way. Simple statements cannot be combined whatsover.
 
-The syntax of a Clarity statement always begins with a verb. From a linguistic standpoint, all Clarity statements begin with the verb and are they are issued in the imperative. After the verb, a Clarity statement can be broken into one or more segments. The syntax for each segment is dependent upon the type of directive for the segment. And the type of directive is controlled by the verb. We will refer to the directive of which a verb is a member as the verb-class. For example, find is a member of the SEARCH verb-class. All verbs of a verb-class share the same syntax rules.  A matter of distinction, when defining a macro, this is not technically a Clarity statement, but a Clarity command.  The second argument of a Clarity command is a Clarity statement.  This make MACOR directives special when it comes to Clarity syntax.  In fact, the Clarity MACRO verb *expand* is the only verb that MUST be silent when used within a statement. No other verb can be invoked within another segment type.  See "Statement Labels " for additional information on macros.
+Clarity segments always have a verb, even if the verb might be "silent". From a linguistic standpoint, all Clarity segments are verbal phrases and issued in the imperative. The syntax for each segment is dependent upon the type of directive for the segment, and each type of directive has its own parsing rules and special characters for the segment. The type of directive is controlled by the verb. The directive of which a verb is a member is also called the verb-class.
 
-Clarity supports two types of statements:
+Clarity supports three types of statements:
 
-1. Definitive statements
-
+1. Simple statements
 2. Ordinary statements
+3. Ordinary statements with a dependent clause
 
-A definitive statement always has a single verb. In ordinary statements, multiple verb phrases can be combined into a compound statement.  In Clarity, these verb phrases are called "segments".  So another way to describe a definitive statement is that it always contains only one segment.  Other verbs can be composed of just a single statement, but this does not make them definitive (because the user is free to use those verbs in compound statements).  Definitive statement have greater impact on the global Clarity environment than ordinary statements.  The most typical definitive statement is a macro definition.  Macro definitions are a mechanism of making Clarity extensible by the user.  Macros are defined the next section and are often referred to as "statement labels"
+A simple statement always has only a single verb. Some verbs are constrained to be constructed only as simple statements as identified in the table above.  Ordinary statements can have any number of verb phrases; an ordinary statement with more than a single verb is also referred to as a compound statement.  In Clarity, these verb phrases are called "segments".  So another way to describe a simple statement is that it must contain only one segment.  A special type of simple statement in Clarity is a dependent clause.  A dependent clause is still restricted to a single verb, but a dependent clause can be added to any ordinary statement.
+
+Even before we describe Clarity syntax generally, let's look at these concepts using examples:
+
+|                                            | Example                                                    |
+| ------------------------------------------ | ---------------------------------------------------------- |
+| Simple statement                           | "search for this text"                                     |
+| Dependent clause                           | \| print                                                   |
+| Ordinary statement                         | "search for this text" :: "search for other text"          |
+| Ordinary statement with a dependent clause | "search for this text" :: "search for other text" \| print |
+
+In the last example above, the final print verb is the dependent clause. Dependent clauses are identified as the statement that begins after the pipe symbol ( | ). The two segments Definitive statement have greater impact on the global Clarity environment than ordinary statements.  The most typical definitive statement is a macro definition.  Macro definitions are a mechanism of making Clarity extensible by the user.  Macros are defined the next section and are often referred to as "statement labels"
 
 First let's see some examples of ordinary statements.  Here is an example using a SEARCH directive:
 
-find "in the beginning"
+"in the beginning"
 
 Notice that we have one verb and one segment. Also notice that we have not informed our search engine what to search. So here is another statement using a CONTROL  directive:
 
-set domain=bible
+search.domain = bible
 
 If we had run this configuration command prior to the search command listed above, our first match would be found in Genesis 1:1. But as the source domain of our search is a key element of our search, we should have a way to express both of these in a single command. And this is the rationale behind a compound statement. A compound statement has more than one segment. To combine the previous two statements into one compound statement, we will issue this command:
 
-find "in the beginning" [+] domain=bible
+"in the beginning" :: search.domain=bible
 
-Segments in compound statements are delimited by plus-signs. For all compound statements, at least one segment must agree with the verb-class.
-
-Before diving deep into the syntax of compound statements, we should define one more abstraction defined in the Clarity HMI specification. So far, we have considered only ordinary statements. Ordinary statements always begin with a verb and contain at least one segment.
+Segments in compound statements are delimited by double colons ( :: ).
 
 ### IV. Statement Labels
 
-In this section, we will examine how user-defined macros are used in Clarity.  A macro in Clarity is essentially, a labelled-statement.  We can apply a label to a statement, which introduces a shorthand for subsequent execution. This gives rise to two new definitions:
+In this section, we will examine how user-defined macros are used in Clarity.  A macro in Clarity is a way for the user to label a statement for subsequent use.  By applying a label to a statement, a shorthand mechanism is created for subsequent execution. This gives rise to two new definitions:
 
-1. Labelling a statement (definitive statement to define a macro)
+1. Labelling a statement (or defining a macro)
 
-2. Executing a labelled statement (utilizing a macro in subsequent statements)
+2. Utilization of a labelled statement (executing a macro)
 
 
 Let’s say we want to name our previously identified SEARCH directive with a label; We’ll call it “genesis”. To accomplish this, we would issue this command:
 
-{genesis} := find “in the beginning” + domain=bible
+“in the beginning”  search.domain=bible | define {genesis} 
 
-It’s that simple, now instead of typing the entire statement, we can use the label as shorthand to execute our newly saved command. Here is the command:
+It’s that simple, now instead of typing the entire statement, we can use the label to execute our newly saved statement. Here is how we would execute the macro:
 
 {genesis}
-
-It is worth describing how this can be a "definitive statement" when we have explicitly referenced two segments in our macro definition.  This is not actually a contradiction, because the syntax for macro definition is:
-
-define {name} := statement
-
-There is the macro-name on the left of := and the statement on the right.  The statement is a single argument to the definition. Only macro definitions exhibit this apparent contradiction to the rule of definitive statements. But keep in mind, you can only define labelled statements one by one.  And one at a time statement execution (non compound) is what makes a statement definitive.
 
 By default, labeled commands are scoped to the session and are in other words volatile (when the session is closed all volatile settings are silently discarded) .  If the user desires macros to be saved after they exit the session, then the command should be scoped to the system.  System scope is invoked by prefixing the verb with a hash-tag ( # ).
 
 For example:
 
-#{genesis} := find “in the beginning” + source=bible
-
-That statement will save the macro to your hard-drive so that the labelled statement can be referenced every time the user opens a new session on their system.
+“in the beginning”  search.domain=bible | #define {genesis} 
 
 Labelled statements also support compounding, as follows:
 
-{genesis} + {my label can contain spaces}
+{genesis} :: {my label can contain spaces}
 
 As the previous command is valid syntax for a statement, it even follows that we can define this macro:
 
-{sample} :={genesis} + {my label can contain spaces}
+{genesis} :: {my label can contain spaces} | define sample
 
 Later I can issue this command:
 
 {sample}
 
-Which is equivalent to executing these labeled statements:
+Which is obviously equivalent to executing these labeled statements:
 
-{genesis} + {my label can contain spaces}
+{genesis} :: {my label can contain spaces}
 
 Labels can be defined in terms of an ordinary statement or using one or more labels inside of braces. And the two constructs can be mixed
 
-{derived}: {original} + find: foo
+{derived}: {original} :: "find some more text"
 
 To illustrate this further, here are four more examples of labeled statement definitions:
 
-{C1} := *set* search=strict
+search.exact = 1| define {C1}
 
-{C2} := *set* span=8
+search.span  = 8 | define {C2}
 
-{F1} := *find* Godhead
+Godhead | define {F1}
 
-{F2} := *find* eternal
+eternal | define {F2}
 
 We can execute these as a compound statement by issuing this command:
 
- {C1} + {C2} + {F1} + {F2}
+ {C1} :: {C2} :: {F1} :: {F2}
 
 Similarly, we could define another label from these, by issuing this command:
 
-{sample2} := {C1} + {C2} + {F1} + {F2}
+{C1} :: {C2} :: {F1} :: {F2} | {sample2}
+
+if we exand this macro ...
+
+expand {sample2}
+
+The expansion would be:
+
+search.exact = 1 ::  search.span  = 8 :: Godhead :: eternal
 
 ### V. More about Segmentation of Clarity Statements
 
-If an execution ONLY contains CONTROL verbs, then the key-value pairs affect the session (or saved for future sessions if *#set* used). SESSION scope is always implied when paired with a SEARCH or DISPLAY directives. The primary verb of the command always defines the scope. For example, CONTROL variables are always session scope when combined with a SEARCH or DISPLAY directives. See the table below for compatibility of directives and the implicit scope of the command.
+If an execution ONLY contains CONTROL verbs, then the key-value pairs affect the session (or saved for future sessions when it is prefixed with a hash-tag). SESSION scope is always implied when paired with a SEARCH or DISPLAY directives. The primary verb of the command always defines the scope. For example, CONTROL variables are always session scope when combined with a SEARCH or DISPLAY directives.
 
-| **Primary Directive** | Definitive | **Secondary Directives**       | Example                          |
-| --------------------- | ---------- | ------------------------------ | -------------------------------- |
-| SEARCH                | no         | SEARCH(ES), CONTROL(S), DISPLA | *find* godhead + print           |
-| DISPLAY               | no         | CONTROL(S)                     | *print* [*]                      |
-| CONTROL               | no         | CONTROL(S)                     | *set* search.span = 7            |
-| MACRO                 | yes        | *none*                         | *define* {label} := find godhead |
-| ENVIRONMENT           | yes        | *none*                         | *backup* timestamped             |
+| **Primary Directive** | **Secondary Directives** | Dependent Clause | Example                     |
+| --------------------- | ------------------------ | ---------------- | --------------------------- |
+| SEARCH                | any ordinary verb        | allowed          | godhead :: span=8           |
+| CONTROL               | any CONTROL verb         | allowed          | format=text::span=7         |
+| MACRO                 | any ordinary MACRO verb  | not allowed      | godhead \| define {trinity} |
 
 **TABLE 5-1** -- **Primary** and **Secondary** Directives
 
-When both SEARCH and DISPLAY segments are in the same statement, SEARCH becomes the primary directive. In fact, SEARCH is the primary directive when combined with any other directive.
-
-When CONTROL symbols (#) are included and combined with a SEARCH or DISPLAY command, this causes downgrading of CONTROL to session-scope.
+When CONTROL symbols (#) are included and combined with SEARCH, this causes downgrading of CONTROL to session-scope.
 
 When multiple CONTROL directives compose a single statement, then the lowest scope of any segment ALWAYS applies to all segments of the statement.
 
 Example:
 
-#set x = 1 + #set y = 2 + set z = 3
+#span = 8 :: @exact = 0
 
 is synonymous after downgrading with:
 
-set x = 1 + set y = 2 + set z = 3
-
-Moreover, it can be expressed more concisely as (and is is synonymous with):
-
-x = 1 + y = 2 + z = 3
-
-because *set* is the default verb for CONTROL and CONTROL segments are auto-detected by the presence of an equals sign.  Only the *set* and *find* verbs can be auto-detected.  Therefore these two segments would both be be autodetected as *find*:
-
-beginning God + word flesh
-
-
+@span = 8 :: @exact = 0
 
 ### VI. Clarity SEARCH Segments
 
-Without an explicit verb and without an equals sign, segment type default to *find*. So the previous statement is expanded by Clarity to:
-
-*find* beginning God + *find* word flesh
-
-Just to be clear, if you wanted to find the word "find", the verb is no longer optional. You would be required to be explicit as follows:
-
-*find* find
-
-In fact, this applies to any other Clarity verb. To find the word "set" or the the word "get", the find verb becomes required here too:
-
-*find* set + *find* get
-
 Consider the proximity search where the search target is the bible. Here is an example search using Clarity syntax:
 
-*source=bible + beginning created earth*
+*domain=bible :: beginning created earth*
 
 Clarity syntax can alter the span by supplying a CONTROL segment:
 
-*source=bible + span=8 + beginning created earth*
+*source=bible :: span=8 :: beginning created earth*
 
-Also notice that the *set* verb is not required either, an equals sign identifies each matching segment as a *set* command. Therefore, statement about has two CONTROL segments and one SEARCH segment using three silent/implied verbs.
-
-
+The statement above has two CONTROL segments and one SEARCH segment 
 
 Now consider a different search:
 
-*find* *God created earth*
+*God created earth*
 
- 
+ Next, consider a search to find that God created heaven or earth:
 
-Next, consider a search to find that God created heaven or earth:
-
-*find* *God created (earth heaven)*
-
- 
+*God created (earth heaven)*
 
 The order in which the search terms are provided is insignificant. Additionally, the type-case is insignificant. 
 
 Of course, there are times when word order is significant. Accordingly, searching for explicit strings can be accomplished using double-quotes as follows:
 
-*find* *“God created ... Earth”*
-
- 
+*“God created ... Earth”*
 
 These constructs can even be combined. For example:
 
-*find* *”God created ... (Heaven Earth)”*
+*”God created ... (Heaven Earth)”*
 
- 
+The search criteria above is equivalent to this search:
 
-As Clarity supports multiple segments, the above search criteria would be equivalent to this search:
-
-*find* “God created ... Heaven” + “God created ... Earth”*
-
- 
+*“God created ... Heaven” :: “God created ... Earth”*
 
 In all cases, “...” means “followed by”, but the ellipsis allows other words to appear between created and heaven. Likewise, it allows words to appear between created and Earth.
 
 AV Text Ministries imagines that Clarity HMI can be applied broadly in the computing industry and can easily be applied outside of the narrow domain of biblical studies. For example, the Clarity syntax could easily handle statements such as:
 
-​     *find* source=Wall Street Journal + “Trump ... tax cuts”
+​     *domain=Wall Street Journal :: “Biden ... tax increases”*
 
 Of course, translating the commands into actual search results might not be trivial for the application developer. Still, the reference implementation that parses a Clarity command is freely available in the reference implementation.
 
-Clarity is designed to be intuitive. It provides the ability to invoke Boolean logic on how term matching should be performed. Parenthesis can be used to invoke Boolean multiplication upon the terms that compose a search expression. For instance, there are situations where the exact word within a phrase is not precisely known. For example, when searching the KJV bible, one might not recall which form of the second person pronoun was used in an otherwise familiar passage. Attempting to locate the serpent’s words to Eve in Genesis, one might execute a search such as:
+Clarity is designed to be intuitive. It provides the ability to invoke Boolean logic on how term matching should be performed. As we saw earlier, parenthesis can be used to invoke Boolean multiplication upon the terms that compose a search expression. For instance, there are situations where the exact word within a phrase is not precisely known. For example, when searching the KJV bible, one might not recall which form of the second person pronoun was used in an otherwise familiar passage. Attempting to locate the serpent’s words to Eve in Genesis, one might execute a search such as:
 
-*find* (you thou ye) shall not surely die 
+*(you thou ye) shall not surely die*
 
 This statement uses Boolean multiplication and is equivalent to this lengthier statement:
 
-*find* you shall not surely die + thou shall not surely die + ye shall not surely die
+*you shall not surely die :: thou shall not surely die :: ye shall not surely die*
 
-The example above also reveals how multiple search segments can be strung together to form a compound search: logically speaking, each segment is OR’ed together; this implies that any of the three matches is acceptable. Parenthetical Terms provide a shorthand for this type of search.
+The example above also reveals how multiple search segments can be strung together to form a compound search: logically speaking, each segment is OR’ed together; this implies that any of the three matches is acceptable. using parenthetical terms produces more concise search statements.
 
 ### VII. Clarity SEARCH Definitions
 
@@ -298,43 +269,35 @@ It is called *quoted,* as the entire segment is sandwiched on both sides by doub
 
 **Bracketed Terms:** When searching, there are part the order of some terms within a quoted are unknown. Square brackets can be used to identify such terms. For example, consider this SEARCH statement:
 
-*find “[God created] heaven and earth” + source=bible*
+*“[God created] heaven and earth” :: source=bible*
 
 The above statement is equivalent to
 
-*find “God created heaven and earth” + “created God heaven and earth” + source=bible*
+*“God created heaven and earth” + “created God heaven and earth” + source=bible*
 
 **and:** In Boolean logic, ***and\*** means that all terms must be found. With Clarity-HMI, *and* is represented by terms that appear within an unquoted segment. 
 
-**or:** In Boolean logic, ***or\*** means that any term constitutes a match. With Clarity=HMI, *or* is represented by the plus-sign ( **+** ) or [ **+** ] between SEARCH segments. 
+**or:** In Boolean logic, ***or\*** means that any term constitutes a match. With Clarity=HMI, *or* is represented by the double-colon ( **::** ) between SEARCH segments. 
 
-**not:** In Boolean logic, ***not\*** means that the term must not be found. With Clarity, *not* is represented by a minus-sign ( **-** ) or [ **-** ] and applies to an entire segment (it cannot be applied to individual words unless the search segment has only a single term). In other words, a minus-sign means subtract results; it cancels-out matches against all matches of other segments. Most segments are additive as each additional segment increases search results. Contrariwise, a ***not\*** segment is subtractive as it decreases search results.
+**not:** In Boolean logic, **not** means that the term must not be found. With Clarity, *not* is represented by a colon+minus-sign+colon ( **:-:** ) and applies to an entire segment (it cannot be applied to individual words unless the search segment has only a single term). In other words, a :-: means subtract results; it cancels-out matches against all matches of other segments. Most segments are additive as each additional segment increases search results. Contrariwise, a **not** segment is subtractive as it decreases search results.
 
 **NOTE:**
 
-The minus-sign means that the segment will be subtracted from the search results while its absence means that the segment will be added to the search results. When only a single segment follows a SEARCH directive, it is always positive. A single negative segment following the find imperative, while it might be grammatically valid syntax, will never match anything. Therefore, while permitted in theory, it would have no real-world meaning. Consequently, some implementations of Clarity-HMI may disallow such a construct.
-
- 
-
-It should be noted that in some dialects of Clarity (e.g. Clarity AVX), hyphens in words are never required in Clarity AVX. For example, xray would be a valid shorthand for x-ray (making the hyphen superfluous).
-
- 
+The :-: means that the segment will be subtracted from the search results while its absence means that the segment will be added to the search results. When only a single segment follows a SEARCH directive, it is always positive. A single negative segment following the find imperative, while it might be grammatically valid syntax, will never match anything. Therefore, while permitted in theory, it would have no real-world meaning. Consequently, some implementations of Clarity-HMI may disallow such a construct.
 
 **More Examples:**
 
 Consider a query for all passages that contain God AND created, but NOT containing earth AND NOT containing heaven:
 
-**find source=old testament of bible + span = 15:** *created GOD ~ Heaven Earth*
+*domain=bible.old-testament :: span = 15 :: created GOD :-: Heaven Earth*
 
 *(this could be read as: find in the old testament using a span of 15, the words*
 
-*created AND God, but NOT Heaven AND Earth)*
-
- 
+*created AND God, but NOT Heaven AND NOT Earth)*
 
 The simplest form to find ALL of three words (in the beginning):
 
-*find in the beginning*
+*in the beginning*
 
 It should be noted that such a statement would find either of these strings in the text:
 
@@ -346,13 +309,13 @@ the beginning of summer in
 
 If a specific string should be match, this can be stated explicitly:
 
-find "in the beginning"
+"in the beginning"
 
  
 
 If you are unsure what article should match, you could issue this statement:
 
-find "in (a the that) beginning"
+"in (a the that) beginning"
 
 Boolean multiplication would match only these strings of text:
 
@@ -366,7 +329,7 @@ in that beginning
 
 If you are unsure which words might separate a phrase, you could issue this statement:
 
-find "in the beginning … heaven and earth"
+*"in ... beginning … heaven and earth"*
 
 With this ellipsis in the find statement, it would match this string of text:
 
@@ -374,11 +337,9 @@ in a beginning, God created heaven and earth
 
  
 
-To issue a query to find ANY words, separating each word with a plus sign would be the simplest form to find ANY of these five words:
+To issue a query to find ANY words, separating each word with double-colon would be the simplest form to find ANY of these five words:
 
-*find Lord + God + messiah + Jesus + Christ*
-
- 
+*Lord :: God :: messiah :: Jesus :: Christ*
 
 If you are unsure about word order within a phrase, square brackets can be used:
 
@@ -388,48 +349,42 @@ With this ellipsis and the final two bracketed terms, it would also match this s
 
 in a beginning, God created heaven and earth
 
+
+
 ### VIII. More about Segmentation of Clarity Statements
 
-The "*print*" verb has very limited grammar. For simplicity, consider the basic variants:
-
-print output="C:\user\me\Documents\genesis.txt" + format = text + domain=bible.genesis 
-
-print format = text + output="C:\user\me\Documents\genesis.txt" + domain=bible.genesis  
-
-print format = html + output = "C:\user\me\Documents\exodus.html" + domain=bible.exodus
-
-print format = docx + "C:\user\me\Documents\Leviticus.docx" + domain=bible.leviticus
+The "*print*" verb has very limited grammar. And it can only be used in a dependent clause of SEARCH.
 
  
 
 **CONTROL::SETTING directives:**
 
-| **SCOPE**     | **docx**                      | **html**                      | **text**                      |
-| ------------- | ----------------------------- | ----------------------------- | ----------------------------- |
-| Session scope | *set display.format = docx*   | *set display.format = html*   | *set display.format = text*   |
-| System scope  | *#set  display.format = docx* | *#set  display.format = html* | *#set  display.format = text* |
+| **SCOPE**     | **docx**              | **html**                 | **text**                 |
+| ------------- | --------------------- | ------------------------ | ------------------------ |
+| Session scope | *display.format = md* | *display.format = html*  | *display.format = text*  |
+| System scope  | #display.format = md  | *#display.format = html* | *#display.format = text* |
 
 **TABLE 8-1** -- **set** format command can be used to set the default print formats
 
 
 
-| SCOPE                   | example                                |
-| ----------------------- | -------------------------------------- |
-| Session scope           | set span = 7                           |
-| Session or System scope | get span                               |
-| System scope            | #set clarity.host= http://avbible.net/ |
-| System scope            | #get clarity.host                      |
+| SCOPE                   | example                            |
+| ----------------------- | ---------------------------------- |
+| Session scope           | span = 7                           |
+| Session or System scope | [span]                             |
+| System scope            | #clarity.host= http://avbible.net/ |
+| System scope            | #[clarity.host]                    |
 
 **TABLE 8-2** -- **get**/**set** and directives can be used to store & retrieve numerous other settings
 
 
 
-| **SCOPE**     | **example**                                 |
-| ------------- | ------------------------------------------- |
-| Session Scope | **set* *clarity*.host= https://avbible.net/ |
-| Session Scope | *get* *clarity*.host                        |
-| System scope  | *#set* *clarity*.host= https://avbible.net/ |
-| System scope  | *#get clarity*.host                         |
+| **SCOPE**     | **example**                           |
+| ------------- | ------------------------------------- |
+| Session Scope | *clarity*.host= https://avbible.net/  |
+| Session Scope | [*clarity*.host]                      |
+| System scope  | #*clarity*.host= https://avbible.net/ |
+| System scope  | #[*clarity*.host]                     |
 
 **TABLE 8-3** -- **get**/**set** and **#get/#set** command can be used to retrieve Clarity configuration settings
 
@@ -437,12 +392,12 @@ print format = docx + "C:\user\me\Documents\Leviticus.docx" + domain=bible.levit
 
 | **SCOPE**     | **example**                 | **explanation**                                    |
 | ------------- | --------------------------- | -------------------------------------------------- |
-| Session Scope | *{my macro} := find Jesus*  | *useful for temporary macro definitions*           |
-| System scope  | *#{my macro} := find Jesus* | *macro stored on local file system or PC*          |
-| Session Scope | *remove {my macro}*         | *removes session-defined macro*                    |
-| System scope  | *#remove {my macro}*        | *removes macro stored on local file system  or PC* |
+| Session Scope | *find Jesus \| {my macro}*  | *useful for temporary macro definitions*           |
+| System scope  | *find Jesus \| #{my macro}* | *macro stored on local file system or PC*          |
+| Session Scope | *-{my macro}*               | *removes session-defined macro*                    |
+| System scope  | *-#{my macro}*              | *removes macro stored on local file system  or PC* |
 
-**TABLE 8-4 -- Macro definitions can utilize any of the three scopes**
+**TABLE 8-4 -- Macro definitions can utilize either scope**
 
 
 
@@ -478,16 +433,17 @@ When multiple segments contain the same setting, the last setting in the list is
 
  set format = docx + set format = text `>> implies >>` set format = text
 
-| Control Name    | Short Name | Meaning                   | Values    | Visibility |
-| --------------- | ---------- | ------------------------- | --------- | ---------- |
-| search.span     | span       | proximity                 | 0 to 1000 | normal     |
-| search.domain   | domain     | the domain of the search  | string    | normal     |
-| display.heading | heading    | heading of results        | string    | normal     |
-| display.record  | record     | annotation of results     | string    | normal     |
-| display.format  | format     | display format of results | Table 8-1 | normal     |
-| clarity.host    | host       | URL of driver             | string    | normal     |
-| clarity.debug   | debug      | on or off                 | 0 or 1    | *hidden*   |
-| clarity.data    | span       | clarity data format       | binary    | *hidden*   |
+| Control Name    | Short Name | Meaning                      | Values    | Visibility |
+| --------------- | ---------- | ---------------------------- | --------- | ---------- |
+| search.span     | span       | proximity                    | 0 to 1000 | normal     |
+| search.domain   | domain     | the domain of the search     | string    | normal     |
+| search.exact    | exact      | exact match vs liberal/fuzzy | 0 or 1    | normal     |
+| display.heading | heading    | heading of results           | string    | normal     |
+| display.record  | record     | annotation of results        | string    | normal     |
+| display.format  | format     | display format of results    | Table 8-1 | normal     |
+| clarity.host    | host       | URL of driver                | string    | normal     |
+| clarity.debug   | debug      | on or off                    | 0 or 1    | *hidden*   |
+| clarity.data    | span       | clarity data format          | binary    | *hidden*   |
 
 **TABLE 8-5 -- List of Controls** (The control parameters are applicable to ***set***, ***get*** and ***clear*** verbs)
 
@@ -575,59 +531,21 @@ The minimum span has to be four(4). So the Clarity parser will adjust the search
 
 **SPECIAL CHARACTERS FOR STATEMENTS, INCLUDING STATEMENT SEPERATORS:**
 
-| TYPE                   | Special characters                                           |
-| ---------------------- | ------------------------------------------------------------ |
-| ADDITIVE SEPERATORS    | **[+] or (+)** or plus delimited by white-space on left and right |
-| SUBTRACTIVE SEPERATORS | **[-] or (-)** or hyphen delimited by white-space on left and right |
+| TYPE                   | Special characters |
+| ---------------------- | ------------------ |
+| ADDITIVE SEPERATORS    | ::                 |
+| SUBTRACTIVE SEPERATORS | :-                 |
 
-**SPECIAL CHARACTERS & OPERATOR PRECEDENCE :**
+**SPECIAL CHARACTERS & OPERATOR PRECEDENCE :** :x: REVIEW THIS:
 
-| Verb Class | Special characters             |
-| ---------- | ------------------------------ |
-| SEARCH     | # [ ] ( ) # & / \  ... " " * ? |
-| DISPLAY    | [ ] * \                        |
-| CONTROL    | # . = % % \                    |
-| CONTROL    | # . *                          |
-| CONTROL    | # . *                          |
-| MACRO      | # { }  :=  ::                  |
-| MACRO      | #                              |
-| MACRO      | #                              |
+| Verb Class | Special characters         |
+| ---------- | -------------------------- |
+| SEARCH     | [ ] ( ) & / \  ... " " * ? |
+| DISPLAY    | [ ] * \                    |
+| CONTROL    | . = % % \ *                |
+| MACRO      | { }  :=                    |
 
  
-
-**VERB segment**
-
-**or**
-
-**VERB segment + segment**
-
-**or**
-
-**VERB segment + segment + segment**
-
-**etc.**
-
- 
-
-*Exactly one* **VERB** *is required.*
-
- 
-
-*At least one* **segment** *is required.*
-
- 
-
-*Directives refine the syntax generalized above.*
-
- 
-
-Macro definition is a command that does not automatically execute the macro once defined. If execution is also desired, the macro definition should use :: instead of := as follows to label the statement:
-
-
-
-{my macro} :: #set span = 7
-
-
 
 **PROGRAM HELP**
 
