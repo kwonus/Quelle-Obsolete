@@ -1,6 +1,6 @@
 # Quelle-HMI
 
-#### Searching sources ... light as a feather
+#### Searching sources
 
 With the source code contained herein, and companion github/kwonus projects, the simplicity of creating a
 Quelle driver using this Quelle HMI library is exemplified. This code can be used as a template to create your own driver, or it can be subclassed to extend behavior: Specifically, the Cloud() methods need implementations in the subclass to provide the actual search functionality.
@@ -21,7 +21,7 @@ domain of the StandardQuelleDriver remains unbiased.
 Concise notes on how punctuation is used to represent Boolean expressions.  More complete documentation is soon to be forthcoming.
 
 ```
-find a b (c d) + "(e f) g [h i] j" + "[k l] ... m ... (n o)" + "[(p q) r s] t" + "*men boy*"
+find a b (c d) // "(e f) g [h i] j" // "[k l] ... m ... (n o)" + "[(p q) r s] t" // "*men boy*"
 segment 1: (unquoted)		/ NEGATIVE
 	fragment 1.1:	 a 	/ position = none / SINGLETON
 	fragment 1.2:	 b 	/ position = none / SINGLETON
