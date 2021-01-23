@@ -21,7 +21,7 @@ StandardQuelleDriver remains unbiased.
 Concise notes on how punctuation is used to represent Boolean expressions.  More complete documentation is soon to be forthcoming.
 
 ```
-a b (c d) // "(e f) g [h i] j" // "[k l]...m...(n o)" // "[(p q) r s] t" // "*men boy*"
+a b (c d) // "(e f) g [h i] j" // "[k l]...m...(n o)" // "[(p q) r s] t" //"*men boy*"
 segment 1: (unquoted)		/ NEGATIVE
 	fragment 1.1:	 a 	/ position = none / SINGLETON
 	fragment 1.2:	 b 	/ position = none / SINGLETON
