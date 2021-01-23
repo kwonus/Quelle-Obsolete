@@ -12,7 +12,7 @@ The Clarity-HMI maintains the assumption that proximity of terms to one another 
 
 The Clarity specification defines a declarative syntax for specifying search criteria using the *find* verb. Clarity also defines additional verbs to round out its syntax as a simple straightforward means to interact with custom applications where searching text is the fundamental problem at hand. As mentioned earlier, AV Text Ministries provides a reference implementation. This implementation is written in C# and runs on most operating systems (e.g. Windows, Mac, Linux, iOS, Android, etc).  As source code is provided, it can be seamlessly extended by application programmers.
 
-Clarity Syntax comprises a standard set of seven (7) verbs. Each verb corresponds to a basic operation:
+Clarity Syntax comprises a standard set of eleven(1) verbs. Each verb corresponds to a basic operation:
 
 - find
 - print
@@ -21,45 +21,54 @@ Clarity Syntax comprises a standard set of seven (7) verbs. Each verb correspond
 - clear
 - expand
 - remove
+- reset
+- backup
+- restore
+- exit
 
 The verbs listed above are for the English flavor of Clarity. As Clarity is an open and extensible standard, verbs for other languages can be defined without altering the overall syntax structure of the HMI. The remainder of this document describes Version 3.0 of the Clarity-HMI specification.  It should be noted that Clarity 1.0 involved the rebranding of "Simple Imperative v2.0", and thus the skipping of Version 2.0.
 
-In Clarity terminology, each verb is considered to be a directive. While there are seven verbs, there are five distinct types of directives:
+In Clarity terminology, a statement is made up of segments. Each segment has a single verb. While there are eleven verbs, there are only five distinct types of segments:
 
-1. SEARCH Directives
+1. SEARCH segment
    - find
-2. DISPLAY Directives
+2. DISPLAY segment
    - print
-3. CONTROL Directives
+3. CONTROL segments
    - get
    - set
    - clear
-4. MACRO Directives
+4. MACRO segments
    - define
    - expand
    - remove
+5. ENVIRONMENT segments
+   - reset
+   - backup
+   - restore
+   - exit
 
 Each of the seven verbs has a minimum and maximum number of parameters. Some of the verbs have required and/or optional punctuation.  See the Table 1 below:
 
-| Prefixes | Verb        | Phrase Restriction | Simple |    Silent    | Verb Class  | Arguments | Operators |
-| :------: | ----------- | :----------------: | :----: | :----------: | ----------- | --------- | :-------: |
-|          | **find**    |                    |        |    **x**     | SEARCH      | 1 or more |           |
-|    #     | **set**     |                    |        |    **x**     | CONTROL     | 2         |     =     |
-|    #     | **get**     |                    |        |    **x**     | CONTROL     | 1         |    [ ]    |
-|   - #    | **clear**   |                    |        | **optional** | CONTROL     | 1         |    [ ]    |
-|    #     | **expand**  |                    |        |              | MACRO       | 1         |    { }    |
-|   - #    | **remove**  |                    |        | **optional** | MACRO       | 1         |    { }    |
-|   \| #   | **define**  |   **dependent**    |        |    **x**     | MACRO       | 1         |    { }    |
-|    \|    | **print**   |   **dependent**    |        |              | DISPLAY     | 0 or more |           |
-|    #     | **reset**   |     **simple**     | **x**  |              | ENVIRONMENT | 1 to 3    |           |
-|    #     | **backup**  |     **simple**     | **x**  |              | ENVIRONMEN  | 1 to 3    |           |
-|    #     | **restore** |     **simple**     | **x**  |              | ENVIRONMENT | 1 or 3    |           |
+| Prefixes | Verb        | Phrase Restriction | Simple |    Silent    | Segment Type | Arguments | Operators |
+| :------: | ----------- | :----------------: | :----: | :----------: | ------------ | --------- | :-------: |
+|          | **find**    |                    |        |    **x**     | SEARCH       | 1 or more |           |
+|    #     | **set**     |                    |        |    **x**     | CONTROL      | 2         |     =     |
+|    #     | **get**     |                    |        |    **x**     | CONTROL      | 1         |    [ ]    |
+|   - #    | **clear**   |                    |        | **optional** | CONTROL      | 1         |    [ ]    |
+|    #     | **expand**  |                    |        |              | MACRO        | 1         |    { }    |
+|   - #    | **remove**  |                    |        | **optional** | MACRO        | 1         |    { }    |
+|   \| #   | **define**  |   **dependent**    |        |    **x**     | MACRO        | 1         |    { }    |
+|    \|    | **print**   |   **dependent**    |        |              | DISPLAY      | 0 or more |           |
+|    #     | **reset**   |     **simple**     | **x**  |              | ENVIRONMENT  | 1 to 3    |           |
+|    #     | **backup**  |     **simple**     | **x**  |              | ENVIRONMENT  | 1 to 3    |           |
+|    #     | **restore** |     **simple**     | **x**  |              | ENVIRONMENT  | 1 or 3    |           |
 
 **TABLE 3-1 -- Detailed verb descriptions with syntax implications**
 
 Phrase restricted verbs are unique in that they cannot be used to construct a compound statement.  Dependent phrases can be added as the final clause after an ordinary statement, but cannot be combined in any other way. Simple statements cannot be combined whatsover.
 
-Clarity segments always have a verb, even if the verb might be "silent". From a linguistic standpoint, all Clarity segments are verbal phrases and issued in the imperative. The syntax for each segment is dependent upon the type of directive for the segment, and each type of directive has its own parsing rules and special characters for the segment. The type of directive is controlled by the verb. The directive of which a verb is a member is also called the verb-class.
+Clarity segments always have a verb, even if the verb might be "silent". From a linguistic standpoint, all Clarity segments are verbal phrases and issued in the imperative. The syntax for each segment is dependent upon the type of directive for the segment, and each type of directive has its own parsing rules and special characters for the segment. The type of segment is controlled by the verb.
 
 Clarity supports three types of statements:
 
@@ -75,24 +84,22 @@ Even before we describe Clarity syntax generally, let's look at these concepts u
 | ------------------------------------------ | ---------------------------------------------------------- |
 | Simple statement                           | "search for this text"                                     |
 | Dependent clause                           | \| print                                                   |
-| Ordinary statement                         | "search for this text" :: "search for other text"          |
-| Ordinary statement with a dependent clause | "search for this text" :: "search for other text" \| print |
+| Ordinary statement                         | "search for this text" // "search for other text"          |
+| Ordinary statement with a dependent clause | "search for this text" // "search for other text" \| print |
 
-In the last example above, the final print verb is the dependent clause. Dependent clauses are identified as the statement that begins after the pipe symbol ( | ). The two segments Definitive statement have greater impact on the global Clarity environment than ordinary statements.  The most typical definitive statement is a macro definition.  Macro definitions are a mechanism of making Clarity extensible by the user.  Macros are defined the next section and are often referred to as "statement labels"
+In the last example above, the final print verb is the dependent clause. Dependent clauses are identified as the statement that begins after the pipe symbol ( | ). There are two functions associated with dependent clauses: printing search results and defining macros.  Macro definitions are a mechanism of making Clarity extensible by the user.  Macros are defined the next section and are often referred to as "statement labels". Printing is described in section IX.
 
-First let's see some examples of ordinary statements.  Here is an example using a SEARCH directive:
+Consider this example of executing SEARCH:
 
 "in the beginning"
 
-Notice that we have one verb and one segment. Also notice that we have not informed our search engine what to search. So here is another statement using a CONTROL  directive:
+Notice that we have one verb and one segment. Also notice that we have not informed our search engine what to search. So here is another statement using a CONTROL directive:
 
 search.domain = bible
 
-If we had run this configuration command prior to the search command listed above, our first match would be found in Genesis 1:1. But as the source domain of our search is a key element of our search, we should have a way to express both of these in a single command. And this is the rationale behind a compound statement. A compound statement has more than one segment. To combine the previous two statements into one compound statement, we will issue this command:
+If we had run this configuration command prior to the search command listed above, our first match would be found in Genesis 1:1. But as the source domain of our search is a key element of our search, we should have a way to express both of these in a single command. And this is the rationale behind a compound statement. A compound statement has more than one segment. To combine the previous two segments into one compound statement, issue this command:
 
-"in the beginning" :: search.domain=bible
-
-Segments in compound statements are delimited by double colons ( :: ).
+"in the beginning" // search.domain=bible
 
 ### IV. Statement Labels
 
@@ -119,11 +126,11 @@ For example:
 
 Labelled statements also support compounding, as follows:
 
-{genesis} :: {my label can contain spaces}
+{genesis} // {my label can contain spaces}
 
 As the previous command is valid syntax for a statement, it even follows that we can define this macro:
 
-{genesis} :: {my label can contain spaces} | define sample
+{genesis} // {my label can contain spaces} | define sample
 
 Later I can issue this command:
 
@@ -131,11 +138,11 @@ Later I can issue this command:
 
 Which is obviously equivalent to executing these labeled statements:
 
-{genesis} :: {my label can contain spaces}
+{genesis} // {my label can contain spaces}
 
 Labels can be defined in terms of an ordinary statement or using one or more labels inside of braces. And the two constructs can be mixed
 
-{derived}: {original} :: "find some more text"
+{derived}: {original} // "find some more text"
 
 To illustrate this further, here are four more examples of labeled statement definitions:
 
@@ -149,53 +156,54 @@ eternal | define {F2}
 
 We can execute these as a compound statement by issuing this command:
 
- {C1} :: {C2} :: {F1} :: {F2}
+ {C1} // {C2} // {F1} // {F2}
 
 Similarly, we could define another label from these, by issuing this command:
 
-{C1} :: {C2} :: {F1} :: {F2} | {sample2}
+{C1} // {C2} // {F1} // {F2} | {sample2}
 
-if we exand this macro ...
+if we expand this macro ...
 
 expand {sample2}
 
 The expansion would be:
 
-search.exact = 1 ::  search.span  = 8 :: Godhead :: eternal
+search.exact = 1 //  search.span  = 8 // Godhead // eternal
 
 ### V. More about Segmentation of Clarity Statements
 
-If an execution ONLY contains CONTROL verbs, then the key-value pairs affect the session (or saved for future sessions when it is prefixed with a hash-tag). SESSION scope is always implied when paired with a SEARCH or DISPLAY directives. The primary verb of the command always defines the scope. For example, CONTROL variables are always session scope when combined with a SEARCH or DISPLAY directives.
+If an execution ONLY contains CONTROL verbs, then the key-value pairs affect the session (or saved for future sessions when it is prefixed with a hash-tag). SESSION scope is always implied when segments are combined with SEARCH or DISPLAY segments.
 
-| **Primary Directive** | **Secondary Directives** | Dependent Clause | Example                     |
-| --------------------- | ------------------------ | ---------------- | --------------------------- |
-| SEARCH                | any ordinary verb        | allowed          | godhead :: span=8           |
-| CONTROL               | any CONTROL verb         | allowed          | format=text::span=7         |
-| MACRO                 | any ordinary MACRO verb  | not allowed      | godhead \| define {trinity} |
+| **Operative Segment** | Secondary Segments      | Dependent Clauses | Example                     |
+| --------------------- | ----------------------- | ----------------- | --------------------------- |
+| SEARCH                | any ordinary verb       | allowed           | godhead // span=8           |
+| CONTROL               | any CONTROL verb        | allowed           | format=text // span=7       |
+| MACRO                 | any ordinary MACRO verb | not allowed       | godhead \| define {trinity} |
+| ENVIRONMENT           | not allowed             | not allowed       | #backup now                 |
 
 **TABLE 5-1** -- **Primary** and **Secondary** Directives
 
-When CONTROL symbols (#) are included and combined with SEARCH, this causes downgrading of CONTROL to session-scope.
+When hash-tags (#) prefixes on CONTROL segments are coupled with SEARCH, downgrading to session scope occurs on the CONTROL settings.
 
-When multiple CONTROL directives compose a single statement, then the lowest scope of any segment ALWAYS applies to all segments of the statement.
+Similarly, when multiple CONTROL directives compose a single statement, then the lowest scope of any segment ALWAYS applies to all segments of the statement.
 
 Example:
 
-#span = 8 :: @exact = 0
+#span = 8 // exact = 0
 
 is synonymous after downgrading with:
 
-@span = 8 :: @exact = 0
+span = 8 // exact = 0
 
 ### VI. Clarity SEARCH Segments
 
 Consider the proximity search where the search target is the bible. Here is an example search using Clarity syntax:
 
-*domain=bible :: beginning created earth*
+*domain=bible // beginning created earth*
 
 Clarity syntax can alter the span by supplying a CONTROL segment:
 
-*source=bible :: span=8 :: beginning created earth*
+*domain=bible // span=8 // beginning created earth*
 
 The statement above has two CONTROL segments and one SEARCH segment 
 
@@ -219,13 +227,13 @@ These constructs can even be combined. For example:
 
 The search criteria above is equivalent to this search:
 
-*“God created ... Heaven” :: “God created ... Earth”*
+*“God created ... Heaven” // “God created ... Earth”*
 
 In all cases, “...” means “followed by”, but the ellipsis allows other words to appear between created and heaven. Likewise, it allows words to appear between created and Earth.
 
 AV Text Ministries imagines that Clarity HMI can be applied broadly in the computing industry and can easily be applied outside of the narrow domain of biblical studies. For example, the Clarity syntax could easily handle statements such as:
 
-​     *domain=Wall Street Journal :: “Biden ... tax increases”*
+​     *domain=Wall Street Journal // “Biden ... tax increases”*
 
 Of course, translating the commands into actual search results might not be trivial for the application developer. Still, the reference implementation that parses a Clarity command is freely available in the reference implementation.
 
@@ -235,7 +243,7 @@ Clarity is designed to be intuitive. It provides the ability to invoke Boolean l
 
 This statement uses Boolean multiplication and is equivalent to this lengthier statement:
 
-*you shall not surely die :: thou shall not surely die :: ye shall not surely die*
+*you shall not surely die // thou shall not surely die // ye shall not surely die*
 
 The example above also reveals how multiple search segments can be strung together to form a compound search: logically speaking, each segment is OR’ed together; this implies that any of the three matches is acceptable. using parenthetical terms produces more concise search statements.
 
@@ -243,7 +251,7 @@ The example above also reveals how multiple search segments can be strung togeth
 
 While some of these concepts have already been introduced, the following section can be used as a glossary for the terminology used in the Clarity HMI specification.
 
-**Directives** are composed by verbs and are used to construct statements for the Clarity Command Interpreter. Each directive has specialized syntax tailored to the imperative verb used in the statement. The directive limits the type of segments that may follow. Most directives permit only a single segment type. DISPLAY and SEARCH directives also allow SCOPE segments. There are five types of directives. These correspond exactly to five verb classes. While there are nine verbs, there are only five verb-classes. The verb-classes correspond exactly to one of the five directive types.
+**Directives** are composed by verbs and are used to construct statements for the Clarity Command Interpreter. Each directive has specialized syntax tailored to the imperative verb used in the statement. The directive limits the type of segments that may follow. Most directives permit only a single segment type. DISPLAY and SEARCH directives also allow SCOPE segments.
 
 **Segments:** the verb is followed by one or more segments. Each segment has a type, and the type of the segment must be compatible with the directive. As there are five types of directives, it not a coincidence that there are five types of segments. It is noteworthy that the syntax of a STATUS segment is identical to the syntax of a RESET segment, but we still consider the segment types to be distinct.
 
@@ -251,7 +259,11 @@ While some of these concepts have already been introduced, the following section
 
 **SEARCH segment**: Each segment contains one or more *search terms*. A SEARCH segment is either unquoted statement or quoted.
 
-**Unquoted SEARCH segment:** an unquoted segment contains one or more search words. If there is more than one word, then each word is logically AND’ed with all other words within the segment. Like all other types of segments, the end of the segment terminates with a plus-sign or a newline.
+**Unquoted SEARCH segment:** an unquoted segment contains one or more search words. If there is more than one word, then each word is logically AND’ed with all other words within the segment. Like all other types of segments, the end of the segment terminates with any of this punctuation:
+
+- // [double-slash]
+- /- [slash-minus]
+- the end-of-the-line [newline]
 
 **NOTE:**
 
@@ -269,27 +281,27 @@ It is called *quoted,* as the entire segment is sandwiched on both sides by doub
 
 **Bracketed Terms:** When searching, there are part the order of some terms within a quoted are unknown. Square brackets can be used to identify such terms. For example, consider this SEARCH statement:
 
-*“[God created] heaven and earth” :: source=bible*
+*“[God created] heaven and earth” // source=bible*
 
 The above statement is equivalent to
 
-*“God created heaven and earth” + “created God heaven and earth” + source=bible*
+*“God created heaven and earth” // “created God heaven and earth” // source=bible*
 
-**and:** In Boolean logic, ***and\*** means that all terms must be found. With Clarity-HMI, *and* is represented by terms that appear within an unquoted segment. 
+**and:** In Boolean logic, **and** means that all terms must be found. With Clarity-HMI, *and* is represented by terms that appear within an unquoted segment. 
 
-**or:** In Boolean logic, ***or\*** means that any term constitutes a match. With Clarity=HMI, *or* is represented by the double-colon ( **::** ) between SEARCH segments. 
+**or:** In Boolean logic, **or** means that any term constitutes a match. With Clarity=HMI, *or* is represented by the double-slash ( **//** ) between SEARCH segments. 
 
-**not:** In Boolean logic, **not** means that the term must not be found. With Clarity, *not* is represented by a colon+minus-sign+colon ( **:-:** ) and applies to an entire segment (it cannot be applied to individual words unless the search segment has only a single term). In other words, a :-: means subtract results; it cancels-out matches against all matches of other segments. Most segments are additive as each additional segment increases search results. Contrariwise, a **not** segment is subtractive as it decreases search results.
+**not:** In Boolean logic, **not** means that the term must not be found. With Clarity, *not* is represented by a slash+minus ( **/-** ) and applies to an entire segment (it cannot be applied to individual words unless the search segment has only a single term). In other words, a ​/-​ means subtract results; it cancels-out matches against all matches of other segments. Most segments are additive as each additional segment increases search results. Contrariwise, a **not** segment is subtractive as it decreases search results.
 
 **NOTE:**
 
-The :-: means that the segment will be subtracted from the search results while its absence means that the segment will be added to the search results. When only a single segment follows a SEARCH directive, it is always positive. A single negative segment following the find imperative, while it might be grammatically valid syntax, will never match anything. Therefore, while permitted in theory, it would have no real-world meaning. Consequently, some implementations of Clarity-HMI may disallow such a construct.
+The /- means that the segment will be subtracted from the search results while its absence means that the segment will be added to the search results. When only a single segment follows a SEARCH directive, it is always positive. A single negative segment following the find imperative, while it might be grammatically valid syntax, will never match anything. Therefore, while permitted in theory, it would have no real-world meaning. Consequently, some implementations of Clarity-HMI may disallow such a construct.
 
 **More Examples:**
 
 Consider a query for all passages that contain God AND created, but NOT containing earth AND NOT containing heaven:
 
-*domain=bible.old-testament :: span = 15 :: created GOD :-: Heaven Earth*
+*domain = bible.old-testament // span = 15 // created GOD /- Heaven Earth*
 
 *(this could be read as: find in the old testament using a span of 15, the words*
 
@@ -337,10 +349,6 @@ in a beginning, God created heaven and earth
 
  
 
-To issue a query to find ANY words, separating each word with double-colon would be the simplest form to find ANY of these five words:
-
-*Lord :: God :: messiah :: Jesus :: Christ*
-
 If you are unsure about word order within a phrase, square brackets can be used:
 
 find "in the beginning … [earth heaven]"
@@ -379,12 +387,13 @@ The "*print*" verb has very limited grammar. And it can only be used in a depend
 
 
 
-| **SCOPE**     | **example**                           |
-| ------------- | ------------------------------------- |
-| Session Scope | *clarity*.host= https://avbible.net/  |
-| Session Scope | [*clarity*.host]                      |
-| System scope  | #*clarity*.host= https://avbible.net/ |
-| System scope  | #[*clarity*.host]                     |
+| **SCOPE**     | **example**                           | **explanation**                              |
+| ------------- | ------------------------------------- | -------------------------------------------- |
+| Session Scope | *clarity*.host = https://avbible.net/ | Setting a control variable for session       |
+| System scope  | #*clarity*.host= https://avbible.net/ | Setting a control variable for system        |
+| Session Scope | -[*clarity*.host]                     | clear a control variable (system or session) |
+| System Scope  | -#[*clarity*.host]                    | clear control variable (system or session)   |
+| Either Scope  | [*clarity*.host]                      | get a control variable (system or session)   |
 
 **TABLE 8-3** -- **get**/**set** and **#get/#set** command can be used to retrieve Clarity configuration settings
 
@@ -396,12 +405,13 @@ The "*print*" verb has very limited grammar. And it can only be used in a depend
 | System scope  | *find Jesus \| #{my macro}* | *macro stored on local file system or PC*          |
 | Session Scope | *-{my macro}*               | *removes session-defined macro*                    |
 | System scope  | *-#{my macro}*              | *removes macro stored on local file system  or PC* |
+| Either Scope  | #expand                     | *expand a macro (system or session)*               |
 
 **TABLE 8-4 -- Macro definitions can utilize either scope**
 
 
 
-**STATUS directives:**
+:x:**STATUS directives:**
 
 There are two status directives. One displays the current setting for the session:
 
@@ -427,11 +437,11 @@ Defaults for SEARCH directives can be globally restored (for this and any future
 
 When *clear* verbs are used alongside *set* verbs, clear verbs are always executed after *set* verbs. 
 
-#clear span + set span = 7 `>> implies >>` #clear span
+#clear span // set span = 7 `>> implies >>` #clear span
 
-When multiple segments contain the same setting, the last setting in the list is preserved.  Example:
+Otherwise, when multiple segments contain the same setting, the last setting in the list is preserved.  Example:
 
- set format = docx + set format = text `>> implies >>` set format = text
+md`>> implies >>` set format = text
 
 | Control Name    | Short Name | Meaning                      | Values    | Visibility |
 | --------------- | ---------- | ---------------------------- | --------- | ---------- |
@@ -495,7 +505,7 @@ NOTE: Display-coordinates are driver-specific and not part of standard Clarity d
 
 We can also decorate/annotate each record that we find. Using Clarity-AVX extensions, adding an annotation to each search result can be accomplished by adding this to the print statement:
 
-*print* [1,2,3] + display.record = %book% %chapter%\\:%verse% \\(KJV\\\)\\:\\n%text%
+display.record = %book% %chapter%\\:%verse% \\(KJV\\\)\\:\\n%text% | print
 
 A more vanilla decoration might be:
 
@@ -533,7 +543,7 @@ The minimum span has to be four(4). So the Clarity parser will adjust the search
 
 | TYPE                   | Special characters |
 | ---------------------- | ------------------ |
-| ADDITIVE SEPERATORS    | ::                 |
+| ADDITIVE SEPERATORS    | //                 |
 | SUBTRACTIVE SEPERATORS | :-                 |
 
 **SPECIAL CHARACTERS & OPERATOR PRECEDENCE :** :x: REVIEW THIS:
