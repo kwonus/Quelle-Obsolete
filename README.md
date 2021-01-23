@@ -1,6 +1,6 @@
 # Quelle-HMI
 
-#### Human Machine Interface = Searching sources; light as a feather
+#### Searching sources ... light as a feather
 
 With the source code contained herein, and companion github/kwonus projects, the simplicity of creating a
 Quelle driver using this ClarityHMI library is exemplified. This code can be used as a template to create your own driver, or it can be subclassed to extend behavior: Specifically, the Cloud*() methods need implementations in the subclass to provide the actual search functionality.
