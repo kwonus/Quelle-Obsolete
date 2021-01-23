@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using static ClarityHMI.HMIStatement;
+using static QuelleHMI.HMIStatement;
 using System.Linq;
 
-namespace ClarityHMI
+namespace QuelleHMI
 {
     public class HMISegment
     {

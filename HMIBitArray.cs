@@ -4,7 +4,7 @@ using System.IO;
 using System.Text;
 using Newtonsoft.Json;
 
-namespace ClarityHMI
+namespace QuelleHMI
 {
     //  This class is designed to assist in serialization/deserialization of AVXSearchBits
     //

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace ClarityHMI
+namespace QuelleHMI
 {
     public class ControlInfo
     {
@@ -42,8 +42,8 @@ namespace ClarityHMI
     {
         public const string SEARCH  = "search";
         public const string DISPLAY = "display";
-        public const string CLARITY = "clarity";
-        public const string MACROS  = "macro";
+        public const string QUELLE = "quelle";
+        public const string MACROS = "macros";
 
         public Dictionary<string, Dictionary<string, string>> Configuration
         {
@@ -55,7 +55,7 @@ namespace ClarityHMI
         {
             this.StandardConfig = new Dictionary<string, Dictionary<string, ControlInfo>>()
             {
-                { CLARITY,  StandardConfig_CLARITY }, 
+                { QUELLE,  StandardConfig_QUELLE }, 
                 { DISPLAY,  StandardConfig_DISPLAY },
                 { SEARCH,   StandardConfig_SEARCH },
                 { MACROS,   new Dictionary<string, ControlInfo>() }
@@ -80,35 +80,35 @@ namespace ClarityHMI
         {
             { "span",    new ControlInfo(0, 0, 1000) }
         };
-        private static Dictionary<string, ControlInfo> StandardConfig_CLARITY = new Dictionary<string, ControlInfo>()
+        private static Dictionary<string, ControlInfo> StandardConfig_QUELLE = new Dictionary<string, ControlInfo>()
         {
             { "host",    new ControlInfo() },
             { "debug",   new ControlInfo(0, 0, 1, hidden:true) },
             { "data",    new ControlInfo(new string[] { "binary", "json", "xml", "pb" }, hidden:true) }
         };
 
-        public class ClarityResultString: IClarityResultString
+        public class HMIResultString: IQuelleResultString
         {
             public string result { get; protected set; }
             public bool success { get; protected set; }
             public string[] errors { get; protected set; }
             public string[] warnings { get; protected set; }
 
-            public ClarityResultString(string result = null, string error = null, string warning = null)
+            public HMIResultString(string result = null, string error = null, string warning = null)
             {
                 this.result = result;
                 this.success = (result != null) && (error == null);
                 this.errors = (error != null) ? new string[] { error.Trim() } : null;
                 this.warnings = (warning != null) ? new string[] { warning.Trim() } : null;
             }
-            public ClarityResultString()
+            public HMIResultString()
             {
                 this.result = null;
                 this.success = false;
                 this.errors = null;
                 this.warnings = null;
             }
-            public ClarityResultString AddWarning(string warning)
+            public HMIResultString AddWarning(string warning)
             {
                 int resize = this.warnings != null ? this.warnings.Length : 1;
                 string[] array = new string[resize];
@@ -119,87 +119,87 @@ namespace ClarityHMI
 
                 return this;
             }
-            private ClarityResultString(IClarityResultObject result)
+            private HMIResultString(IQuelleResultObject result)
             {
                 this.result = (string) result.result;
                 this.success = result.success;
                 this.errors = result.errors;
                 this.warnings = result.warnings;
             }
-            public static ClarityResultString Create(IClarityResultObject result)
+            public static HMIResultString Create(IQuelleResultObject result)
             {
-                return (result != null) ? new ClarityResultString(result) : new ClarityResultString();
+                return (result != null) ? new HMIResultString(result) : new HMIResultString();
             }
         }
-        public class ClarityResult : IClarityResult
+        public class HMIResult : IQuelleResult
         {
             public bool success { get; protected set; }
             public string[] errors { get; protected set; }
             public string[] warnings { get; protected set; }
 
-            public ClarityResult(bool success)
+            public HMIResult(bool success)
             {
                 this.success = success;
                 this.errors = null;
                 this.warnings = null;
             }
-            public ClarityResult(string error)
+            public HMIResult(string error)
             {
                 this.success = false;
                 this.errors = new string[] { error.Trim() };
                 this.warnings = null;
             }
-            public ClarityResult(string error, string warning)
+            public HMIResult(string error, string warning)
             {
                 this.success = false;
                 this.errors = new string[] { error.Trim() };
                 this.warnings = new string[] { warning.Trim() };
             }
-            public ClarityResult(bool success, string warning)
+            public HMIResult(bool success, string warning)
             {
                 this.success = success;
                 this.errors = null;
                 this.warnings = new string[] { warning.Trim() };
             }
-            public ClarityResult()
+            public HMIResult()
             {
                 this.success = false;
                 this.errors = null;
                 this.warnings = null;
             }
         }
-        public class ClarityResultObject : ClarityResult, IClarityResultObject
+        public class HMIResultObject : HMIResult, IQuelleResultObject
         {
             public object result { get; protected set; }
 
-            public ClarityResultObject(bool success, object obj) : base(success)
+            public HMIResultObject(bool success, object obj) : base(success)
             {
                 this.result = obj;
             }
-            internal ClarityResultObject(string error, object obj) : base(error)
-            {
-                if (this.success)
-                    this.success = (obj != null);
-                this.result = obj;
-            }
-            public ClarityResultObject(string error, string warning, object obj) : base(error, warning)
+            internal HMIResultObject(string error, object obj) : base(error)
             {
                 if (this.success)
                     this.success = (obj != null);
                 this.result = obj;
             }
-            public ClarityResultObject(bool success, string warning, object obj) : base(success,warning)
+            public HMIResultObject(string error, string warning, object obj) : base(error, warning)
             {
                 if (this.success)
                     this.success = (obj != null);
                 this.result = obj;
             }
-            public ClarityResultObject(object obj) : base()
+            public HMIResultObject(bool success, string warning, object obj) : base(success,warning)
+            {
+                if (this.success)
+                    this.success = (obj != null);
+                this.result = obj;
+            }
+            public HMIResultObject(object obj) : base()
             {
                 this.success = (obj != null);
                 this.result = obj;
             }
-            public ClarityResultObject(string error) : base(error)
+            public HMIResultObject(string error) : base(error)
             {
                 this.result = null;
             }
@@ -208,7 +208,7 @@ namespace ClarityHMI
         protected readonly static char[] dot = new char[] { '.' };
 
         protected static string _root = null;
-        public static string ClarityHome
+        public static string QuelleHome
         {
             get
             {
@@ -231,7 +231,7 @@ namespace ClarityHMI
                     }
                     _root = dir;
                 }
-                return Path.Combine(_root, "Clarity-HMI");  // always combine so that _root is immutable
+                return Path.Combine(_root, "Quelle");  // always combine so that _root is immutable
             }
         }
         private /*deprecated*/  static bool __WriteGlobalSetting(string keypath, string value)

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ClarityHMI
+namespace QuelleHMI
 {
     public enum HMIScope
     {

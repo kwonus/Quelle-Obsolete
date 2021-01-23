@@ -2,8 +2,11 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <AssemblyName>ClarityHMI</AssemblyName>
-    <RootNamespace>ClarityHMI</RootNamespace>
+    <AssemblyName>QuelleHMI</AssemblyName>
+    <RootNamespace>QuelleHMI</RootNamespace>
+    <Authors>Kevin Wonus</Authors>
+    <Company>AV Text Ministries</Company>
+    <Product>Quelle-HMI</Product>
   </PropertyGroup>
 
   <ItemGroup>
