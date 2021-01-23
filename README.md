@@ -21,7 +21,10 @@ Every attempt has been made to keep the Quelle syntax agnostic about the search 
 user documentation itself is heavily biased in its syntax examples. Still, the search domain of the
 StandardQuelleDriver remains unbiased.
 
-Concise notes on how punctuation is used to represent Boolean expressions.  More complete documentation is soon to be forthcoming.
+Concise notes on how punctuation is used to represent Boolean expressions.  More complete documentation can be found 
+[here]: https://github.com/kwonus/Quelle/blob/master/Quelle.md	"Quelle HMI Version 1.0"
+
+.
 
 ```
 a b (c d) // "(e f) g [h i] j" // "[k l]...m...(n o)" // "[(p q) r s] t" //"*men boy*"
