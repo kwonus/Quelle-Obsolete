@@ -1,18 +1,18 @@
-# Clarity Specification
+# Quelle-HMI v1.0 Specification
 
 ### I. Background
 
-Most modern search engines, provide a mechanism for searching via a text input box where the user is expected to type search terms. While primitive, this interface was pioneered by major web-search providers and represented an evolution from the far more complex interfaces that came earlier. When you search for multiple terms, however, there seems to be only one basic paradigm: “find every term”. At AV Text Ministries, we believe that the vast world of search is rife for a search-syntax that moves us past only basic search expressions. To this end, we are proposing a Human-Machine-Interface (HMI) that can be invoked within a simple text input box. The syntax fully supports basic Boolean operations such as AND, OR, and NOT. While great care has been taken to support the construction of complex queries, greater care has been taken to maintain a clear and concise syntax. As Clarity was our primary concern, it became the name of our specification. In the spirit of open source licensing, any application can implement the Clarity-HMI specification without royalty. We provide this text-based HMI specification and a corresponding reference implementation of a command interpreter. Both the specification and the reference implementation are shared with the broader community with a liberal MIT open source license.
+Most modern search engines, provide a mechanism for searching via a text input box where the user is expected to type search terms. While primitive, this interface was pioneered by major web-search providers and represented an evolution from the far more complex interfaces that came earlier. When you search for multiple terms, however, there seems to be only one basic paradigm: “find every term”. At AV Text Ministries, we believe that the vast world of search is rife for a search-syntax that moves us past only basic search expressions. To this end, we are proposing a Human-Machine-Interface (HMI) that can be invoked within a simple text input box. The syntax fully supports basic Boolean operations such as AND, OR, and NOT. While great care has been taken to support the construction of complex queries, greater care has been taken to maintain a clear and concise syntax. Quelle in German means "source".  In French, it means "what". In English, it looks like "quill", which is an old-fashioned pen made from a feather.  All of these concepts seem related to what Quelle-HMI is. An earlier interpreter, Clarity-HMI served as inspiration for defining Quelle-HMI.  You could think of Quelle-HMI as version 3.0 of Clarity-HMI.  However, in order to create a linguistic consistency to the Quelle, the resulting syntax varied so much  from the Clarity baseline that a name-change was in order.  Quelle-HMI is truly a brand new specification that incorporates many lessons learned after crafting and revising Clarity-HMI for over a decade. Any application can implement the Quelle-HMI specification without royalty. We provide this text-based HMI specification and a corresponding reference implementation of a command interpreter in C#. Both the specification and the reference implementation are shared with the broader community with a liberal MIT open source license.
 
 ### II. Overview
 
-The Clarity-HMI maintains the assumption that proximity of terms to one another is an important aspect of searching unstructured data. Ascribing importance to the proximity between search terms is sometimes referred to as a *proximal* *search* technique. Proximal searches intentionally constrain the number of words that can be used to constitute a match. The Clarity HMI specification defines that range between search terms as the *span*.
+The Quelle-HMI maintains the assumption that proximity of terms to one another is an important aspect of searching unstructured data. Ascribing importance to the proximity between search terms is sometimes referred to as a *proximal* *search* technique. Proximal searches intentionally constrain the number of words that can be used to constitute a match. The Quelle HMI specification defines that range between search terms as the *span*.
 
-### III. Clarity Syntax
+### III. Quelle Syntax
 
-The Clarity specification defines a declarative syntax for specifying search criteria using the *find* verb. Clarity also defines additional verbs to round out its syntax as a simple straightforward means to interact with custom applications where searching text is the fundamental problem at hand. As mentioned earlier, AV Text Ministries provides a reference implementation. This implementation is written in C# and runs on most operating systems (e.g. Windows, Mac, Linux, iOS, Android, etc).  As source code is provided, it can be seamlessly extended by application programmers.
+The Quelle specification defines a declarative syntax for specifying search criteria using the *find* verb. Quelle also defines additional verbs to round out its syntax as a simple straightforward means to interact with custom applications where searching text is the fundamental problem at hand. As mentioned earlier, AV Text Ministries provides a reference implementation. This implementation is written in C# and runs on most operating systems (e.g. Windows, Mac, Linux, iOS, Android, etc).  As source code is provided, it can be seamlessly extended by application programmers.
 
-Clarity Syntax comprises a standard set of eleven(1) verbs. Each verb corresponds to a basic operation:
+Quelle Syntax comprises a standard set of eleven(1) verbs. Each verb corresponds to a basic operation:
 
 - find
 - print
@@ -26,9 +26,9 @@ Clarity Syntax comprises a standard set of eleven(1) verbs. Each verb correspond
 - restore
 - exit
 
-The verbs listed above are for the English flavor of Clarity. As Clarity is an open and extensible standard, verbs for other languages can be defined without altering the overall syntax structure of the HMI. The remainder of this document describes Version 3.0 of the Clarity-HMI specification.  It should be noted that Clarity 1.0 involved the rebranding of "Simple Imperative v2.0", and thus the skipping of Version 2.0.
+The verbs listed above are for the English flavor of Quelle. As Quelle is an open and extensible standard, verbs for other languages can be defined without altering the overall syntax structure of the HMI. The remainder of this document describes Version 1.0 of the Quelle-HMI specification.  
 
-In Clarity terminology, a statement is made up of segments. Each segment has a single verb. While there are eleven verbs, there are only five distinct types of segments:
+In Quelle terminology, a statement is made up of segments. Each segment has a single verb. While there are eleven verbs, there are only five distinct types of segments:
 
 1. SEARCH segment
    - find
@@ -69,17 +69,17 @@ Each of the seven verbs has a minimum and maximum number of parameters. Some of 
 
 Phrase restricted verbs are unique in that they cannot be used to construct a compound statement.  Dependent phrases can be added as the final clause after an ordinary statement, but cannot be combined in any other way. Simple statements cannot be combined whatsover.
 
-Clarity segments always have a verb, even if the verb might be "silent". From a linguistic standpoint, all Clarity segments are verbal phrases and issued in the imperative. The syntax for each segment is dependent upon the type of directive for the segment, and each type of directive has its own parsing rules and special characters for the segment. The type of segment is controlled by the verb.
+Quelle segments always have a verb, even if the verb might be "silent". From a linguistic standpoint, all Quelle segments are verbal phrases and issued in the imperative. The syntax for each segment is dependent upon the type of directive for the segment, and each type of directive has its own parsing rules and special characters for the segment. The type of segment is controlled by the verb.
 
-Clarity supports three types of statements:
+Quelle supports three types of statements:
 
 1. Simple statements
 2. Ordinary statements
 3. Ordinary statements with a dependent clause
 
-A simple statement always has only a single verb. Some verbs are constrained to be constructed only as simple statements as identified in the table above.  Ordinary statements can have any number of verb phrases; an ordinary statement with more than a single verb is also referred to as a compound statement.  In Clarity, these verb phrases are called "segments".  So another way to describe a simple statement is that it must contain only one segment.  A special type of simple statement in Clarity is a dependent clause.  A dependent clause is still restricted to a single verb, but a dependent clause can be added to any ordinary statement.
+A simple statement always has only a single verb. Some verbs are constrained to be constructed only as simple statements as identified in the table above.  Ordinary statements can have any number of verb phrases; an ordinary statement with more than a single verb is also referred to as a compound statement.  In Quelle, these verb phrases are called "segments".  So another way to describe a simple statement is that it must contain only one segment.  A special type of simple statement in Quelle is a dependent clause.  A dependent clause is still restricted to a single verb, but a dependent clause can be added to any ordinary statement.
 
-Even before we describe Clarity syntax generally, let's look at these concepts using examples:
+Even before we describe Quelle syntax generally, let's look at these concepts using examples:
 
 |                                            | Example                                                    |
 | ------------------------------------------ | ---------------------------------------------------------- |
@@ -88,7 +88,7 @@ Even before we describe Clarity syntax generally, let's look at these concepts u
 | Ordinary statement                         | "search for this text" // "search for other text"          |
 | Ordinary statement with a dependent clause | "search for this text" // "search for other text" \| print |
 
-In the last example above, the final print verb is the dependent clause. Dependent clauses are identified as the statement that begins after the pipe symbol ( | ). There are two functions associated with dependent clauses: printing search results and defining macros.  Macro definitions are a mechanism of making Clarity extensible by the user.  Macros are defined the next section and are often referred to as "statement labels". Printing is described in section IX.
+In the last example above, the final print verb is the dependent clause. Dependent clauses are identified as the statement that begins after the pipe symbol ( | ). There are two functions associated with dependent clauses: printing search results and defining macros.  Macro definitions are a mechanism of making Quelle extensible by the user.  Macros are defined the next section and are often referred to as "statement labels". Printing is described in section IX.
 
 Consider this example of executing SEARCH:
 
@@ -104,7 +104,7 @@ If we had run this configuration command prior to the search command listed abov
 
 ### IV. Statement Labels
 
-In this section, we will examine how user-defined macros are used in Clarity.  A macro in Clarity is a way for the user to label a statement for subsequent use.  By applying a label to a statement, a shorthand mechanism is created for subsequent execution. This gives rise to two new definitions:
+In this section, we will examine how user-defined macros are used in Quelle.  A macro in Quelle is a way for the user to label a statement for subsequent use.  By applying a label to a statement, a shorthand mechanism is created for subsequent execution. This gives rise to two new definitions:
 
 1. Labelling a statement (or defining a macro)
 
@@ -171,7 +171,7 @@ The expansion would be:
 
 search.exact = 1 //  search.span  = 8 // Godhead // eternal
 
-### V. More about Segmentation of Clarity Statements
+### V. More about Segmentation of Quelle Statements
 
 If an execution ONLY contains CONTROL verbs, then the key-value pairs affect the session (or saved for future sessions when it is prefixed with a hash-tag). SESSION scope is always implied when segments are combined with SEARCH or DISPLAY segments.
 
@@ -196,13 +196,13 @@ is synonymous after downgrading with:
 
 span = 8 // exact = 0
 
-### VI. Clarity SEARCH Segments
+### VI. Quelle SEARCH Segments
 
-Consider the proximity search where the search target is the bible. Here is an example search using Clarity syntax:
+Consider the proximity search where the search target is the bible. Here is an example search using Quelle syntax:
 
 *domain=bible // beginning created earth*
 
-Clarity syntax can alter the span by supplying a CONTROL segment:
+Quelle syntax can alter the span by supplying a CONTROL segment:
 
 *domain=bible // span=8 // beginning created earth*
 
@@ -232,13 +232,13 @@ The search criteria above is equivalent to this search:
 
 In all cases, “...” means “followed by”, but the ellipsis allows other words to appear between created and heaven. Likewise, it allows words to appear between created and Earth.
 
-AV Text Ministries imagines that Clarity HMI can be applied broadly in the computing industry and can easily be applied outside of the narrow domain of biblical studies. For example, the Clarity syntax could easily handle statements such as:
+AV Text Ministries imagines that Quelle HMI can be applied broadly in the computing industry and can easily be applied outside of the narrow domain of biblical studies. For example, the Quelle syntax could easily handle statements such as:
 
 ​     *domain=Wall Street Journal // “Biden ... tax increases”*
 
-Of course, translating the commands into actual search results might not be trivial for the application developer. Still, the reference implementation that parses a Clarity command is freely available in the reference implementation.
+Of course, translating the commands into actual search results might not be trivial for the application developer. Still, the reference implementation that parses Quelle statements is freely available in the reference implementation.
 
-Clarity is designed to be intuitive. It provides the ability to invoke Boolean logic on how term matching should be performed. As we saw earlier, parenthesis can be used to invoke Boolean multiplication upon the terms that compose a search expression. For instance, there are situations where the exact word within a phrase is not precisely known. For example, when searching the KJV bible, one might not recall which form of the second person pronoun was used in an otherwise familiar passage. Attempting to locate the serpent’s words to Eve in Genesis, one might execute a search such as:
+Quelle is designed to be intuitive. It provides the ability to invoke Boolean logic on how term matching should be performed. As we saw earlier, parenthesis can be used to invoke Boolean multiplication upon the terms that compose a search expression. For instance, there are situations where the exact word within a phrase is not precisely known. For example, when searching the KJV bible, one might not recall which form of the second person pronoun was used in an otherwise familiar passage. Attempting to locate the serpent’s words to Eve in Genesis, one might execute a search such as:
 
 *(you thou ye) shall not surely die*
 
@@ -248,11 +248,11 @@ This statement uses Boolean multiplication and is equivalent to this lengthier s
 
 The example above also reveals how multiple search segments can be strung together to form a compound search: logically speaking, each segment is OR’ed together; this implies that any of the three matches is acceptable. using parenthetical terms produces more concise search statements.
 
-### VII. Clarity SEARCH Definitions
+### VII. Quelle SEARCH Definitions
 
-While some of these concepts have already been introduced, the following section can be used as a glossary for the terminology used in the Clarity HMI specification.
+While some of these concepts have already been introduced, the following section can be used as a glossary for the terminology used in the Quelle HMI specification.
 
-**Directives** are composed by verbs and are used to construct statements for the Clarity Command Interpreter. Each directive has specialized syntax tailored to the imperative verb used in the statement. The directive limits the type of segments that may follow. Most directives permit only a single segment type. DISPLAY and SEARCH directives also allow SCOPE segments.
+**Directives** are composed by verbs and are used to construct statements for the Quelle Command Interpreter. Each directive has specialized syntax tailored to the imperative verb used in the statement. The directive limits the type of segments that may follow. Most directives permit only a single segment type. DISPLAY and SEARCH directives also allow SCOPE segments.
 
 **Segments:** the verb is followed by one or more segments. Each segment has a type, and the type of the segment must be compatible with the directive. As there are five types of directives, it not a coincidence that there are five types of segments. It is noteworthy that the syntax of a STATUS segment is identical to the syntax of a RESET segment, but we still consider the segment types to be distinct.
 
@@ -288,15 +288,15 @@ The above statement is equivalent to
 
 *“God created heaven and earth” // “created God heaven and earth” // source=bible*
 
-**and:** In Boolean logic, **and** means that all terms must be found. With Clarity-HMI, *and* is represented by terms that appear within an unquoted segment. 
+**and:** In Boolean logic, **and** means that all terms must be found. With Quelle-HMI, *and* is represented by terms that appear within an unquoted segment. 
 
-**or:** In Boolean logic, **or** means that any term constitutes a match. With Clarity=HMI, *or* is represented by the double-slash ( **//** ) between SEARCH segments. 
+**or:** In Boolean logic, **or** means that any term constitutes a match. With Quelle=HMI, *or* is represented by the double-slash ( **//** ) between SEARCH segments. 
 
-**not:** In Boolean logic, **not** means that the term must not be found. With Clarity, *not* is represented by a slash+minus ( **/-** ) and applies to an entire segment (it cannot be applied to individual words unless the search segment has only a single term). In other words, a ​/-​ means subtract results; it cancels-out matches against all matches of other segments. Most segments are additive as each additional segment increases search results. Contrariwise, a **not** segment is subtractive as it decreases search results.
+**not:** In Boolean logic, **not** means that the term must not be found. With Quelle, *not* is represented by a slash+minus ( **/-** ) and applies to an entire segment (it cannot be applied to individual words unless the search segment has only a single term). In other words, a ​/-​ means subtract results; it cancels-out matches against all matches of other segments. Most segments are additive as each additional segment increases search results. Contrariwise, a **not** segment is subtractive as it decreases search results.
 
 **NOTE:**
 
-The /- means that the segment will be subtracted from the search results while its absence means that the segment will be added to the search results. When only a single segment follows a SEARCH directive, it is always positive. A single negative segment following the find imperative, while it might be grammatically valid syntax, will never match anything. Therefore, while permitted in theory, it would have no real-world meaning. Consequently, some implementations of Clarity-HMI may disallow such a construct.
+The /- means that the segment will be subtracted from the search results while its absence means that the segment will be added to the search results. When only a single segment follows a SEARCH directive, it is always positive. A single negative segment following the find imperative, while it might be grammatically valid syntax, will never match anything. Therefore, while permitted in theory, it would have no real-world meaning. Consequently, some implementations of Quelle-HMI may disallow such a construct.
 
 **More Examples:**
 
@@ -360,7 +360,7 @@ in a beginning, God created heaven and earth
 
 
 
-### VIII. More about Segmentation of Clarity Statements
+### VIII. More about Segmentation of Quelle Statements
 
 The "*print*" verb has very limited grammar. And it can only be used in a dependent clause of SEARCH.
 
@@ -377,26 +377,26 @@ The "*print*" verb has very limited grammar. And it can only be used in a depend
 
 
 
-| SCOPE                   | example                            |
-| ----------------------- | ---------------------------------- |
-| Session scope           | span = 7                           |
-| Session or System scope | [span]                             |
-| System scope            | #clarity.host= http://avbible.net/ |
-| System scope            | #[clarity.host]                    |
+| SCOPE                   | example                           |
+| ----------------------- | --------------------------------- |
+| Session scope           | span = 7                          |
+| Session or System scope | [span]                            |
+| System scope            | #quelle.host= http://avbible.net/ |
+| System scope            | #[quelle.host]                    |
 
 **TABLE 8-2** -- **get**/**set** and directives can be used to store & retrieve numerous other settings
 
 
 
-| **SCOPE**     | **example**                           | **explanation**                              |
-| ------------- | ------------------------------------- | -------------------------------------------- |
-| Session Scope | *clarity*.host = https://avbible.net/ | Setting a control variable for session       |
-| System scope  | #*clarity*.host= https://avbible.net/ | Setting a control variable for system        |
-| Session Scope | -[*clarity*.host]                     | clear a control variable (system or session) |
-| System Scope  | -#[*clarity*.host]                    | clear control variable (system or session)   |
-| Either Scope  | [*clarity*.host]                      | get a control variable (system or session)   |
+| **SCOPE**     | **example**                          | **explanation**                              |
+| ------------- | ------------------------------------ | -------------------------------------------- |
+| Session Scope | *quelle*.host = https://avbible.net/ | Setting a control variable for session       |
+| System scope  | #*quelle*.host= https://avbible.net/ | Setting a control variable for system        |
+| Session Scope | -[*quelle*.host]                     | clear a control variable (system or session) |
+| System Scope  | -#[*quelle*.host]                    | clear control variable (system or session)   |
+| Either Scope  | [*quelle*.host]                      | get a control variable (system or session)   |
 
-**TABLE 8-3** -- **get**/**set** and **#get/#set** command can be used to retrieve Clarity configuration settings
+**TABLE 8-3** -- **get**/**set** and **#get/#set** command can be used to retrieve Quelle configuration settings
 
 
 
@@ -452,9 +452,9 @@ md`>> implies >>` set format = text
 | display.heading | heading    | heading of results           | string    | normal     |
 | display.record  | record     | annotation of results        | string    | normal     |
 | display.format  | format     | display format of results    | Table 8-1 | normal     |
-| clarity.host    | host       | URL of driver                | string    | normal     |
-| clarity.debug   | debug      | on or off                    | 0 or 1    | *hidden*   |
-| clarity.data    | span       | clarity data format          | binary    | *hidden*   |
+| quelle.host     | host       | URL of driver                | string    | normal     |
+| quelle.debug    | debug      | on or off                    | 0 or 1    | *hidden*   |
+| quelle.data     | span       | quelle data format           | binary    | *hidden*   |
 
 **TABLE 8-5 -- List of Controls** (The control parameters are applicable to ***set***, ***get*** and ***clear*** verbs)
 
@@ -464,7 +464,7 @@ md`>> implies >>` set format = text
 | -------------- | ---------------- | --------- |
 | display.*      | display          | cloud     |
 | search.*       | search           | cloud     |
-| clarity.*      | clarity          | system    |
+| quelle.*       | quelle           | system    |
 
 **TABLE 8-6 -- Wildcard usage on Controls** (wildcard usage only applies to ***get*** and ***clear*** verbs)
 
@@ -502,9 +502,9 @@ To print the first three entries with a single display-coordinate:
 
 *print* genesis:1:1
 
-NOTE: Display-coordinates are driver-specific and not part of standard Clarity driver definition; The display-coordinate in the example above is compatible with the Clarity-AVX implementation
+NOTE: Display-coordinates are driver-specific and not part of standard Quelle driver definition; The display-coordinate in the example above is compatible with the Quelle-AVX implementation
 
-We can also decorate/annotate each record that we find. Using Clarity-AVX extensions, adding an annotation to each search result can be accomplished by adding this to the print statement:
+We can also decorate/annotate each record that we find. Using Quelle-AVX extensions, adding an annotation to each search result can be accomplished by adding this to the print statement:
 
 display.record = %book% %chapter%\\:%verse% \\(KJV\\\)\\:\\n%text% | print
 
@@ -512,7 +512,7 @@ A more vanilla decoration might be:
 
 *print* [1,2,3] + display.record= \<a href=\\"%url%\\"\>%abstract%\</a\>
 
-Keep in mind, however, the above two examples above are purely notional, your Clarity driver must such record annotations for them to render as expected. Consult the documentation for your Clarity cloud-capable driver to determine what record annotations are available in your driver.
+Keep in mind, however, the above two examples above are purely notional, your Quelle driver must such record annotations for them to render as expected. Consult the documentation for your Quelle cloud-capable driver to determine what record annotations are available in your driver.
 
 So to break open the fragment from the *print* example above:
 
@@ -520,7 +520,7 @@ In a separate example, we can label all results using the heading command:
 
 *print* display.heading = Verses containing 'Godhead' + %heading% %label% *
 
-The syntax above, while biased towards ClarityAVX search results is standard Clarity-HMI syntax and supported in the standard Clarity driver implementation.
+The syntax above, while biased towards Quelle-AVX search results is standard Quelle-HMI syntax and supported in the standard Quelle driver implementation.
 
 Final notes about *print*:
 
@@ -532,11 +532,11 @@ Final notes about *print*:
 
 In all cases, any number of spaces can be used between operators and terms. 
 
-Also noteworthy: The reference Clarity implementation automatically adjusts the span of your to be inclusive of the number of search terms for the largest segment. So if you were to express:
+Also noteworthy: The reference Quelle implementation automatically adjusts the span of your to be inclusive of the number of search terms for the largest segment. So if you were to express:
 
 **find span=1 + in the beginning (God Lord Jesus Christ Messiah)**
 
-The minimum span has to be four(4). So the Clarity parser will adjust the search criteria as if the following command had been issued:
+The minimum span has to be four(4). So the Quelle parser will adjust the search criteria as if the following command had been issued:
 
 **find span=4 + in the beginning (God Lord Jesus Christ Messiah)**
 
@@ -564,7 +564,7 @@ There is one final variant of the print statement:
 
 *print* help
 
-This will provide a help message in a Clarity interpreter.
+This will provide a help message in a Quelle interpreter.
 
 ------
 
