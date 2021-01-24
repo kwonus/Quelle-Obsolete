@@ -63,10 +63,10 @@ namespace QuelleHMI
         public const string MACRODEF= "DEFINITION"; // MACROS
 
         private static Dictionary<string, string[]> IndependentClauses = new Dictionary<string, string[]>() {
-            {SEARCH,    new string[] {SUMMARIZE, FIND }},                         // When using default segment identification, the first entry ("search") is always the implied result
-            {SETTERS,   new string[] {"@set", "#set" }},                          // When using default segment identification, the first entry ("set") is always the implied result
-            {GETTERS,   new string[] {"@get", "#get", "@expand", "#expand" }},    // registry-like program settings
-            {REMOVAL,   new string[] {"@clear", "#clear", "@remove", "#remove" }} // registry-like program settings
+            {SEARCH,    new string[] {SUMMARIZE, FIND }},       // When using default segment identification, the first entry ("search") is always the implied result
+            {SETTERS,   new string[] {"#set" }},                // When using default segment identification, the first entry ("set") is always the implied result
+            {GETTERS,   new string[] {"#get", "#expand" }},     // registry-like program settings
+            {REMOVAL,   new string[] {"#clear", "#remove" }}    // registry-like program settings
         };
         private static Dictionary<string, string[]> SimpleClauses = new Dictionary<string, string[]>() {
             {DISPLAY,   new string[] { PRINT } },
@@ -74,7 +74,7 @@ namespace QuelleHMI
         };
         private static Dictionary<string, string[]> DependentClauses = new Dictionary<string, string[]>() {
             {DISPLAY,   new string[] {"format" } },
-            {MACRODEF,  new string[] {"@define", "#define" } }
+            {MACRODEF,  new string[] {"define" } }
         };
         //  Independent/Ordinary Clauses
         public static string[] SearchVerbs => IndependentClauses[SEARCH];
@@ -82,8 +82,8 @@ namespace QuelleHMI
         public static string[] SetterVerbs => IndependentClauses[SETTERS];
         public static string[] GetterVerbs => IndependentClauses[GETTERS];
 
-        public static string SUMMARIZE => "@search";
-        public static string FIND => "@find";
+        public static string SUMMARIZE => "#search";
+        public static string FIND => "#find";
         public static string SET => SetterVerbs[0];
 
         public static string GET => GetterVerbs[0];
@@ -102,13 +102,13 @@ namespace QuelleHMI
         //  Simple Clause Verbs
         public static string[] ProgramVerbs => SimpleClauses[PROGRAM];
 
-        public const string HELP    = "@help";
-        public const string BACKUP  = "@backup";
-        public const string RESTORE = "@restore";
-        public const string EXIT    = "@exit";
+        public const string HELP    = "#help";
+        public const string BACKUP  = "#backup";
+        public const string RESTORE = "#restore";
+        public const string EXIT    = "#exit";
 
         public static string[] SimpleDisplayVerbs => SimpleClauses[DISPLAY];
-        public const string PRINT   = "@print";
+        public const string PRINT   = "#print";
 
         public string misplaced { get; protected set; }
 

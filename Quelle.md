@@ -64,19 +64,19 @@ Each of the fourteen verbs has a minimum and maximum number of parameters. Some 
 | Prefixes | Verb        | Phrase Restriction |   Silent   | Segment Type | Arguments | Required Operators |
 | :------: | ----------- | :----------------: | :--------: | ------------ | --------- | :----------------: |
 |          | **search**  |                    |   **x**    | SEARCH       | 1 or more |                    |
-|    @     | **find**    |                    |            | SEARCH       | 1 or more |                    |
-|    @     | **print**   |     **simple**     |            | DISPLAY      | 0 or more |                    |
+|    #     | **find**    |                    |            | SEARCH       | 1 or more |                    |
+|    #     | **print**   |     **simple**     |            | DISPLAY      | 0 or more |                    |
 |    \|    | **format**  |   **dependent**    |            | DISPLAY      | 0 or more |                    |
-|  \| @ #  | **define**  |   **dependent**    |            | MACRO        | 1         |        { }         |
-|   @ #    | **expand**  |                    |            | MACRO        | 1         |        { }         |
-|   @ #    | **remove**  |                    |            | MACRO        | 1         |        { }         |
-|   @ #    | **set**     |                    | *optional* | CONTROL      | 2         |         =          |
-|   @ #    | **get**     |                    |            | CONTROL      | 1         |                    |
-|   @ #    | **clear**   |                    |            | CONTROL      | 1         |                    |
-|    @     | **help**    |     **simple**     |            | ENVIRONMENT  | 0 or 1    |                    |
-|    @     | **backup**  |     **simple**     |            | ENVIRONMENT  | 1 to 3    |                    |
-|    @     | **restore** |     **simple**     |            | ENVIRONMENT  | 1 or 3    |                    |
-|    @     | **exit**    |     **simple**     |            | ENVIRONMENT  | 0         |                    |
+|    \|    | **define**  |   **dependent**    |            | MACRO        | 1         |        { }         |
+|    #     | **expand**  |                    |            | MACRO        | 1         |        { }         |
+|    #     | **remove**  |                    |            | MACRO        | 1         |        { }         |
+|    #     | **set**     |                    | *optional* | CONTROL      | 2         |         =          |
+|    #     | **get**     |                    |            | CONTROL      | 1         |                    |
+|    #     | **clear**   |                    |            | CONTROL      | 1         |                    |
+|    #     | **help**    |     **simple**     |            | ENVIRONMENT  | 0 or 1    |                    |
+|    #     | **backup**  |     **simple**     |            | ENVIRONMENT  | 1 to 3    |                    |
+|    #     | **restore** |     **simple**     |            | ENVIRONMENT  | 1 or 3    |                    |
+|    #     | **exit**    |     **simple**     |            | ENVIRONMENT  | 0         |                    |
 
 **TABLE 3-1 -- Detailed verb descriptions with syntax implications**
 
@@ -134,12 +134,6 @@ It’s that simple, now instead of typing the entire statement, we can use the l
 
 {genesis}
 
-By default, labeled commands are scoped to the session and are in other words volatile (when the session is closed all volatile settings are silently discarded) .  If the user desires macros to be saved after they exit the session, then the command should be scoped to the system.  System scope is invoked by prefixing the verb with a hash-tag ( # ).
-
-For example:
-
-“in the beginning” // search.domain=bible | #define {genesis} 
-
 Labelled statements also support compounding, as follows:
 
 {genesis} // {my label can contain spaces}
@@ -188,7 +182,7 @@ search.exact = 1 //  search.span  = 8 // Godhead // eternal
 
 ### V. More about Segmentation of Quelle Statements
 
-If an execution ONLY contains CONTROL verbs, then the key-value pairs affect the session (or saved for future sessions when it is prefixed with a hash-tag). SESSION scope is always implied when segments are combined with SEARCH or DISPLAY segments.
+If an execution ONLY contains CONTROL verbs, then the key-value pairs are saved. Otherwise, they only affect the current statement.
 
 | **Operative Segment** | Secondary Segments      | Dependent Clauses | Example                     |
 | --------------------- | ----------------------- | ----------------- | --------------------------- |
@@ -199,17 +193,7 @@ If an execution ONLY contains CONTROL verbs, then the key-value pairs affect the
 
 **TABLE 5-1** -- **Primary** and **Secondary** Directives
 
-When hash-tags (#) prefixes on CONTROL segments are coupled with SEARCH, downgrading to session scope occurs on the CONTROL settings.
-
-Similarly, when multiple CONTROL directives compose a single statement, then the lowest scope of any segment ALWAYS applies to all segments of the statement.
-
-Example:
-
-#span = 8 // exact = 0
-
-is synonymous after downgrading with:
-
-span = 8 // exact = 0
+CONTROL segments are coupled with SEARCH, CONTROL settings are not saved and only effect the current statement.
 
 ### VI. Quelle SEARCH Segments
 
@@ -267,7 +251,7 @@ The example above also reveals how multiple search segments can be strung togeth
 
 While some of these concepts have already been introduced, the following section can be used as a glossary for the terminology used in the Quelle HMI specification.
 
-**Directives** are composed by verbs and are used to construct statements for the Quelle Command Interpreter. Each directive has specialized syntax tailored to the imperative verb used in the statement. The directive limits the type of segments that may follow. Most directives permit only a single segment type. DISPLAY and SEARCH directives also allow SCOPE segments.
+**Directives** are composed by verbs and are used to construct statements for the Quelle Command Interpreter. Each directive has specialized syntax tailored to the imperative verb used in the statement. The directive defines the segment type.
 
 **Segments:** Segments are equivalent to an imperative [you-understood] verb phrase.  Most segments have one or more arguments.  But just like English, a verb phrase can be a single word with no explicit subject and no explicit object.  Consider this English sentence:
 
@@ -399,68 +383,41 @@ The "*print*" verb has very limited grammar. And it can only be used in a depend
 
 
 
-| SCOPE                   | example                           |
-| ----------------------- | --------------------------------- |
-| Session scope           | span = 7                          |
-| Session or System scope | [span]                            |
-| System scope            | #quelle.host= http://avbible.net/ |
-| System scope            | #[quelle.host]                    |
+:x: Used to be a table here.  Until table references are checked, leave this here
 
 **TABLE 8-2** -- **get**/**set** and directives can be used to store & retrieve numerous other settings
 
 
 
-| **SCOPE**     | **example**                          | **explanation**                              |
-| ------------- | ------------------------------------ | -------------------------------------------- |
-| Session Scope | *quelle*.host = https://avbible.net/ | Setting a control variable for session       |
-| System scope  | #*quelle*.host= https://avbible.net/ | Setting a control variable for system        |
-| Session Scope | -[*quelle*.host]                     | clear a control variable (system or session) |
-| System Scope  | -#[*quelle*.host]                    | clear control variable (system or session)   |
-| Either Scope  | [*quelle*.host]                      | get a control variable (system or session)   |
+| **example**                              | **explanation**                              |
+| ---------------------------------------- | -------------------------------------------- |
+| *quelle*.host = https://avbible.net/     | Setting a control variable for session       |
+| #get *quelle*.host= https://avbible.net/ | Getting a control variable for system        |
+| #clear *quelle*.host                     | clear a control variable (system or session) |
 
 **TABLE 8-3** -- **get**/**set** and **#get/#set** command can be used to retrieve Quelle configuration settings
 
 
 
-| **SCOPE**     | **example**                 | **explanation**                                    |
-| ------------- | --------------------------- | -------------------------------------------------- |
-| Session Scope | *find Jesus \| {my macro}*  | *useful for temporary macro definitions*           |
-| System scope  | *find Jesus \| #{my macro}* | *macro stored on local file system or PC*          |
-| Session Scope | *-{my macro}*               | *removes session-defined macro*                    |
-| System scope  | *-#{my macro}*              | *removes macro stored on local file system  or PC* |
-| Either Scope  | #expand                     | *expand a macro (system or session)*               |
+:x: Used to be a table here.  Until table references are checked, leave this here
 
 **TABLE 8-4 -- Macro definitions can utilize either scope**
 
 
 
-:x:**STATUS directives:**
-
-There are two status directives. One displays the current setting for the session:
-
-**@get format**
-
-The other displays the current global setting:
-
-**#get format**
-
- 
-
 **CONTROL::REMOVAL directives:**
 
-Global control settings for SEARCH directives can be restored within the session:
+Control settings can be cleared using wildcards:
 
-**@clear search.***         [All search control settings will be cleared with a single command]
+**#clear search.*** 
 
-Defaults for SEARCH directives can be globally restored (for this and any future session):
+**#clear search.span.***
 
-**#clear search.span**
-
-**#clear display.format**
+**#clear display.format.***
 
 When *clear* verbs are used alongside *set* verbs, clear verbs are always executed after *set* verbs. 
 
-#clear span // set span = 7 `>> implies >>` #clear span
+#clear span // span = 7 `>> implies >>` #clear span
 
 Otherwise, when multiple segments contain the same setting, the last setting in the list is preserved.  Example:
 
@@ -482,11 +439,11 @@ md`>> implies >>` set format = text
 
 
 
-| Representation | Abbreviated Name | Max Scope |
-| -------------- | ---------------- | --------- |
-| display.*      | display          | cloud     |
-| search.*       | search           | cloud     |
-| quelle.*       | quelle           | system    |
+| Representation | Abbreviated Name |
+| -------------- | ---------------- |
+| display.*      | display          |
+| search.*       | search           |
+| quelle.*       | quelle           |
 
 **TABLE 8-6 -- Wildcard usage on Controls** (wildcard usage only applies to ***get*** and ***clear*** verbs)
 
