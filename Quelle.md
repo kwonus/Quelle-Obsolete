@@ -1,7 +1,5 @@
 # Quelle HMI v1.0 Specification
 
-NOTE: Current documentation is a week ahead of the corresponding sources.
-
 ### I. Background
 
 Most modern search engines, provide a mechanism for searching via a text input box where the user is expected to type search terms. While primitive, this interface was pioneered by major web-search providers and represented an evolution from the far more complex interfaces that came earlier. When you search for multiple terms, however, there seems to be only one basic paradigm: “find every term”. At AV Text Ministries, we believe that the vast world of search is rife for a search-syntax that moves us past only basic search expressions. To this end, we are proposing a Human-Machine-Interface (HMI) that can be invoked within a simple text input box. The syntax fully supports basic Boolean operations such as AND, OR, and NOT. While great care has been taken to support the construction of complex queries, greater care has been taken to maintain a clear and concise syntax.
@@ -22,7 +20,7 @@ Any application can implement the Quelle specification without royalty. We provi
 
 The Quelle specification defines a declarative syntax for specifying search criteria using the *find* verb. Quelle also defines additional verbs to round out its syntax as a simple straightforward means to interact with custom applications where searching text is the fundamental problem at hand. As mentioned earlier, AV Text Ministries provides a reference implementation. This implementation is written in C# and runs on most operating systems (e.g. Windows, Mac, Linux, iOS, Android, etc).  As source code is provided, it can be seamlessly extended by application programmers.
 
-Quelle Syntax comprises a standard set of twelve (12) verbs. Each verb corresponds to a basic operation:
+Quelle Syntax comprises a standard set of fourteen (14) verbs. Each verb corresponds to a basic operation:
 
 - find
 - print
@@ -39,12 +37,14 @@ Quelle Syntax comprises a standard set of twelve (12) verbs. Each verb correspon
 
 The verbs listed above are for the English flavor of Quelle. As Quelle is an open and extensible standard, verbs for other languages can be defined without altering the overall syntax structure of the HMI. The remainder of this document describes Version 1.0 of the Quelle-HMI specification.  
 
-In Quelle terminology, a statement is made up of segments. Each segment has a single verb. While there are twelve verbs, there are only five distinct types of segments:
+In Quelle terminology, a statement is made up of segments. Each segment has a single verb. While there are fourteen verbs, there are only five distinct types of segments:
 
 1. SEARCH segment
    - find
+   - search
 2. DISPLAY segment
    - print
+   - format
 3. CONTROL segments
    - get
    - set
@@ -59,22 +59,24 @@ In Quelle terminology, a statement is made up of segments. Each segment has a si
    - restore
    - exit
 
-Each of the twelve verbs has a minimum and maximum number of parameters. Some of the verbs have required oeprators.  See the Table 3-1 below:
+Each of the fourteen verbs has a minimum and maximum number of parameters. Some of the verbs have required operators.  See the Table 3-1 below:
 
-| Prefixes | Verb        | Phrase Restriction | Silent | Segment Type | Arguments | Operators |
-| :------: | ----------- | :----------------: | :----: | ------------ | --------- | :-------: |
-|          | **find**    |                    | **x**  | SEARCH       | 1 or more |           |
-|    #     | **get**     |                    | **x**  | CONTROL      | 1         |    [ ]    |
-|   - #    | **clear**   |                    | **x**  | CONTROL      | 1         |    [ ]    |
-|    #     | **set**     |                    | **x**  | CONTROL      | 2         |     =     |
-|    @     | **expand**  |                    |        | MACRO        | 1         |    { }    |
-|   - #    | **remove**  |                    | **x**  | MACRO        | 1         |    { }    |
-|   \| #   | **define**  |   **dependent**    | **x**  | MACRO        | 1         |    { }    |
-|    \|    | **print**   |   **dependent**    |        | DISPLAY      | 0 or more |           |
-|    @     | **help**    |     **simple**     |        | ENVIRONMENT  | 0 or 1    |           |
-|    @     | **backup**  |     **simple**     |        | ENVIRONMENT  | 1 to 3    |           |
-|    @     | **restore** |     **simple**     |        | ENVIRONMENT  | 1 or 3    |           |
-|    @     | **exit**    |     **simple**     |        | ENVIRONMENT  | 0         |           |
+| Prefixes | Verb        | Phrase Restriction |   Silent   | Segment Type | Arguments | Required Operators |
+| :------: | ----------- | :----------------: | :--------: | ------------ | --------- | :----------------: |
+|          | **search**  |                    |   **x**    | SEARCH       | 1 or more |                    |
+|    @     | **find**    |                    |            | SEARCH       | 1 or more |                    |
+|    @     | **print**   |     **simple**     |            | DISPLAY      | 0 or more |                    |
+|    \|    | **format**  |   **dependent**    |            | DISPLAY      | 0 or more |                    |
+|  \| @ #  | **define**  |   **dependent**    |            | MACRO        | 1         |        { }         |
+|   @ #    | **expand**  |                    |            | MACRO        | 1         |        { }         |
+|   @ #    | **remove**  |                    |            | MACRO        | 1         |        { }         |
+|   @ #    | **set**     |                    | *optional* | CONTROL      | 2         |         =          |
+|   @ #    | **get**     |                    |            | CONTROL      | 1         |                    |
+|   @ #    | **clear**   |                    |            | CONTROL      | 1         |                    |
+|    @     | **help**    |     **simple**     |            | ENVIRONMENT  | 0 or 1    |                    |
+|    @     | **backup**  |     **simple**     |            | ENVIRONMENT  | 1 to 3    |                    |
+|    @     | **restore** |     **simple**     |            | ENVIRONMENT  | 1 or 3    |                    |
+|    @     | **exit**    |     **simple**     |            | ENVIRONMENT  | 0         |                    |
 
 **TABLE 3-1 -- Detailed verb descriptions with syntax implications**
 
@@ -92,12 +94,12 @@ A simple statement always has only a single verb. Some verbs are constrained to 
 
 Even before we describe Quelle syntax generally, let's look at these concepts using examples:
 
-|                                            | Example                                                    |
-| ------------------------------------------ | ---------------------------------------------------------- |
-| Simple statement                           | "search for this text"                                     |
-| Dependent clause                           | \| print                                                   |
-| Ordinary statement                         | "search for this text" // "search for other text"          |
-| Ordinary statement with a dependent clause | "search for this text" // "search for other text" \| print |
+|                                            | Example                                                     |
+| ------------------------------------------ | ----------------------------------------------------------- |
+| Simple statement                           | "search for this text"                                      |
+| Dependent clause                           | \| format                                                   |
+| Ordinary statement                         | "search for this text" // "search for other text"           |
+| Ordinary statement with a dependent clause | "search for this text" // "search for other text" \| format |
 
 **TABLE 3-2 -- Examples of Quelle statement types**
 
@@ -191,7 +193,7 @@ If an execution ONLY contains CONTROL verbs, then the key-value pairs affect the
 | **Operative Segment** | Secondary Segments      | Dependent Clauses | Example                     |
 | --------------------- | ----------------------- | ----------------- | --------------------------- |
 | SEARCH                | any ordinary verb       | allowed           | godhead // span=8           |
-| CONTROL               | any CONTROL verb        | allowed           | format=text // span=7       |
+| CONTROL               | any CONTROL verb        | allowed           | domain = bible // span=7    |
 | MACRO                 | any ordinary MACRO verb | not allowed       | godhead \| define {trinity} |
 | ENVIRONMENT           | not allowed             | not allowed       | #backup now                 |
 
@@ -267,7 +269,7 @@ While some of these concepts have already been introduced, the following section
 
 **Directives** are composed by verbs and are used to construct statements for the Quelle Command Interpreter. Each directive has specialized syntax tailored to the imperative verb used in the statement. The directive limits the type of segments that may follow. Most directives permit only a single segment type. DISPLAY and SEARCH directives also allow SCOPE segments.
 
-**Segments:** Segments are equivalent to an imperitive [you-understood] verb phrase.  Most segments have one or more arguments.  But just like English, a verb phrase can be a single word with no explicit subject and no explicit object.  Consider this English sentence:
+**Segments:** Segments are equivalent to an imperative [you-understood] verb phrase.  Most segments have one or more arguments.  But just like English, a verb phrase can be a single word with no explicit subject and no explicit object.  Consider this English sentence:
 
 Go!
 
@@ -389,12 +391,11 @@ The "*print*" verb has very limited grammar. And it can only be used in a depend
 
 **CONTROL::SETTING directives:**
 
-| **SCOPE**     | **docx**              | **html**                 | **text**                 |
-| ------------- | --------------------- | ------------------------ | ------------------------ |
-| Session scope | *display.format = md* | *display.format = html*  | *display.format = text*  |
-| System scope  | #display.format = md  | *#display.format = html* | *#display.format = text* |
+| **Markdown**                | **HTML**                      | **Text**                      |
+| --------------------------- | ----------------------------- | ----------------------------- |
+| *display.content-type = md* | *display.content-type = html* | *display.content-type = text* |
 
-**TABLE 8-1** -- **set** format command can be used to set the default print formats
+**TABLE 8-1** -- **set** content-type command can be used to set the default content formatting for printing
 
 
 
@@ -437,7 +438,7 @@ The "*print*" verb has very limited grammar. And it can only be used in a depend
 
 There are two status directives. One displays the current setting for the session:
 
-**get format**
+**@get format**
 
 The other displays the current global setting:
 
@@ -449,7 +450,7 @@ The other displays the current global setting:
 
 Global control settings for SEARCH directives can be restored within the session:
 
-**clear search.***         [All search control settings will be cleared with a single command]
+**@clear search.***         [All search control settings will be cleared with a single command]
 
 Defaults for SEARCH directives can be globally restored (for this and any future session):
 

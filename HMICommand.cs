@@ -55,8 +55,6 @@ namespace QuelleHMI
 						break;
                     }
                 }
-				//	TODO: subordinate clauses (like print) can persist after initial execution, what do we pass in as a statement for hanging |print statements?
-				//
 				int len = 0;
 				if (pipe >= 0 && pipe + 1 < command.Length)
 				{

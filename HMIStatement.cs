@@ -74,7 +74,7 @@ namespace QuelleHMI
                     case '|':   break;                          // this should never see this trigger, but add for fail-safety and QC breakpoint during debugging
                 }
                 if (i >= len - 1)
-                    break;
+                    continue;
 
                 if (c != '/')
                     continue;
@@ -262,7 +262,7 @@ namespace QuelleHMI
 
             foreach (var segment in this.segments.Values)
             {
-                var verb = (from candidate in HMISegment.DisplayVerbs where candidate == segment.verb select candidate).FirstOrDefault();
+                var verb = (from candidate in HMISegment.SimpleDisplayVerbs where candidate == segment.verb select candidate).FirstOrDefault();
                 if (verb != null)
                 {
                     conformingSegments.Add(segment);
