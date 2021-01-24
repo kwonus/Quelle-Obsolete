@@ -8,7 +8,6 @@ namespace QuelleHMI
     {
         Undefined = 0,
         Session = 1,
-        System = 2,
-        Cloud = 3
+        System = 2
     }
 }

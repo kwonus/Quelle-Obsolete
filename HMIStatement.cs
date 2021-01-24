@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using static QuelleHMI.HMISegment;
 
 namespace QuelleHMI
 {
@@ -22,8 +23,8 @@ namespace QuelleHMI
         public UInt16 span { get; private set; }
         public string statement { get; private set; }
         public String[] rawSegments { get; private set; }  // right-side: each segment has a POLARITY
-        private char[] polarities;
-        private Dictionary<(UInt32 order, char polarity, string segment), HMISegment> segmentation;
+        private HMIPolarity[] polarities;
+        private Dictionary<(UInt32 order, HMIPolarity polarity, string segment), HMISegment> segmentation;
         public Dictionary<UInt64, HMISegment> segments { get; private set; }
 
         public HMIStatement(HMICommand command, UInt16 span, string statement)
@@ -109,9 +110,9 @@ namespace QuelleHMI
                 positives.Remove(cancel);
 
             this.rawSegments = new string[positives.Count + negatives.Count];
-            this.polarities = new char[this.rawSegments.Length];
+            this.polarities = new HMIPolarity[this.rawSegments.Length];
 
-            this.segmentation = new Dictionary<(UInt32 order, char polarity, string segment), HMISegment>();
+            this.segmentation = new Dictionary<(UInt32 order, HMIPolarity polarity, string segment), HMISegment>();
             this.segments = new Dictionary<ulong, HMISegment>();
             i = 0;
             foreach (var parsed in positives)
@@ -122,9 +123,9 @@ namespace QuelleHMI
                 if (parsed.Value.Length > 0)
                 {
                     this.rawSegments[i] = parsed.Value;
-                    this.polarities[i] = '+';
+                    this.polarities[i] = HMIPolarity.POSITIVE;
 
-                    var current = new HMISegment(this, parsed.Key, span, polarities[i], parsed.Value);
+                    var current = new HMISegment(this, parsed.Key, span, this.polarities[i], parsed.Value, HMIClauseType.INDEPENDENT);
                     var tuple = (parsed.Key, polarities[i], parsed.Value);
                     this.segmentation.Add(tuple, current);
                     this.segments.Add(current.sequence, current);
@@ -139,9 +140,9 @@ namespace QuelleHMI
                 if (parsed.Value.Length > 0)
                 {
                     this.rawSegments[i] = parsed.Value;
-                    this.polarities[i] = '-';
+                    this.polarities[i] = HMIPolarity.NEGATIVE;
 
-                    var current = new HMISegment(this, parsed.Key, span, polarities[i], parsed.Value);
+                    var current = new HMISegment(this, parsed.Key, span, this.polarities[i], parsed.Value, HMIClauseType.INDEPENDENT);
                     var tuple = (parsed.Key, polarities[i], parsed.Value);
                     this.segmentation.Add(tuple, current);
                     this.segments.Add(current.sequence, current);
@@ -163,7 +164,7 @@ namespace QuelleHMI
 
             var search      = NormalizeSearchSegments(errors);
             var file        = NormalizeFileSegments(errors);
-            var persistence = NormalizePersistenceSegments(errors, (search.scope == HMIScope.Session) || (file.scope == HMIScope.Session) ? HMIScope.Session : HMIScope.Cloud);   // FILE or SEARCH segments coerce PERSISTENCE segments to Statement scope
+            var persistence = NormalizePersistenceSegments(errors, (search.scope == HMIScope.Session) || (file.scope == HMIScope.Session) ? HMIScope.Session : HMIScope.Session);   // FILE or SEARCH segments coerce PERSISTENCE segments to Statement scope
             var status      = NormalizeStatusSegments(errors);
             var removal     = NormalizeRemovalSegments(errors);
 
@@ -197,7 +198,7 @@ namespace QuelleHMI
                     errors.Add("Cannot combine persistence segments with status or removal segments.");
             }
 
-            HMIScope minimalScope = errors.Count > 0 ? HMIScope.Undefined : HMIScope.Cloud;
+            HMIScope minimalScope = errors.Count > 0 ? HMIScope.Undefined : HMIScope.System;
 
             if (minimalScope != HMIScope.Undefined)
                 foreach (var scope in new HMIScope[]{ file.scope, search.scope, status.scope, persistence.scope, removal.scope})
@@ -222,7 +223,7 @@ namespace QuelleHMI
 
             foreach (var segment in this.segments.Values)
             {
-                var verb = (from candidate in HMISegment.Searches where candidate == segment.verb select candidate).FirstOrDefault();
+                var verb = (from candidate in HMISegment.SearchVerbs where candidate == segment.verb select candidate).FirstOrDefault();
                 if (verb != null)
                 {
                     conformingSegments.Add(segment);
@@ -236,9 +237,9 @@ namespace QuelleHMI
             {
                 normalizedVerb = null;  // // if it cannot be normalized/upgraded to a find verb, then the list of verbs cannot be normalized
                 foreach (var verb in verbs)
-                    if (verb == HMISegment.Searches[0] /*"find"*/)
+                    if (verb == HMISegment.SearchVerbs[0] /*"find"*/)
                     {
-                        normalizedVerb = HMISegment.Searches[0];
+                        normalizedVerb = HMISegment.SearchVerbs[0];
                         break;
                     }
                 if (normalizedVerb == null)
@@ -261,7 +262,7 @@ namespace QuelleHMI
 
             foreach (var segment in this.segments.Values)
             {
-                var verb = (from candidate in HMISegment.Displays where candidate == segment.verb select candidate).FirstOrDefault();
+                var verb = (from candidate in HMISegment.DisplayVerbs where candidate == segment.verb select candidate).FirstOrDefault();
                 if (verb != null)
                 {
                     conformingSegments.Add(segment);
@@ -285,13 +286,13 @@ namespace QuelleHMI
             var verbs = new List<string>();
             var conformingSegments = new List<HMISegment>();
 
-            var scope = HMIScope.Cloud;
+            var scope = HMIScope.System;
             int scopeLevel = (int)scope;
 
             int cnt = 0;
             foreach (var segment in this.segments.Values)
             {
-                var verb = (from candidate in HMISegment.Removals
+                var verb = (from candidate in HMISegment.RemovalVerbs
                             where candidate == segment.verb
                             select char.IsLetter(candidate[0]) ? candidate : candidate.Substring(1)).FirstOrDefault();
 
@@ -309,7 +310,7 @@ namespace QuelleHMI
                 scoped = HMIScope.Undefined;
                 errors.Add(GetStandardMultiverbErrorMessage(verbs));
             }
-            if (verbs.Count >= 1 && normalizedVerb != HMISegment.Removals[0] && cnt > 1)
+            if (verbs.Count >= 1 && normalizedVerb != HMISegment.RemovalVerbs[0] && cnt > 1)
             {
                 scoped = HMIScope.Undefined;
                 string error = GetConflictingVerbsErrorMessage(HMISegment.CLEAR, HMISegment.REMOVE);
@@ -326,13 +327,13 @@ namespace QuelleHMI
             var verbs = new List<string>();
             var conformingSegments = new List<HMISegment>();
 
-            var scope = HMIScope.Cloud;
+            var scope = HMIScope.System;
             int scopeLevel = (int)scope;
 
             int cnt = 0;
             foreach (var segment in this.segments.Values)
             {
-                var verb = (from candidate in HMISegment.Statuses
+                var verb = (from candidate in HMISegment.GetterVerbs
                             where candidate == segment.verb
                             select char.IsLetter(candidate[0]) ? candidate : candidate.Substring(1)).FirstOrDefault();
 
@@ -350,7 +351,7 @@ namespace QuelleHMI
                 scoped = HMIScope.Undefined;
                 errors.Add(GetStandardMultiverbErrorMessage(verbs));
             }
-            if (verbs.Count >= 1 && normalizedVerb != HMISegment.Removals[0] && cnt > 1)
+            if (verbs.Count >= 1 && normalizedVerb != HMISegment.RemovalVerbs[0] && cnt > 1)
             {
                 scoped = HMIScope.Undefined;
                 string error = GetConflictingVerbsErrorMessage(HMISegment.SET, HMISegment.EXPAND);
@@ -373,7 +374,7 @@ namespace QuelleHMI
             int cnt = 0;
             foreach (var segment in this.segments.Values)
             {
-                var verb = (from candidate in HMISegment.Controls
+                var verb = (from candidate in HMISegment.SetterVerbs
                             where candidate == segment.verb
                             select char.IsLetter(candidate[0]) ? candidate : candidate.Substring(1)).FirstOrDefault();
 
@@ -415,7 +416,6 @@ namespace QuelleHMI
             switch (scope)
             {
                 case '#': return HMIScope.System;
-                case '@': return HMIScope.Cloud;
                 default: return HMIScope.Session;
             }
         }

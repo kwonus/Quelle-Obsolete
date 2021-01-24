@@ -7,9 +7,7 @@ namespace QuelleHMI
     public class HMICommand
     {
 		public HMIStatement statement { get; private set; }
-		public HMISegment dependentClause { get; private set; }
-		public string macroName { get; private set; }
-		public HMIScope macroScope { get; private set; }
+		public HMIDependentClause dependentClause { get; private set; }
 		public string command { get; private set; }
 		public List<string> errors { get; private set; }
 		public List<string> warnings { get; private set; }
@@ -30,46 +28,11 @@ namespace QuelleHMI
 				errors.Add(message.Trim());
 			}
 		}
-		private static string[] reserved = new string[] {	// TODO: Review how these characters are quoted (the list seems too inclusive
-			"|", "=", "{", "}", "(", ")", "[", "]", "+", "-", "...", "@", "\\", "/", "#", "?", "*", "%", "&", "|", "\""
-		};
-		private static string[] reservedQuoted = null;
-		private static string[] reservedReplaced = null;
-
 		public HMICommand(String command)
         {
-			if (reservedQuoted == null)
-            {
-				reservedQuoted = new string[reserved.Length];
-				for (int i = 0; i < reserved.Length; i++)
-                {
-					string keyword = reserved[i];
-					switch (keyword.Length)
-                    {
-						case 1: reservedQuoted[i] = "\\" + keyword; break;
-						case 2: reservedQuoted[i] = "\\" + keyword[0] + "\\" + keyword[1]; break;
-						case 3: reservedQuoted[i] = "\\" + keyword[0] + "\\" + keyword[1] + "\\" + keyword[2]; break;
-					}
-				}
-			}
-			if (reservedReplaced == null)
-			{
-				reservedQuoted = new string[reserved.Length];
-				for (int i = 0; i < reserved.Length; i++)
-				{
-					string encoding = "";
-					string keyword = reserved[i];
-					foreach (char c in keyword.ToCharArray())
-                    {
-						UInt32 x = (UInt32) c;
-						string e = string.Format("%0x{0:X}%", x);
-						encoding += e;
-                    }
-					reservedQuoted[i] = encoding;
-				}
-			}
-
 			this.command = command.Trim();
+			this.dependentClause = null;
+
 			if (command != null)
 			{
 				string statement = "";
@@ -77,7 +40,7 @@ namespace QuelleHMI
 
 				int pipe;
 				int start;
-				//	Process the macro definition first;	 TODO: also look for print dependent clause here, too
+				//	Look for dependent clauses first:
 				//
 				for (start = 0, pipe = command.IndexOf('|', start); pipe >= start; pipe = command.IndexOf('|', start))
                 {
@@ -92,73 +55,33 @@ namespace QuelleHMI
 						break;
                     }
                 }
+				//	TODO: subordinate clauses (like print) can persist after initial execution, what do we pass in as a statement for hanging |print statements?
+				//
 				int len = 0;
-				if (pipe >= 0)
-                {
-					this.macroName = (pipe > 2) ? command.Substring(pipe).Trim() : "";
-					len = macroName.Length;
-					if (len > 0)
-						switch (macroName[0])
-                        {
-							case '#':	macroScope = HMIScope.System;
-										this.macroName = macroName.Substring(1).Trim();
-										len = macroName.Length;
-										break;
-							case '{':	macroScope = HMIScope.Session;
-										break;
-						}
-
-					if ((len > 2) && macroName.StartsWith('{') && macroName.EndsWith('}'))
-					{
-						this.macroName = macroName.Substring(1, len-2).Trim();
-						len = this.macroName.Length;
-
-						statement = pipe > 0 ? command.Substring(0, pipe).Trim() : string.Empty;
-						lenStatement = statement.Length;
-					}
-					else
-					{
-						len = 0;
-					}
-					if (len < 1)
-					{
-						this.macroName = command.Substring(0, pipe).Trim();
-						this.Notify("error", "Ill-defined label:");
-						this.Notify("error", "Command processing has been aborted.");
-					}
-				}
-                else
-                {
-					this.macroName = null;
-					this.macroScope = HMIScope.Undefined;
-					statement = command.Trim();
-					lenStatement = statement.Length;
-				}
-				if (lenStatement == 0)
+				if (pipe >= 0 && pipe + 1 < command.Length)
 				{
-					this.Notify("error", "Ill-defined statement:");
-					this.Notify("error", "Command processing has been aborted.");
-				}
-				if (this.errors == null)
-                {
-					//	Replace all quoted/reserved characters
-					//
-					for (int i = 0; i < reservedQuoted.Length; i++)
+					statement = (pipe > 0) ? command.Substring(0, pipe).Trim() : "";
+
+					this.statement = (statement.Length > 0) ? new HMIStatement(this, 0, statement) : null;
+
+					if (this.statement != null)
 					{
-						if (statement.Contains(reservedQuoted[i]))
-							statement = statement.Replace(reservedQuoted[i], reservedReplaced[i]);
+						this.dependentClause = HMIDependentClause.Create(this.statement, command.Substring(pipe + 1).Trim());
 					}
-					this.statement = new HMIStatement(this, 0, statement);
+				}
+				else if (this.errors == null)
+                {
+					this.statement = new HMIStatement(this, 0, command.Trim());
 				}
 			}
         }
 
 		public HMIScope HasMacro()
 		{
-			if (this.statement == null || this.macroName == null)
-				return HMIScope.Undefined;
+			if (this.dependentClause != null && this.dependentClause.directive == HMISegment.MACRODEF)
+				return ((HMIMacroDefintion)this.dependentClause).macroScope;
 
-			return this.macroScope;
+			return HMIScope.Undefined;
 		}
 	}
 }

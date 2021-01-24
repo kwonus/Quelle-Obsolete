@@ -78,9 +78,6 @@ namespace QuelleHMI
         }
         private HMIScope ValidateScope(string section, HMIScope scope)
         {
-            if ((section != null) && section.Equals(HMISession.QUELLE, StringComparison.InvariantCultureIgnoreCase) && (scope == HMIScope.Cloud))
-                scope = HMIScope.System;
-
             return scope;
         }
         public IQuelleResultString Read(string setting, HMIScope scope)
@@ -93,7 +90,6 @@ namespace QuelleHMI
             {
                 case HMIScope.Session:  
                 case HMIScope.System:   break;
-                case HMIScope.Cloud:    return new HMIResultString(error: "This driver does not support Cloud Drivers!");
                 default:                return new HMIResultString(error: "Driver design error", warning: "Unknown setting scope provided by driver");
             }
             string result = null;
@@ -155,7 +151,6 @@ namespace QuelleHMI
             {
                 case HMIScope.Session:
                 case HMIScope.System:   break;
-                case HMIScope.Cloud:    return new HMIResultString(error: "This driver does not support Cloud Drivers!");
                 default:                return new HMIResultString(error: "Driver design error", warning: "Unknown setting scope provided by driver");
             }
             string result = null;
@@ -199,7 +194,6 @@ namespace QuelleHMI
             {
                 case HMIScope.Session:
                 case HMIScope.System:   break;
-                case HMIScope.Cloud:    return new HMIResultString(error: "This driver does not support Cloud Drivers!");
                 default:                return new HMIResultString(error: "Driver design error", warning: "Unknown setting scope provided by driver");
             }
             var normalizedValue = value.Trim().ToLower();

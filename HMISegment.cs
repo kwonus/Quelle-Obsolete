@@ -8,6 +8,19 @@ namespace QuelleHMI
 {
     public class HMISegment
     {
+        public enum HMIPolarity
+        {
+            NEGATIVE = (-1),
+            UNDEFINED = 0,
+            POSITIVE = 1
+        }
+        public enum HMIClauseType
+        {
+            UNDEFINED = 0,
+            SIMPLE = 1,
+            INDEPENDENT = 2,
+            SUBORDINATE = 3
+        }
         public static string[] DirectiveVerbs(string directive)
         {
             if (directive == null)
@@ -43,38 +56,56 @@ namespace QuelleHMI
         //
         public const string SEARCH  = "SEARCH";
         public const string DISPLAY = "DISPLAY";
-        public const string CONTROL = "CONTROL";
-        public const string STATUS  = "STATUS";
-        public const string REMOVAL = "REMOVAL";
+        public const string SETTERS = "SETTERS";    // CONTROL
+        public const string GETTERS = "GETTERS";    // CONTROL, MACROS
+        public const string REMOVAL = "REMOVAL";    // CONTROL, MACROS
         public const string PROGRAM = "ENVIRONMENT";
-        public const string DEFINE  = "DEFINITION";
+        public const string MACRODEF= "DEFINITION"; // MACROS
 
         private static Dictionary<string, string[]> IndependentClauses = new Dictionary<string, string[]>() {
-            {SEARCH,    new string[] {"find"  } },                              // When using default segment identification, the first entry ("find") is always the implied result
-            {CONTROL,   new string[] {"set", "#set" } },                        // When using default segment identification, the first entry ("set") is always the implied result
-            {STATUS,    new string[] {"get", "#get", "expand", "#expand" } },   // registry-like program settings
-            {REMOVAL,   new string[] {"clear", "#clear", "remove", "#remove" } }// registry-like program settings
+            {SEARCH,    new string[] {"find"  }},                               // When using default segment identification, the first entry ("find") is always the implied result
+            {SETTERS,   new string[] {"set", "#set" }},                         // When using default segment identification, the first entry ("set") is always the implied result
+            {GETTERS,   new string[] {"get", "#get", "expand", "#expand" }},    // registry-like program settings
+            {REMOVAL,   new string[] {"clear", "#clear", "remove", "#remove" }} // registry-like program settings
         };
         private static Dictionary<string, string[]> SimpleClauses = new Dictionary<string, string[]>() {
-            {PROGRAM,   new string[] {"@exit", "@backup", "@restore", "@help" } }
+            {PROGRAM,   new string[] { HELP, BACKUP, RESTORE, EXIT } }
         };
         private static Dictionary<string, string[]> DependentClauses = new Dictionary<string, string[]>() {
             {DISPLAY,   new string[] {"print" } },
-            {DEFINE,    new string[] {"define", "#define" } }
+            {MACRODEF,  new string[] {"define", "#define" } }
         };
-        public static string[] Searches => IndependentClauses[SEARCH];
-        public static string[] Statuses => IndependentClauses[STATUS];
-        public static string[] Removals => IndependentClauses[REMOVAL];
-        public static string[] Displays => IndependentClauses[DISPLAY];
-        public static string[] Controls => IndependentClauses[CONTROL];
+        //  Independent/Ordinary Clauses
+        public static string[] SearchVerbs => IndependentClauses[SEARCH];
+        public static string[] RemovalVerbs => IndependentClauses[REMOVAL];
+        public static string[] SetterVerbs => IndependentClauses[SETTERS];
+        public static string[] GetterVerbs => IndependentClauses[GETTERS];
 
-        public static string FIND => Searches[0];
-        public static string GET => Statuses[0];
-        public static string EXPAND => Statuses[3];
-        public static string CLEAR => Removals[0];
-        public static string REMOVE => Removals[3];
-        public static string PRINT => Displays[0];
-        public static string SET => Controls[0];
+        public static string FIND => SearchVerbs[0];
+        public static string SET => SetterVerbs[0];
+
+        public static string GET => GetterVerbs[0];
+        public static string EXPAND => GetterVerbs[2];
+
+        public static string CLEAR => RemovalVerbs[0];
+        public static string REMOVE => RemovalVerbs[2];
+
+        //  Dependent Clause Verbs
+        public static string[] DisplayVerbs => DependentClauses[DISPLAY];
+        public static string[] MacroDefVerbs => DependentClauses[MACRODEF];
+
+        public static string PRINT => DisplayVerbs[0];
+        public static string DEFINE => MacroDefVerbs[0];
+
+        //  Simple Clause Verbs
+        public static string[] ProgramVerbs => SimpleClauses[PROGRAM];
+
+        public const string HELP    = "@help";
+        public const string BACKUP  = "@backup";
+        public const string RESTORE = "@restore";
+        public const string EXIT    = "@exit";
+
+        public string misplaced { get; protected set; }
 
         SettingOperation? IsConfig(string verb)
         {
@@ -84,11 +115,11 @@ namespace QuelleHMI
             if (test.Length == 0)
                 return null;
 
-            foreach (var op in (from candidate in Controls where candidate == test select HMIStatement.SettingOperation.Write))
+            foreach (var op in (from candidate in SetterVerbs where candidate == test select HMIStatement.SettingOperation.Write))
                 return op;
-            foreach (var op in (from candidate in Statuses where candidate == test select HMIStatement.SettingOperation.Read))
+            foreach (var op in (from candidate in GetterVerbs where candidate == test select HMIStatement.SettingOperation.Read))
                 return op;
-            foreach (var op in (from candidate in Removals where candidate == test select HMIStatement.SettingOperation.Remove))
+            foreach (var op in (from candidate in RemovalVerbs where candidate == test select HMIStatement.SettingOperation.Remove))
                 return op;
 
             return null;
@@ -106,7 +137,7 @@ UseDefaultVerb:
             if (tokens.Length == 2)
             {
                 verb = tokens[0];
-                verb = DirectiveIncludesVerb(CONTROL, verb);
+                verb = DirectiveIncludesVerb(SETTERS, verb);
 
                 if (verb != null)
                 {
@@ -148,19 +179,33 @@ UseDefaultVerb:
             }
             return null;
         }
-        public static (string verb, string directive) IsVerb(string verb)
+        public static (HMIClauseType type, string verb, string directive) IsVerb(string verb)
         {
             if (verb == null)
-                return (null, null);
+                return (HMIClauseType.UNDEFINED, null, null);
 
             foreach (var directive in IndependentClauses.Keys)
             {
                 var verbs = IndependentClauses[directive];
                 foreach (var candidate in verbs)
                     if (verb.Equals(candidate, StringComparison.InvariantCultureIgnoreCase))
-                        return (candidate, directive);
+                        return (HMIClauseType.INDEPENDENT, candidate, directive);
             }
-            return (null, null);
+            foreach (var directive in DependentClauses.Keys)
+            {
+                var verbs = DependentClauses[directive];
+                foreach (var candidate in verbs)
+                    if (verb.Equals(candidate, StringComparison.InvariantCultureIgnoreCase))
+                        return (HMIClauseType.SUBORDINATE, candidate, directive);
+            }
+            foreach (var directive in SimpleClauses.Keys)
+            {
+                var verbs = SimpleClauses[directive];
+                foreach (var candidate in verbs)
+                    if (verb.Equals(candidate, StringComparison.InvariantCultureIgnoreCase))
+                        return (HMIClauseType.SIMPLE, candidate, directive);
+            }
+            return (HMIClauseType.UNDEFINED, null, null);
         }
         public static string[] HasVerb(string text)
         {
@@ -266,7 +311,7 @@ UseDefaultVerb:
         public UInt32 sequence { get; private set; }  // Sequence number of segment
         public string segment { get; private set; }
         public string[] rawFragments { get; private set; }
-        private char polarity;
+        private HMIPolarity polarity;
         private Boolean quoted;
 
         public Dictionary<UInt64, HMIFragment> fragments { get; private set; }
@@ -397,8 +442,10 @@ UseDefaultVerb:
                 order++;
             }
         }
-        public HMISegment(HMIStatement statement, UInt32 segmentOrder, UInt16 span, char polarity, string segment)
+        public HMISegment(HMIStatement statement, UInt32 segmentOrder, UInt16 span, HMIPolarity polarity, string segment, HMIClauseType clauseType)
         {
+            this.misplaced = null;
+
             string[] normalized = NormalizeSegment(segment);
 
             if (normalized == null || normalized.Length < 2)
@@ -416,7 +463,7 @@ UseDefaultVerb:
             this.span = span;
             this.rawFragments = null;
             this.segment = normalized[1] != null ? normalized[1] : "";
-            this.polarity = polarity != '-' ? '+' : '-';
+            this.polarity = polarity;
 
             if (DirectiveIncludesVerb(SEARCH, this.verb) != null)
             {
