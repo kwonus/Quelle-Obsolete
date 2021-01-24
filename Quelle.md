@@ -1,16 +1,18 @@
 # Quelle HMI v1.0 Specification
 
+NOTE: Current documentation is a week ahead of the corresponding sources.
+
 ### I. Background
 
 Most modern search engines, provide a mechanism for searching via a text input box where the user is expected to type search terms. While primitive, this interface was pioneered by major web-search providers and represented an evolution from the far more complex interfaces that came earlier. When you search for multiple terms, however, there seems to be only one basic paradigm: “find every term”. At AV Text Ministries, we believe that the vast world of search is rife for a search-syntax that moves us past only basic search expressions. To this end, we are proposing a Human-Machine-Interface (HMI) that can be invoked within a simple text input box. The syntax fully supports basic Boolean operations such as AND, OR, and NOT. While great care has been taken to support the construction of complex queries, greater care has been taken to maintain a clear and concise syntax.
 
-Quelle, IPA: [kɛl], in French means "What? or Which?". As Quelle HMI is designed to obtain search-results from search-engines, this interrogative nature befits the name. An earlier interpreter, Clarity, served as inspiration for defining Quelle.  You could think of the Quelle HMI as version 3.0 of the Clarity HMI specification.  However, in order to create linguistic consistency in Quelle's Human-to-Machine command language, the resulting syntax varied so greatly from the Clarity baseline specification, that a name-change was in order.  Truly, Quelle HMI is a new specification that incorporates lessons learned after creating, implementing, and revising Clarity HMI for over a decade.
+Quelle, IPA: [kɛl], in French means "What? or Which?". As Quelle HMI is designed to obtain search-results from search-engines, this interrogative nature befits its name. An earlier interpreter, Clarity, served as inspiration for defining Quelle.  You could think of the Quelle HMI as version 3.0 of the Clarity HMI specification.  However, in order to create linguistic consistency in Quelle's Human-to-Machine command language, the resulting syntax varied so greatly from the baseline specification, that a name-change was in order.  Truly, Quelle HMI is a new specification that incorporates lessons learned after creating, implementing, and revising Clarity HMI for over a decade.
 
 Every attempt has been made to make Quelle consistent with itself. Some constructs are in place to make parsing unambiguous, other constructs are biased toward ease of typing (such as minimizing the need for the shift key). In all, Quelle represents an easy to type and easy to learn HMI.  Moreover, simple search statements look no different than they appear today in a Google or Bing search box. Still, let's not get ahead of ourselves or even hint about where our simple specification might take us ;-)
 
 ### II. Overview
 
-The Quelle HMI maintains the assumption that proximity of terms to one another is an important aspect of searching unstructured data. Ascribing importance to the proximity between search terms is sometimes referred to as a *proximal* *search* technique. Proximal searches intentionally constrain the span of words that can be used to constitute a match.
+Quelle HMI maintains the assumption that proximity of terms to one another is an important aspect of searching unstructured data. Ascribing importance to the proximity between search terms is sometimes referred to as a *proximal* *search* technique. Proximal searches intentionally constrain the span of words that can be used to constitute a match.
 
 Beyond search, a search API should provide a means of configuration and remembering some of the users more specific search tendencies, and even provide control over how results are rendered. The design of Quelle prefers privacy-first, and is therefore not cloud-first. Consequently, settings in Quelle are stored on your local system by default and operations in the cloud are designed to keep the user anonymous to any domain-specific Quelle-capable search engines. 
 
@@ -20,23 +22,24 @@ Any application can implement the Quelle specification without royalty. We provi
 
 The Quelle specification defines a declarative syntax for specifying search criteria using the *find* verb. Quelle also defines additional verbs to round out its syntax as a simple straightforward means to interact with custom applications where searching text is the fundamental problem at hand. As mentioned earlier, AV Text Ministries provides a reference implementation. This implementation is written in C# and runs on most operating systems (e.g. Windows, Mac, Linux, iOS, Android, etc).  As source code is provided, it can be seamlessly extended by application programmers.
 
-Quelle Syntax comprises a standard set of eleven(1) verbs. Each verb corresponds to a basic operation:
+Quelle Syntax comprises a standard set of twelve (12) verbs. Each verb corresponds to a basic operation:
 
 - find
 - print
 - set
 - get
 - clear
+- define
 - expand
 - remove
-- reset
+- help
 - backup
 - restore
 - exit
 
 The verbs listed above are for the English flavor of Quelle. As Quelle is an open and extensible standard, verbs for other languages can be defined without altering the overall syntax structure of the HMI. The remainder of this document describes Version 1.0 of the Quelle-HMI specification.  
 
-In Quelle terminology, a statement is made up of segments. Each segment has a single verb. While there are eleven verbs, there are only five distinct types of segments:
+In Quelle terminology, a statement is made up of segments. Each segment has a single verb. While there are twelve verbs, there are only five distinct types of segments:
 
 1. SEARCH segment
    - find
@@ -51,33 +54,33 @@ In Quelle terminology, a statement is made up of segments. Each segment has a si
    - expand
    - remove
 5. ENVIRONMENT segments
-   - reset
+   - help
    - backup
    - restore
    - exit
 
-Each of the seven verbs has a minimum and maximum number of parameters. Some of the verbs have required and/or optional punctuation.  See the Table 1 below:
+Each of the twelve verbs has a minimum and maximum number of parameters. Some of the verbs have required oeprators.  See the Table 3-1 below:
 
 | Prefixes | Verb        | Phrase Restriction | Silent | Segment Type | Arguments | Operators |
 | :------: | ----------- | :----------------: | :----: | ------------ | --------- | :-------: |
 |          | **find**    |                    | **x**  | SEARCH       | 1 or more |           |
-|    #     | **set**     |                    | **x**  | CONTROL      | 2         |     =     |
 |    #     | **get**     |                    | **x**  | CONTROL      | 1         |    [ ]    |
 |   - #    | **clear**   |                    | **x**  | CONTROL      | 1         |    [ ]    |
-|    #     | **expand**  |                    |        | MACRO        | 1         |    { }    |
+|    #     | **set**     |                    | **x**  | CONTROL      | 2         |     =     |
+|    @     | **expand**  |                    |        | MACRO        | 1         |    { }    |
 |   - #    | **remove**  |                    | **x**  | MACRO        | 1         |    { }    |
 |   \| #   | **define**  |   **dependent**    | **x**  | MACRO        | 1         |    { }    |
 |    \|    | **print**   |   **dependent**    |        | DISPLAY      | 0 or more |           |
-|    #     | **reset**   |     **simple**     |        | ENVIRONMENT  | 1 to 3    |           |
-|    #     | **backup**  |     **simple**     |        | ENVIRONMENT  | 1 to 3    |           |
-|    #     | **restore** |     **simple**     |        | ENVIRONMENT  | 1 or 3    |           |
-|    #     | **exit**    |     **simple**     |        | ENVIRONMENT  | 0         |           |
+|    @     | **help**    |     **simple**     |        | ENVIRONMENT  | 0 or 1    |           |
+|    @     | **backup**  |     **simple**     |        | ENVIRONMENT  | 1 to 3    |           |
+|    @     | **restore** |     **simple**     |        | ENVIRONMENT  | 1 or 3    |           |
+|    @     | **exit**    |     **simple**     |        | ENVIRONMENT  | 0         |           |
 
 **TABLE 3-1 -- Detailed verb descriptions with syntax implications**
 
-Phrase restricted verbs are unique in that they cannot be used to construct a compound statement.  Dependent phrases can be added as the final clause after an ordinary statement, but cannot be combined in any other way. Simple statements cannot be combined whatsover.
+Phrase restricted verbs are unique in that they cannot be used to construct a compound statement.  Dependent phrases can be added as the final clause after an ordinary statement, but cannot be combined in any other way. Simple statements cannot be combined whatsoever.
 
-Quelle segments always have a verb, even if the verb might be "silent". From a linguistic standpoint, all Quelle segments are verbal phrases and issued in the imperative. The syntax for each segment is dependent upon the type of directive for the segment, and each type of directive has its own parsing rules and special characters for the segment. The type of segment is controlled by the verb.
+Quelle segments always have a verb, even if the verb might be "silent". From a linguistic standpoint, all Quelle segments are verbal phrases issued in the imperative. The syntax for each segment is dependent upon the type of directive for the segment, and each type of directive has its own parsing rules and special characters for the segment. The type of segment is controlled by the verb.
 
 Quelle supports three types of statements:
 
@@ -96,7 +99,9 @@ Even before we describe Quelle syntax generally, let's look at these concepts us
 | Ordinary statement                         | "search for this text" // "search for other text"          |
 | Ordinary statement with a dependent clause | "search for this text" // "search for other text" \| print |
 
-In the last example above, the final print verb is the dependent clause. Dependent clauses are identified as the statement that begins after the pipe symbol ( | ). There are two functions associated with dependent clauses: printing search results and defining macros.  Macro definitions are a mechanism of making Quelle extensible by the user.  Macros are defined the next section and are often referred to as "statement labels". Printing is described in section IX.
+**TABLE 3-2 -- Examples of Quelle statement types**
+
+In the last example in Table 3-2, the final verb phrase, namely *print*, is the dependent clause. Dependent clauses are identified as a segment that begins after the pipe symbol ( | ). There are two functions associated with dependent clauses: printing search results and defining macros.  Macro definitions are a mechanism of making Quelle extensible by the user.  Macros are defined in the next section and are also referred to as "statement labels". Printing is described in section IX.
 
 Consider this example of executing SEARCH:
 
@@ -262,7 +267,15 @@ While some of these concepts have already been introduced, the following section
 
 **Directives** are composed by verbs and are used to construct statements for the Quelle Command Interpreter. Each directive has specialized syntax tailored to the imperative verb used in the statement. The directive limits the type of segments that may follow. Most directives permit only a single segment type. DISPLAY and SEARCH directives also allow SCOPE segments.
 
-**Segments:** the verb is followed by one or more segments. Each segment has a type, and the type of the segment must be compatible with the directive. As there are five types of directives, it not a coincidence that there are five types of segments. It is noteworthy that the syntax of a STATUS segment is identical to the syntax of a RESET segment, but we still consider the segment types to be distinct.
+**Segments:** Segments are equivalent to an imperitive [you-understood] verb phrase.  Most segments have one or more arguments.  But just like English, a verb phrase can be a single word with no explicit subject and no explicit object.  Consider this English sentence:
+
+Go!
+
+The subject of this sentence is "you understood".  Similarly, all Quelle verbs are issued without an explicit subject. The object of the verb in the one word sentence above is also unstated.  Quelle operates in an analogous manner.  Consider this English sentence:
+
+Go Home!
+
+Like the earlier example, the subject is "you understood".  The object this time is defined and tells "you" where to go.  Some verbs always have objects, others sometimes do, and still others never do. Quelle follows this same pattern and each verb is defined to accept arguments or not.  See Table 3-1 where the column identified as "Argument Count" is identifying objects of the verb. 
 
 **SEARCH statement**: Each statement contains one or more *search segments*. If there is more than one SEARCH segment, each each segment is logically OR’ed with all other segments.
 
@@ -452,17 +465,17 @@ Otherwise, when multiple segments contain the same setting, the last setting in 
 
 md`>> implies >>` set format = text
 
-| Control Name    | Short Name | Meaning                      | Values    | Visibility |
-| --------------- | ---------- | ---------------------------- | --------- | ---------- |
-| search.span     | span       | proximity                    | 0 to 1000 | normal     |
-| search.domain   | domain     | the domain of the search     | string    | normal     |
-| search.exact    | exact      | exact match vs liberal/fuzzy | 0 or 1    | normal     |
-| display.heading | heading    | heading of results           | string    | normal     |
-| display.record  | record     | annotation of results        | string    | normal     |
-| display.format  | format     | display format of results    | Table 8-1 | normal     |
-| quelle.host     | host       | URL of driver                | string    | normal     |
-| quelle.debug    | debug      | on or off                    | 0 or 1    | *hidden*   |
-| quelle.data     | span       | quelle data format           | binary    | *hidden*   |
+| Control Name    | Short Name | Meaning                      | Values     | Visibility |
+| --------------- | ---------- | ---------------------------- | ---------- | ---------- |
+| search.span     | span       | proximity                    | 0 to 1000  | normal     |
+| search.domain   | domain     | the domain of the search     | string     | normal     |
+| search.exact    | exact      | exact match vs liberal/fuzzy | true/false | normal     |
+| display.heading | heading    | heading of results           | string     | normal     |
+| display.record  | record     | annotation of results        | string     | normal     |
+| display.format  | format     | display format of results    | Table 8-1  | normal     |
+| quelle.host     | host       | URL of driver                | string     | normal     |
+| quelle.debug    | debug      | on or off                    | true/false | *hidden*   |
+| quelle.data     | data       | quelle data format           | *reserved* | *hidden*   |
 
 **TABLE 8-5 -- List of Controls** (The control parameters are applicable to ***set***, ***get*** and ***clear*** verbs)
 

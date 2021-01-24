@@ -23,70 +23,129 @@ namespace QuelleHMI
         public string statement { get; private set; }
         public String[] rawSegments { get; private set; }  // right-side: each segment has a POLARITY
         private char[] polarities;
-        private Dictionary<string, HMISegment> segmentation;
+        private Dictionary<(UInt32 order, char polarity, string segment), HMISegment> segmentation;
         public Dictionary<UInt64, HMISegment> segments { get; private set; }
 
-        private static string[] plus = new string[] { "[+]", "(+)", " + ", "\t+ ", " +\t" };
-        private static string[] minus = new string[] { "[-]", "(-)", " - ", "\t- ", " -\t" };
-        private static string[] delimiter = null;
-        ///xxx
         public HMIStatement(HMICommand command, UInt16 span, string statement)
         {
             this.command = command;
             this.span = 0;
             this.statement = statement.Trim();
 
-            if (delimiter == null)
+            if (this.statement.Length < 1)
+                return;
+
+            int len = this.statement.Length;
+
+            // create segmentation boundaries, carefully ignoring quoted delimiters (can't use String.Split())
+            //
+            var c_quoted = false;   // character-quoted means that crrent character is quoted with \
+            var d_quoted = false;   // double-quoted means that this character is enclosed in double-quotes
+            var negatives = new Dictionary<UInt32, string>(); // order, rawSegment
+            var positives = new Dictionary<UInt32, string>(); // order, rawSegment
+            var polarity  = positives;
+            int last = 0;
+            UInt32 order = 1;
+            int i;
+            for (i = 0; /**/; i++)  // looking for "//" or "/-"
             {
-                delimiter = new string[plus.Length + minus.Length];
+                if (i >= len && last < len)
+                {
+                    polarity.Add(order++, this.statement.Substring(last, len).Trim());
+                    break;
+                }
+                if (c_quoted)   // then this character should be ignored as a delimiter and be ignored as per double-quoting
+                {
+                    c_quoted = false;
+                    continue;
+                }
+                char c = this.statement[i];
 
-                for (int i = 0; i < plus.Length; i++)
-                    delimiter[i] = plus[i];
-                for (int i = 0; i < minus.Length; i++)
-                    delimiter[plus.Length + i] = plus[i];
+                if (d_quoted)   // ignore all characters enclosed in double-quotes for segmentation purposes
+                {
+                    d_quoted = (c != '\"'); // true only when this is the matching double-quote
+                    continue;
+                }
+                switch (c)
+                {
+                    case '\\':  c_quoted = true; continue;
+                    case '"':   d_quoted = true; continue;
+                    case '|':   break;                          // this should never see this trigger, but add for fail-safety and QC breakpoint during debugging
+                }
+                if (i >= len - 1)
+                    break;
+
+                if (c != '/')
+                    continue;
+
+                char next = this.statement[i+1];
+
+                if (last < i)
+                { 
+                    switch (next)
+                    {
+                        case '/':
+                        case '-': polarity.Add(order++, this.statement.Substring(last, i).Trim());
+                                  break;
+                        default:  continue;
+                    }
+                }
+                switch (next)
+                {
+                    case '/': polarity = positives; break;
+                    case '-': polarity = negatives; break;
+                }
+                last = i + 2;
+                i++;
             }
-            this.span = span;
-            this.statement = statement.Trim();
-            string normalized = this.statement;
-            if (normalized.StartsWith('-'))
-                normalized = minus[0] + statement.Substring(1);
-            else if (normalized.StartsWith('+'))
-                normalized = plus[0] + statement.Substring(1);
-            else
-                normalized = plus[0] + statement;
+            // Delete redundant [+] and [-] polarities
+            var removals = new List<UInt32>();
+            foreach (var segment in negatives.Values)
+                foreach (var record in positives)
+                    if (record.Value.Equals(segment, StringComparison.InvariantCultureIgnoreCase))
+                        removals.Add(record.Key);
 
-            var rawSegments = normalized.Split(delimiter, StringSplitOptions.None);
-            this.rawSegments = new string[rawSegments.Length - 1];
-            Array.Copy(rawSegments, 1, this.rawSegments, 0, this.rawSegments.Length);
+            foreach (var cancel in removals)
+                positives.Remove(cancel);
+
+            this.rawSegments = new string[positives.Count + negatives.Count];
             this.polarities = new char[this.rawSegments.Length];
 
-            this.segmentation = new Dictionary<string, HMISegment>();
+            this.segmentation = new Dictionary<(UInt32 order, char polarity, string segment), HMISegment>();
             this.segments = new Dictionary<ulong, HMISegment>();
-
-            for (UInt32 i = 0; i < this.rawSegments.Length; i++)
+            i = 0;
+            foreach (var parsed in positives)
             {
-                int next = 3 + this.rawSegments[i].Length;
-                this.polarities[i] = normalized[1];
-                normalized = normalized.Substring(next);
-
-                this.rawSegments[i] = this.rawSegments[i].Trim();
-                string key = "[" + this.polarities[i] + "] " + this.rawSegments[i].ToLower();
-                var current = new HMISegment(this, i + 1, span, polarities[i], this.rawSegments[i]);
-                this.segmentation.Add(key, current);
-                this.segments.Add(current.sequence, current);
-
                 if (command.errors != null)
                     break;
-            }
-
-            // Delete redundant [+] and [-] polarities
-            foreach (string key in this.segmentation.Keys)
-            {
-                if (key[1] == '-')
+                
+                if (parsed.Value.Length > 0)
                 {
-                    string cancel = "[+]" + key.Substring(3);
-                    if (this.segmentation.ContainsKey(cancel))
-                        this.segments.Remove(this.segmentation[cancel].sequence);
+                    this.rawSegments[i] = parsed.Value;
+                    this.polarities[i] = '+';
+
+                    var current = new HMISegment(this, parsed.Key, span, polarities[i], parsed.Value);
+                    var tuple = (parsed.Key, polarities[i], parsed.Value);
+                    this.segmentation.Add(tuple, current);
+                    this.segments.Add(current.sequence, current);
+                    i++;
+                }
+            }
+            foreach (var parsed in negatives)
+            {
+                if (command.errors != null)
+                    break;
+
+                if (parsed.Value.Length > 0)
+                {
+                    this.rawSegments[i] = parsed.Value;
+                    this.polarities[i] = '-';
+
+                    var current = new HMISegment(this, parsed.Key, span, polarities[i], parsed.Value);
+                    var tuple = (parsed.Key, polarities[i], parsed.Value);
+                    this.segmentation.Add(tuple, current);
+                    this.segments.Add(current.sequence, current);
+                    i++;
                 }
             }
         }
@@ -96,7 +155,7 @@ namespace QuelleHMI
             var results = new Dictionary<string, HMISegment[]>();
 
             if (this.statement == null || this.segments == null)
-                return (HMIScope.Undefined, new string[] { "river design error" }, results);
+                return (HMIScope.Undefined, new string[] { "Driver design error" }, results);
 
             var errors = new List<string>();
 

@@ -7,9 +7,9 @@ namespace QuelleHMI
     public class HMICommand
     {
 		public HMIStatement statement { get; private set; }
+		public HMISegment dependentClause { get; private set; }
 		public string macroName { get; private set; }
 		public HMIScope macroScope { get; private set; }
-		public bool macroSimultaneousExecution { get; private set; }
 		public string command { get; private set; }
 		public List<string> errors { get; private set; }
 		public List<string> warnings { get; private set; }
@@ -30,8 +30,8 @@ namespace QuelleHMI
 				errors.Add(message.Trim());
 			}
 		}
-		private static string[] reserved = new string[] {
-			":=", "=", "{", "}", "(", ")", "[", "]", "+", "-", "...", "@", "\\", "/", "#", "?", "*", "%", "&", "|", "\""
+		private static string[] reserved = new string[] {	// TODO: Review how these characters are quoted (the list seems too inclusive
+			"|", "=", "{", "}", "(", ")", "[", "]", "+", "-", "...", "@", "\\", "/", "#", "?", "*", "%", "&", "|", "\""
 		};
 		private static string[] reservedQuoted = null;
 		private static string[] reservedReplaced = null;
@@ -75,25 +75,31 @@ namespace QuelleHMI
 				string statement = "";
 				int lenStatement = 0;
 
-				//	Process the macro definition first
+				int pipe;
+				int start;
+				//	Process the macro definition first;	 TODO: also look for print dependent clause here, too
 				//
-				int equals1 = command.IndexOf(":=");
-				int equals2 = command.IndexOf("::");
-				// Pick the minimum non-negative value:
-				int equals = (equals1 < 0 && equals2 < 0) ? -1 : (equals1 < 0) ? equals2 : (equals2 < 0) ? equals1 : (equals1 < equals2) ? equals1 : equals2;
-				int len = 0;
-				if (equals >= 0)
+				for (start = 0, pipe = command.IndexOf('|', start); pipe >= start; pipe = command.IndexOf('|', start))
                 {
-					this.macroName = (equals > 2) ? command.Substring(0, equals).Trim() : "";
-					this.macroSimultaneousExecution = (equals >= 0) && (equals == equals2);
+					if (pipe - 1 >= 0 && command[pipe - 1] == '\\') // pipe-symbol is quoted, keep looking ...
+						start = pipe + 1;
+					else
+						break;
+
+					if (start >= command.Length)
+                    {
+						pipe = (-1); // not found
+						break;
+                    }
+                }
+				int len = 0;
+				if (pipe >= 0)
+                {
+					this.macroName = (pipe > 2) ? command.Substring(pipe).Trim() : "";
 					len = macroName.Length;
 					if (len > 0)
 						switch (macroName[0])
                         {
-							case '@':	macroScope = HMIScope.Cloud;
-										this.macroName = macroName.Substring(1).Trim();
-										len = macroName.Length;
-										break;
 							case '#':	macroScope = HMIScope.System;
 										this.macroName = macroName.Substring(1).Trim();
 										len = macroName.Length;
@@ -105,13 +111,10 @@ namespace QuelleHMI
 					if ((len > 2) && macroName.StartsWith('{') && macroName.EndsWith('}'))
 					{
 						this.macroName = macroName.Substring(1, len-2).Trim();
-						len = macroName.Length;
+						len = this.macroName.Length;
 
-						if (len > 0)
-						{
-							statement = command.Substring(equals+2).Trim();
-							lenStatement = statement.Length;
-						}
+						statement = pipe > 0 ? command.Substring(0, pipe).Trim() : string.Empty;
+						lenStatement = statement.Length;
 					}
 					else
 					{
@@ -119,7 +122,7 @@ namespace QuelleHMI
 					}
 					if (len < 1)
 					{
-						this.macroName = command.Substring(0, equals).Trim();
+						this.macroName = command.Substring(0, pipe).Trim();
 						this.Notify("error", "Ill-defined label:");
 						this.Notify("error", "Command processing has been aborted.");
 					}

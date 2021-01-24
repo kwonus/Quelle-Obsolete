@@ -14,7 +14,7 @@ namespace QuelleHMI
                 return null;
 
             var upper = directive.Trim().ToUpper();
-            string[] verbs = Directives.ContainsKey(upper) ? Directives[upper] : null;
+            string[] verbs = IndependentClauses.ContainsKey(upper) ? IndependentClauses[upper] : null;
             return verbs;
         }
         public static string DirectiveIncludesVerb(string directive, string verb)
@@ -22,7 +22,7 @@ namespace QuelleHMI
             if (directive != null && verb != null)
             {
                 var upper = directive.Trim().ToUpper();
-                string[] verbs = Directives.ContainsKey(upper) ? Directives[upper] : null;
+                string[] verbs = IndependentClauses.ContainsKey(upper) ? IndependentClauses[upper] : null;
                 if (verbs != null)
                     foreach (var candidate in verbs)
                         if (verb.Equals(candidate, StringComparison.InvariantCultureIgnoreCase))
@@ -36,27 +36,37 @@ namespace QuelleHMI
                 return null;
 
             var upper = directive.Trim().ToUpper();
-            string[] verbs = Directives.ContainsKey(upper) ? Directives[upper] : null;
+            string[] verbs = IndependentClauses.ContainsKey(upper) ? IndependentClauses[upper] : null;
             return verbs != null && verbs.Length >= 1 ? verbs[0] : null;
         }
-        public const string SEARCH = "SEARCH";
-        public const string DISPLAY = "DISPLAY";    // Formerly FILE
-        public const string CONTROL = "CONTROL";    // Formerly PERSISTENCE
-        public const string STATUS = "STATUS";
+        //  These do not exactly match the granularity of the documentation, because they are organized by syntax rules
+        //
+        public const string SEARCH  = "SEARCH";
+        public const string DISPLAY = "DISPLAY";
+        public const string CONTROL = "CONTROL";
+        public const string STATUS  = "STATUS";
         public const string REMOVAL = "REMOVAL";
+        public const string PROGRAM = "ENVIRONMENT";
+        public const string DEFINE  = "DEFINITION";
 
-        private static Dictionary<string, string[]> Directives = new Dictionary<string, string[]>() {
+        private static Dictionary<string, string[]> IndependentClauses = new Dictionary<string, string[]>() {
             {SEARCH,    new string[] {"find"  } },                              // When using default segment identification, the first entry ("find") is always the implied result
-            {DISPLAY,   new string[] {"print" } },
-            {CONTROL,   new string[] {"set", "#set", "@set" } },               // When using default segment identification, the first entry ("set") is always the implied result
-            {STATUS,    new string[] {"get", "#get", "@get", "expand", "#expand", "@expand" } },               //  (config/show/remove is for registry-like program settings)
-            {REMOVAL,   new string[] {"clear", "#clear", "@clear", "remove", "#remove", "@remove"} } //  (config/show/remove is for registry-like program settings)
+            {CONTROL,   new string[] {"set", "#set" } },                        // When using default segment identification, the first entry ("set") is always the implied result
+            {STATUS,    new string[] {"get", "#get", "expand", "#expand" } },   // registry-like program settings
+            {REMOVAL,   new string[] {"clear", "#clear", "remove", "#remove" } }// registry-like program settings
         };
-        public static string[] Searches => Directives[SEARCH];
-        public static string[] Statuses => Directives[STATUS];
-        public static string[] Removals => Directives[REMOVAL];
-        public static string[] Displays => Directives[DISPLAY];
-        public static string[] Controls => Directives[CONTROL];
+        private static Dictionary<string, string[]> SimpleClauses = new Dictionary<string, string[]>() {
+            {PROGRAM,   new string[] {"@exit", "@backup", "@restore", "@help" } }
+        };
+        private static Dictionary<string, string[]> DependentClauses = new Dictionary<string, string[]>() {
+            {DISPLAY,   new string[] {"print" } },
+            {DEFINE,    new string[] {"define", "#define" } }
+        };
+        public static string[] Searches => IndependentClauses[SEARCH];
+        public static string[] Statuses => IndependentClauses[STATUS];
+        public static string[] Removals => IndependentClauses[REMOVAL];
+        public static string[] Displays => IndependentClauses[DISPLAY];
+        public static string[] Controls => IndependentClauses[CONTROL];
 
         public static string FIND => Searches[0];
         public static string GET => Statuses[0];
@@ -143,9 +153,9 @@ UseDefaultVerb:
             if (verb == null)
                 return (null, null);
 
-            foreach (var directive in Directives.Keys)
+            foreach (var directive in IndependentClauses.Keys)
             {
-                var verbs = Directives[directive];
+                var verbs = IndependentClauses[directive];
                 foreach (var candidate in verbs)
                     if (verb.Equals(candidate, StringComparison.InvariantCultureIgnoreCase))
                         return (candidate, directive);
