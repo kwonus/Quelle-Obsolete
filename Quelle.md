@@ -61,22 +61,22 @@ In Quelle terminology, a statement is made up of clauses. Each clause has a sing
 
 Each of the fourteen verbs has a minimum and maximum number of parameters. Some of the verbs have required operators.  See the Table 3-1 below:
 
-| Prefix | Verb        | Phrase Restriction |   Silent   | Clause Type | Arguments | Required Operators |
-| :----: | ----------- | :----------------: | :--------: | ----------- | --------- | :----------------: |
-|        | **search**  |                    |   **x**    | SEARCH      | 1 or more |                    |
-|   #    | **find**    |                    |            | SEARCH      | 1 or more |                    |
-|   #    | **print**   |     **simple**     |            | DISPLAY     | 0 or more |                    |
-|   \|   | **format**  |   **dependent**    |            | DISPLAY     | 0 or more |                    |
-|   \|   | **define**  |   **dependent**    |            | MACRO       | 1         |        { }         |
-|   #    | **expand**  |                    |            | MACRO       | 1         |        { }         |
-|   #    | **remove**  |                    |            | MACRO       | 1         |        { }         |
-|   #    | **set**     |                    | *optional* | CONTROL     | 2         |         =          |
-|   #    | **get**     |                    |            | CONTROL     | 1         |                    |
-|   #    | **clear**   |                    |            | CONTROL     | 1         |                    |
-|   #    | **help**    |     **simple**     |            | ENVIRONMENT | 0 or 1    |                    |
-|   #    | **backup**  |     **simple**     |            | ENVIRONMENT | 1 to 3    |                    |
-|   #    | **restore** |     **simple**     |            | ENVIRONMENT | 1 or 3    |                    |
-|   #    | **exit**    |     **simple**     |            | ENVIRONMENT | 0         |                    |
+| Prefix | Verb        | Phrase Restriction | Silent | Clause Type | Arguments | Required Operators |
+| :----: | ----------- | :----------------: | :----: | ----------- | --------- | :----------------: |
+|        | **search**  |                    | **x**  | SEARCH      | 1 or more |                    |
+|   #    | **find**    |                    |        | SEARCH      | 1 or more |                    |
+|   #    | **print**   |     **simple**     |        | DISPLAY     | 0 or more |                    |
+|   \|   | **format**  |   **dependent**    |        | DISPLAY     | 0 or more |                    |
+|   \|   | **define**  |   **dependent**    |        | MACRO       | 1         |        { }         |
+|   #    | **expand**  |                    |        | MACRO       | 1         |        { }         |
+|   #    | **remove**  |                    |        | MACRO       | 1         |        { }         |
+|        | **set**     |                    | **x**  | CONTROL     | 2         |         =          |
+|   #    | **get**     |                    |        | CONTROL     | 1         |                    |
+|   #    | **clear**   |                    |        | CONTROL     | 1         |                    |
+|   #    | **help**    |     **simple**     |        | ENVIRONMENT | 0 or 1    |                    |
+|   #    | **backup**  |     **simple**     |        | ENVIRONMENT | 1 to 3    |                    |
+|   #    | **restore** |     **simple**     |        | ENVIRONMENT | 1 or 3    |                    |
+|   #    | **exit**    |     **simple**     |        | ENVIRONMENT | 0         |                    |
 
 **TABLE 3-1 -- Detailed verb descriptions with syntax implications**
 
