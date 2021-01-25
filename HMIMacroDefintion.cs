@@ -13,7 +13,7 @@ namespace QuelleHMI
         {
             this.directive = HMIPhrase.MACRODEF;
             this.macroScope = this.subordinate.verb != null && this.subordinate.verb.Length >= 2
-                            ? this.subordinate.verb[0] == '#' ? HMIScope.System : HMIScope.Session
+                            ? this.subordinate.verb[0] == '#' ? HMIScope.System : HMIScope.Statement
                             : HMIScope.Undefined;
         }
     }

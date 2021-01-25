@@ -88,7 +88,7 @@ namespace QuelleHMI
 
             switch (ValidateScope(key.section, scope))
             {
-                case HMIScope.Session:  
+                case HMIScope.Statement:  
                 case HMIScope.System:   break;
                 default:                return new HMIResultString(error: "Driver design error", warning: "Unknown setting scope provided by driver");
             }
@@ -149,7 +149,7 @@ namespace QuelleHMI
 
             switch (ValidateScope(key.section, scope))
             {
-                case HMIScope.Session:
+                case HMIScope.Statement:
                 case HMIScope.System:   break;
                 default:                return new HMIResultString(error: "Driver design error", warning: "Unknown setting scope provided by driver");
             }
@@ -192,7 +192,7 @@ namespace QuelleHMI
 
             switch (ValidateScope(key.section, scope))
             {
-                case HMIScope.Session:
+                case HMIScope.Statement:
                 case HMIScope.System:   break;
                 default:                return new HMIResultString(error: "Driver design error", warning: "Unknown setting scope provided by driver");
             }

@@ -58,7 +58,7 @@ namespace QuelleHMI
 				{
 					statement = (pipe > 0) ? command.Substring(0, pipe).Trim() : "";
 
-					this.statement = (statement.Length > 0) ? new HMIStatement(this, 0, statement) : null;
+					this.statement = (statement.Length > 0) ? new HMIStatement(this, statement) : null;
 
 					if (this.statement != null)
 					{
@@ -67,7 +67,7 @@ namespace QuelleHMI
 				}
 				else if (this.errors == null)
                 {
-					this.statement = new HMIStatement(this, 0, command.Trim());
+					this.statement = new HMIStatement(this, command.Trim());
 				}
 			}
         }

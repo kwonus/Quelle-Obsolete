@@ -193,7 +193,7 @@ If an execution ONLY contains CONTROL verbs, then the key-value pairs are saved.
 
 **TABLE 5-1** -- **Primary**, **Secondary**, and **Dependent** clauses
 
-CONTROL clauses are coupled with SEARCH, CONTROL settings are not saved and only effect the current statement.
+CONTROL clauses that are coupled with SEARCH statements are not saved and only effect the current statement.
 
 ### VI. Quelle SEARCH clauses
 

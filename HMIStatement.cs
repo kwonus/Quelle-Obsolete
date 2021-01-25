@@ -20,17 +20,15 @@ namespace QuelleHMI
             if (this.command != null)
                 this.command.Notify(mode, message);
         }
-        public UInt16 span { get; private set; }
         public string statement { get; private set; }
         public String[] rawSegments { get; private set; }  // right-side: each segment has a POLARITY
         private HMIPolarity[] polarities;
         private Dictionary<(UInt32 order, HMIPolarity polarity, string segment), HMIPhrase> segmentation;
         public Dictionary<UInt64, HMIPhrase> segments { get; private set; }
 
-        public HMIStatement(HMICommand command, UInt16 span, string statement)
+        public HMIStatement(HMICommand command, string statement)
         {
             this.command = command;
-            this.span = 0;
             this.statement = statement.Trim();
 
             if (this.statement.Length < 1)
@@ -52,7 +50,7 @@ namespace QuelleHMI
             {
                 if (i >= len && last < len)
                 {
-                    polarity.Add(order++, this.statement.Substring(last, len).Trim());
+                    polarity.Add(order++, this.statement.Substring(last, len-last).Trim());
                     break;
                 }
                 if (c_quoted)   // then this character should be ignored as a delimiter and be ignored as per double-quoting
@@ -86,7 +84,7 @@ namespace QuelleHMI
                     switch (next)
                     {
                         case '/':
-                        case '-': polarity.Add(order++, this.statement.Substring(last, i).Trim());
+                        case '-': polarity.Add(order++, this.statement.Substring(last, i-last).Trim());
                                   break;
                         default:  continue;
                     }
@@ -125,7 +123,7 @@ namespace QuelleHMI
                     this.rawSegments[i] = parsed.Value;
                     this.polarities[i] = HMIPolarity.POSITIVE;
 
-                    var current = new HMIPhrase(this, parsed.Key, span, this.polarities[i], parsed.Value, HMIClauseType.INDEPENDENT);
+                    var current = new HMIPhrase(this, parsed.Key, this.polarities[i], parsed.Value, HMIClauseType.INDEPENDENT);
                     var tuple = (parsed.Key, polarities[i], parsed.Value);
                     this.segmentation.Add(tuple, current);
                     this.segments.Add(current.sequence, current);
@@ -142,7 +140,7 @@ namespace QuelleHMI
                     this.rawSegments[i] = parsed.Value;
                     this.polarities[i] = HMIPolarity.NEGATIVE;
 
-                    var current = new HMIPhrase(this, parsed.Key, span, this.polarities[i], parsed.Value, HMIClauseType.INDEPENDENT);
+                    var current = new HMIPhrase(this, parsed.Key, this.polarities[i], parsed.Value, HMIClauseType.INDEPENDENT);
                     var tuple = (parsed.Key, polarities[i], parsed.Value);
                     this.segmentation.Add(tuple, current);
                     this.segments.Add(current.sequence, current);
@@ -164,7 +162,7 @@ namespace QuelleHMI
 
             var search      = NormalizeSearchSegments(errors);
             var file        = NormalizeFileSegments(errors);
-            var persistence = NormalizePersistenceSegments(errors, (search.scope == HMIScope.Session) || (file.scope == HMIScope.Session) ? HMIScope.Session : HMIScope.Session);   // FILE or SEARCH segments coerce PERSISTENCE segments to Statement scope
+            var persistence = NormalizePersistenceSegments(errors, (search.scope == HMIScope.Statement) || (file.scope == HMIScope.Statement) ? HMIScope.Statement : HMIScope.Statement);   // FILE or SEARCH segments coerce PERSISTENCE segments to Statement scope
             var status      = NormalizeStatusSegments(errors);
             var removal     = NormalizeRemovalSegments(errors);
 
@@ -232,7 +230,7 @@ namespace QuelleHMI
                 }
             }
             var normalizedVerb = verbs.Count >= 1 ? verbs[0] : null;
-            var scoped = normalizedVerb != null ? HMIScope.Session : HMIScope.Undefined;
+            var scoped = normalizedVerb != null ? HMIScope.Statement : HMIScope.Undefined;
             if (verbs.Count >= 2)
             {
                 normalizedVerb = null;  // // if it cannot be normalized/upgraded to a find verb, then the list of verbs cannot be normalized
@@ -271,7 +269,7 @@ namespace QuelleHMI
                 }
             }
             var normalizedVerb = verbs.Count == 1 ? verbs[0] : null;
-            var scoped = verbs.Count == 1 ? HMIScope.Session : HMIScope.Undefined;
+            var scoped = verbs.Count == 1 ? HMIScope.Statement : HMIScope.Undefined;
             if (verbs.Count > 1)
                 errors.Add(GetStandardMultiverbErrorMessage(verbs));
 
@@ -398,7 +396,7 @@ namespace QuelleHMI
 
         protected static void AddConformingVerb(List<string> verbs, string verb, ref HMIScope scope)
         {
-            if (scope != HMIScope.Session)
+            if (scope != HMIScope.Statement)
             {
                 var segmentScope = GetScope(verb[0]);
                 if ((int)segmentScope < (int)scope)
@@ -416,7 +414,7 @@ namespace QuelleHMI
             switch (scope)
             {
                 case '#': return HMIScope.System;
-                default: return HMIScope.Session;
+                default: return HMIScope.Statement;
             }
         }
         protected static string GetStandardMultiverbErrorMessage(List<string> verbs)

@@ -129,40 +129,30 @@ namespace QuelleHMI
 
             return null;
         }
+        //  Assume that an explicit verb has not been passed
+        //  (We will not be looking for explicit verbs here)
+        //
         public static (string[] tokens, string error) IsPersistencePattern(string text)
         {
             if (text == null)
                 return (null, "Driver design error; cannot test patter when input is null");
 
-            string[] parts;
-            string[] tokens = text.Split(Whitespace, 2, StringSplitOptions.RemoveEmptyEntries);
-            string verb = null;
-
-            if (tokens.Length == 2)
+            var parts = HMIPhrase.SmartSplit(text, '=');
+            if (parts.Length == 2)
             {
-                verb = tokens[0];
-                verb = DirectiveIncludesVerb(SETTERS, verb);
+                var tokens = new string[3];
+                tokens[0] = SET;
+                tokens[1] = parts[0];
+                tokens[2] = parts[1];
 
-                if (verb != null)
-                {
-                    string remainder = tokens[1];
-                    parts = HMIPhrase.SmartSplit(remainder, '=');
-                    if (parts.Length == 2 && parts[0].Length > 0 && parts[1].Length > 0)
-                    {
-                        tokens = new string[3];
-                        tokens[0] = verb;
-                        tokens[1] = parts[0];
-                        tokens[2] = parts[1];
+                if (parts[0].Length == 0 || parts[1].Length == 0)
+                    return (tokens, "User input error; Control assignments require a name and a value");
 
-                        if (parts[0].Length == 0 || parts[1].Length == 0)
-                            return (tokens, "User input error; Control assignments require a name and a value");
+                var variable = tokens[1];
+                if (!HMISession.IsControl(variable))
+                    return (tokens, "User input error; The syntax of the phrase matches a control assigment, but the control name could not be found.");
 
-                        var variable = tokens[1];
-                        if (!HMISession.IsControl(variable))
-                            return (tokens, "User input error; The syntax of the phrase matches a control assigment, but the control name could not be found.");
-                    }
-                    return (tokens, null);
-                }
+                return (tokens, null);
             }
             return (null, null);
         }
@@ -208,66 +198,30 @@ namespace QuelleHMI
             }
             return null;
         }
-        public static (string[] tokens, string error) IsSearchPattern(string text)
-        {
-            if (text == null)
-                return (null, "Driver design error; cannot test patter when input is null");
-
-            var persistence = IsPersistencePattern(text);
-            if (persistence.tokens != null)
-                return (null, null);
-
-            string[] tokens = HasVerb(text);
-
-            if (tokens == null)
-                tokens = new string[] { DirectiveDefault(FIND), text };
-
-            if (tokens.Length == 2)
-            {
-                if (tokens[0].Equals(FIND))
-                    return (tokens, null);
-
-                return (null, null);
-            }
-            return (new string[] { SUMMARIZE, null }, null);
-        }
-        public static string[] NormalizeSegment(string text)
+        public string[] NormalizeSegment(string text)
         {
             if (text == null)
                 return null;
 
-            //  Only SEARCH and PERSISTENCE segments can be implicitly recognized
+            //  Look first for explicit verb references:
             //
             var tokens = HasVerb(text);
             if (tokens != null && tokens.Length >= 2)
-            {
-                var settings = IsPersistencePattern(text);
-                if (settings.tokens != null)
-                    return settings.tokens;
-
-                var search = IsSearchPattern(text);
-                if (search.tokens != null)
-                    return search.tokens;
-
                 return tokens;
-            }
 
-            // Persistence pattern is the most identifying pattern, because it MUST contain =
+            //  Only CONTROL::SET can be implicitly recognized
             //
             var controls = IsPersistencePattern(text);
             if (controls.tokens != null)
             {
+                if (controls.error != null)
+                    this.Notify("error", controls.error);
+
                 return controls.tokens;
             }
-            //  Since we test persistence patter first, we can serch for "set" as the first word of a segment
+            //  No other segments can be implicitly recognized, it defaults to SEARCH
             //
-            var parts = IsSearchPattern(text);
-            if (parts.tokens != null)
-                return parts.tokens;
-
-            //  No other segments can be implicitly recognized
-            //
-            return null;
+            return (new string[] { SUMMARIZE, text });
         }
         private bool error = false;
         private HMIStatement statement;
@@ -281,7 +235,6 @@ namespace QuelleHMI
             if (!this.error)
                 this.error = mode == null || !mode.Equals("warning", StringComparison.InvariantCultureIgnoreCase);
         }
-        UInt16 span;
         public UInt32 order { get; private set;  }
         public UInt32 sequence { get; private set; }  // Sequence number of segment
         public string segment { get; private set; }
@@ -416,9 +369,10 @@ namespace QuelleHMI
                 order++;
             }
         }
-        public HMIPhrase(HMIStatement statement, UInt32 segmentOrder, UInt16 span, HMIPolarity polarity, string segment, HMIClauseType clauseType)
+        public HMIPhrase(HMIStatement statement, UInt32 segmentOrder, HMIPolarity polarity, string segment, HMIClauseType clauseType)
         {
             this.misplaced = null;
+            this.statement = statement;
 
             string[] normalized = NormalizeSegment(segment);
 
@@ -434,7 +388,6 @@ namespace QuelleHMI
             this.fragments = new Dictionary<UInt64, HMIFragment>();
             this.sequence = segmentOrder;
  
-            this.span = span;
             this.rawFragments = null;
             this.segment = normalized[1] != null ? normalized[1] : "";
             this.polarity = polarity;
@@ -575,7 +528,7 @@ namespace QuelleHMI
                 if (i >= len)
                 {
                     if (last < len)
-                        splits.Add(source.Substring(last, len).Trim());
+                        splits.Add(source.Substring(last, len-last).Trim());
                     else
                         splits.Add("");
 
@@ -604,7 +557,7 @@ namespace QuelleHMI
                 if (c != delimit)
                     continue;
 
-                splits.Add(source.Substring(last, i).Trim());
+                splits.Add(source.Substring(last, i-last).Trim());
 
                 last = i + 1;
             }

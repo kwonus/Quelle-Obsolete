@@ -7,7 +7,7 @@ namespace QuelleHMI
     public enum HMIScope
     {
         Undefined = 0,
-        Session = 1,
+        Statement = 1,
         System = 2
     }
 }
