@@ -59,28 +59,28 @@ In Quelle terminology, a statement is made up of clauses. Each clause has a sing
    - restore
    - exit
 
-Each of the fourteen verbs has a minimum and maximum number of parameters. Some of the verbs have required operators.  See the Table 3-1 below:
+Each of the fourteen verbs has a minimum and maximum number of parameters. Note that MACRO clauses also require special operators.  See the Table 3-1 below:
 
-| Prefix | Verb        | Phrase Restriction | Silent | Clause Type | Arguments | Required Operators |
-| :----: | ----------- | :----------------: | :----: | ----------- | --------- | :----------------: |
-|        | **search**  |                    | **x**  | SEARCH      | 1 or more |                    |
-|   #    | **find**    |                    |        | SEARCH      | 1 or more |                    |
-|   #    | **print**   |     **simple**     |        | DISPLAY     | 0 or more |                    |
-|   \|   | **format**  |   **dependent**    |        | DISPLAY     | 0 or more |                    |
-|   \|   | **define**  |   **dependent**    |        | MACRO       | 1         |        { }         |
-|   #    | **expand**  |                    |        | MACRO       | 1         |        { }         |
-|   #    | **remove**  |                    |        | MACRO       | 1         |        { }         |
-|        | **set**     |                    | **x**  | CONTROL     | 2         |         =          |
-|   #    | **get**     |                    |        | CONTROL     | 1         |                    |
-|   #    | **clear**   |                    |        | CONTROL     | 1         |                    |
-|   #    | **help**    |     **simple**     |        | ENVIRONMENT | 0 or 1    |                    |
-|   #    | **backup**  |     **simple**     |        | ENVIRONMENT | 1 to 3    |                    |
-|   #    | **restore** |     **simple**     |        | ENVIRONMENT | 1 or 3    |                    |
-|   #    | **exit**    |     **simple**     |        | ENVIRONMENT | 0         |                    |
+| Prefix | Verb        | Verb is Inferred | Clause Type | Clause Restriction | Required Arguments | Required Operators |
+| :----: | ----------- | :--------------: | ----------- | :----------------: | ------------------ | :----------------: |
+|        | **search**  |      **x**       | SEARCH      |                    | 1 or more          |                    |
+|   #    | **find**    |                  | SEARCH      |                    | 1 or more          |                    |
+|   #    | **print**   |                  | DISPLAY     |     **simple**     | 0 or more          |                    |
+|   \|   | **format**  |                  | DISPLAY     |   **dependent**    | 0 or more          |                    |
+|   \|   | **define**  |                  | MACRO       |   **dependent**    | 1                  |        { }         |
+|   #    | **expand**  |                  | MACRO       |                    | 1                  |        { }         |
+|   #    | **remove**  |                  | MACRO       |                    | 1                  |        { }         |
+|        | **set**     |      **x**       | CONTROL     |                    | 2                  |         =          |
+|   #    | **get**     |                  | CONTROL     |                    | 1                  |                    |
+|   #    | **clear**   |                  | CONTROL     |                    | 1                  |                    |
+|   #    | **help**    |                  | ENVIRONMENT |     **simple**     | 0 or 1             |                    |
+|   #    | **backup**  |                  | ENVIRONMENT |     **simple**     | 1 to 3             |                    |
+|   #    | **restore** |                  | ENVIRONMENT |     **simple**     | 1 or 3             |                    |
+|   #    | **exit**    |                  | ENVIRONMENT |     **simple**     | 0                  |                    |
 
 **TABLE 3-1 -- Detailed verb descriptions with syntax implications**
 
-Phrase restricted verbs are unique in that they cannot be used to construct a compound statement.  Dependent phrases can be added as the final clause after an ordinary statement, but cannot be combined in any other way. Simple statements cannot be combined whatsoever.
+Phrase-restricted verbs are unique in that they cannot be used to construct compound statements.  Dependent phrases can be added as the final clause after an ordinary statement, but cannot be combined in any other way. Simple statements cannot be combined whatsoever.
 
 Quelle clauses always have a verb, even if the verb might be "silent". From a linguistic standpoint, all Quelle clauses are verbal phrases issued in the imperative. The syntax for each clause is dependent upon the verb for the clause, and each clause type has its own parsing rules and special characters for the clause. The type of clause is controlled by the verb.
 
@@ -94,26 +94,26 @@ A simple statement always has only a single verb. Some verbs are constrained to 
 
 Even before we describe Quelle syntax generally, let's look at these concepts using examples:
 
-|                                            | Example                                                     |
-| ------------------------------------------ | ----------------------------------------------------------- |
-| Simple statement                           | "search for this text"                                      |
-| Dependent clause                           | \| format                                                   |
-| Ordinary statement                         | "search for this text" // "search for other text"           |
-| Ordinary statement with a dependent clause | "search for this text" // "search for other text" \| format |
+|                                            | Example                                        |
+| ------------------------------------------ | ---------------------------------------------- |
+| Simple statement                           | "look for this text"                           |
+| Dependent clause                           | \| format                                      |
+| Ordinary statement                         | "look for this text" // "other text"           |
+| Ordinary statement with a dependent clause | "look for this text" // "other text" \| format |
 
 **TABLE 3-2 -- Examples of Quelle statement types**
 
-In the last example in Table 3-2, the final verb phrase, namely *print*, is the dependent clause. Dependent clauses are identified as a clause that begins after the pipe symbol ( | ). There are two functions associated with dependent clauses: printing search results and defining macros.  Macro definitions are a mechanism of making Quelle extensible by the user.  Macros are defined in the next section and are also referred to as "statement labels". Printing is described in section IX.
+In the last example in Table 3-2, the final verb phrase, namely *format*, is the dependent clause. Dependent clauses are identified as a clause that begins after the pipe symbol ( | ). There are two functions associated with dependent clauses: printing search results and defining macros.  Macro definitions are a mechanism of making Quelle extensible by the user.  Macros are defined in the next section and are also referred to as "statement labels". Printing is described in section IX.
 
-Consider this example of executing SEARCH:
-
-"in the beginning"
-
-Notice that we have one verb in a single clause.
+Consider these two examples of Quelle statement (first CONTROL; then SEARCH):
 
 search.domain = bible
 
-If we had run this configuration command prior to the search command listed above, our first match would be found in Genesis 1:1. But as the source domain of our search is a key element of our search, we should have a way to express both of these in a single command. And this is the rationale behind a compound statement. A compound statement has more than one clause. To combine the previous two clauses into one compound statement, issue this command:
+#find "in the beginning"
+
+Notice that each of the above, while ordinary statements, are .
+
+If we had run these statements in the order listed above, the first match for the search would be in the book of Genesis. But as the source domain of our search is a key element of our search, we should have a way to express both of these in a single command. And this is the rationale behind a compound statement. A compound statement has more than one clause. To combine the previous two clauses into one compound statement, issue this command:
 
 "in the beginning" // search.domain=bible
 
