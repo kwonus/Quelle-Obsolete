@@ -436,29 +436,26 @@ md`>> implies >>` set format = text
 
 ### IX. Printing Results
 
-The DISPLAY directive has two forms
+The DISPLAY directive has only a single verb, but it is manifest both as a simple statement (#print) and also as a dependent clause ( | print ).
 
-| Verb      | Clause Type                                                  |
-| --------- | ------------------------------------------------------------ |
-| #print    | Simple Statement) statement with only one clause)            |
-| \| format | Dependent clause that follows a statement with SEARCH clauses |
+The arguments to both forms of the verb are identical, but the usage syntax varies.
 
-**TABLE 9-1 --** The two methods of using DISPLAY directives
-
-There are two distinct methods because there are two fundamental types of searches:
+Consider that there are two distinct methods because there are two fundamental types of searches:
 
 - Searches that return a limited set of results
 - Searches that either return loads of results of searches where the result count is unknown (and potentially very large)
 
-The default SEARCH verb, the one that is inferred, assumes the latter condition above. The default search, does not display results. Instead, it displays a summary of the results. The idea is that the user can drill down into the summary and print limited sets of results, using the #print command to selectively print portions of the most previously executed SEARCH.  The dependent clause can be used to circumvent the summary and immediately every record that is returned from the search. Here are two parallel examples:
+Due to the latter the latter condition above, SEARCH, by default summarizes results (it does NOT automatically print every result found). The idea is that the user can drill down into the summary and print limited sets of results, using the #print command to selectively print portions of the most previously executed SEARCH.  The dependent clause can be used to circumvent the summary and immediately every record that is returned from the search. Here are two parallel examples:
 
 "Jesus answered"			*this would summarize books that contain this phrase, with chapter references*
 
 "Jesus answered" | format *			*this would would print every matching verse*
 
-Because this latter form is a very common user expectation, the explicit SEARCH verb the explicit #find verb accomplishes exactly the same result as the second form above:
+Consider this very general search
 
-#find "Jesus answered"
+"he ... said"
+
+I can sample the first three results after the search by executing
 
 #find and implicit-search provide the same set of results.  However, the #find form implies a trailing |format statement and obviates the need for subsequent usage of #print.
 
@@ -466,29 +463,41 @@ Because this latter form is a very common user expectation, the explicit SEARCH 
 
 To print all matching synopses of the most recently executed search:
 
-*print* *
+*#print* [1,2,3]
 
-or
+Or I can add a header using this variant of print as a dependent clause:
+
+heading = The first three results | print [1,2,3]
+
+Or I can combine all three into a single statement:
+
+"he ... said" // heading = The first three results | print [1,2,3]
+
+While similar, there is flexibility made available to the user to control SEARCH vs DISPLAY.
+
+The remainder of this section further describes the various arguments for DISPLAY phrases.
+
+To print all results:
 
 *print* [*]
 
-To print only the first entry:
+To print only the first result:
 
 *print* [1]
 
-To print only the first three entries:
+As we saw earlier, to print only the first three results
 
 *print* [1,2,3]
 
-or:
+Alternatively, this also works:
 
 *print* [1] [2] [3]
 
-or:
+and this:
 
 *print* [1:3]
 
-To print the first three entries with a single display-coordinate:
+To print using a single display-coordinate:
 
 *print* genesis:1:1
 
@@ -502,7 +511,7 @@ A more vanilla decoration might be:
 
 *print* [1,2,3] + display.record= \<a href=\\"%url%\\"\>%abstract%\</a\>
 
-Keep in mind, however, the above two examples above are purely notional, your Quelle driver must such record annotations for them to render as expected. Consult the documentation for your Quelle cloud-capable driver to determine what record annotations are available in your driver.
+Keep in mind, however, the above two examples above are purely notional, your Quelle driver must support such annotation variables for them to render as expected. Consult the documentation for your Quelle cloud-capable driver to determine what record annotation variables are available in your driver.
 
 So to break open the fragment from the *print* example above:
 
