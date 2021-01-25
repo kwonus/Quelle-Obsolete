@@ -20,7 +20,7 @@ Any application can implement the Quelle specification without royalty. We provi
 
 The Quelle specification defines a declarative syntax for specifying search criteria using the *find* verb. Quelle also defines additional verbs to round out its syntax as a simple straightforward means to interact with custom applications where searching text is the fundamental problem at hand. As mentioned earlier, AV Text Ministries provides a reference implementation. This implementation is written in C# and runs on most operating systems (e.g. Windows, Mac, Linux, iOS, Android, etc).  As source code is provided, it can be seamlessly extended by application programmers.
 
-Quelle Syntax comprises a standard set of fourteen (14) verbs. Each verb corresponds to a basic operation:
+Quelle Syntax comprises a standard set of twelve (12) verbs. Each verb corresponds to a basic operation:
 
 - find
 - print
@@ -37,14 +37,12 @@ Quelle Syntax comprises a standard set of fourteen (14) verbs. Each verb corresp
 
 The verbs listed above are for the English flavor of Quelle. As Quelle is an open and extensible standard, verbs for other languages can be defined without altering the overall syntax structure of the HMI. The remainder of this document describes Version 1.0 of the Quelle-HMI specification.  
 
-In Quelle terminology, a statement is made up of clauses. Each clause has a single verb. While there are fourteen verbs, there are only five distinct types of clauses:
+In Quelle terminology, a statement is made up of clauses. Each clause has a single verb. While there are twelve verbs, there are only five distinct types of clauses:
 
 1. SEARCH clauses
    - find
-   - search
 2. DISPLAY clauses
    - print
-   - format
 3. CONTROL clauses
    - get
    - set
@@ -59,20 +57,19 @@ In Quelle terminology, a statement is made up of clauses. Each clause has a sing
    - restore
    - exit
 
-Each of the fourteen verbs has a minimum and maximum number of parameters. Note that MACRO clauses also require special operators.  See the Table 3-1 below:
+Each of the twelve verbs has a minimum and maximum number of parameters. Note that MACRO clauses also require special operators.  See the Table 3-1 below:
 
 | Prefix | Verb        | Verb is Inferred | Clause Type | Clause Restriction | Required Arguments | Required Operators |
 | :----: | ----------- | :--------------: | ----------- | :----------------: | ------------------ | :----------------: |
-|        | **search**  |      **x**       | SEARCH      |                    | 1 or more          |                    |
-|   #    | **find**    |                  | SEARCH      |                    | 1 or more          |                    |
-|   #    | **print**   |                  | DISPLAY     |     **simple**     | 0 or more          |                    |
-|   \|   | **format**  |                  | DISPLAY     |   **dependent**    | 0 or more          |                    |
-|   \|   | **define**  |                  | MACRO       |   **dependent**    | 1                  |        { }         |
-|   #    | **expand**  |                  | MACRO       |                    | 1                  |        { }         |
-|   #    | **remove**  |                  | MACRO       |                    | 1                  |        { }         |
+|        | **find**    |      **x**       | SEARCH      |                    | 1 or more          |                    |
 |        | **set**     |      **x**       | CONTROL     |                    | 2                  |         =          |
 |   #    | **get**     |                  | CONTROL     |                    | 1                  |                    |
 |   #    | **clear**   |                  | CONTROL     |                    | 1                  |                    |
+|   #    | **expand**  |                  | MACRO       |                    | 1                  |        { }         |
+|   #    | **remove**  |                  | MACRO       |                    | 1                  |        { }         |
+|   \|   | **define**  |                  | MACRO       |   **dependent**    | 1                  |        { }         |
+|   \|   | **print**   |                  | DISPLAY     |   **dependent**    | 0 or more          |                    |
+|   #    | **print**   |                  | DISPLAY     |     **simple**     | 0 or more          |                    |
 |   #    | **help**    |                  | ENVIRONMENT |     **simple**     | 0 or 1             |                    |
 |   #    | **backup**  |                  | ENVIRONMENT |     **simple**     | 1 to 3             |                    |
 |   #    | **restore** |                  | ENVIRONMENT |     **simple**     | 1 or 3             |                    |
@@ -94,12 +91,12 @@ A simple statement always has only a single verb. Some verbs are constrained to 
 
 Even before we describe Quelle syntax generally, let's look at these concepts using examples:
 
-|                                            | Example                                        |
-| ------------------------------------------ | ---------------------------------------------- |
-| Simple statement                           | "look for this text"                           |
-| Dependent clause                           | \| format                                      |
-| Ordinary statement                         | "look for this text" // "other text"           |
-| Ordinary statement with a dependent clause | "look for this text" // "other text" \| format |
+|                                            | Example                                       |
+| ------------------------------------------ | --------------------------------------------- |
+| Simple statement                           | "look for this text"                          |
+| Dependent clause                           | \| print                                      |
+| Ordinary statement                         | "look for this text" // "other text"          |
+| Ordinary statement with a dependent clause | "look for this text" // "other text" \| print |
 
 **TABLE 3-2 -- Examples of Quelle statement types**
 
@@ -383,25 +380,13 @@ The "*print*" verb has very limited grammar. And it can only be used in a depend
 
 
 
-:x: Used to be a table here.  Until table references are checked, leave this here
-
-**TABLE 8-2** -- **get**/**set** and directives can be used to store & retrieve numerous other settings
-
-
-
 | **example**                              | **explanation**                              |
 | ---------------------------------------- | -------------------------------------------- |
 | *quelle*.host = https://avbible.net/     | Setting a control variable for session       |
 | #get *quelle*.host= https://avbible.net/ | Getting a control variable for system        |
 | #clear *quelle*.host                     | clear a control variable (system or session) |
 
-**TABLE 8-3** -- **get**/**set** and **#get/#set** command can be used to retrieve Quelle configuration settings
-
-
-
-:x: Used to be a table here.  Until table references are checked, leave this here
-
-**TABLE 8-4 -- Macro definitions can utilize either scope**
+**TABLE 8-2** -- **get**/**set** and **#get/#set** command can be used to retrieve Quelle configuration settings
 
 
 
@@ -435,7 +420,7 @@ md`>> implies >>` set format = text
 | quelle.debug    | debug      | on or off                    | true/false | *hidden*   |
 | quelle.data     | data       | quelle data format           | *reserved* | *hidden*   |
 
-**TABLE 8-5 -- List of Controls** (The control parameters are applicable to ***set***, ***get*** and ***clear*** verbs)
+**TABLE 8-3 -- List of Controls** (The control parameters are applicable to ***set***, ***get*** and ***clear*** verbs)
 
 
 
@@ -445,13 +430,39 @@ md`>> implies >>` set format = text
 | search.*       | search           |
 | quelle.*       | quelle           |
 
-**TABLE 8-6 -- Wildcard usage on Controls** (wildcard usage only applies to ***get*** and ***clear*** verbs)
+**TABLE 8-4 -- Wildcard usage on Controls** (wildcard usage only applies to ***get*** and ***clear*** verbs)
 
 
 
 ### IX. Printing Results
 
-:x: The DISPLAY directive has only a single verb, called *print*.  "#search" and "find"
+The DISPLAY directive has two forms
+
+| Verb      | Clause Type                                                  |
+| --------- | ------------------------------------------------------------ |
+| #print    | Simple Statement) statement with only one clause)            |
+| \| format | Dependent clause that follows a statement with SEARCH clauses |
+
+**TABLE 9-1 --** The two methods of using DISPLAY directives
+
+There are two distinct methods because there are two fundamental types of searches:
+
+- Searches that return a limited set of results
+- Searches that either return loads of results of searches where the result count is unknown (and potentially very large)
+
+The default SEARCH verb, the one that is inferred, assumes the latter condition above. The default search, does not display results. Instead, it displays a summary of the results. The idea is that the user can drill down into the summary and print limited sets of results, using the #print command to selectively print portions of the most previously executed SEARCH.  The dependent clause can be used to circumvent the summary and immediately every record that is returned from the search. Here are two parallel examples:
+
+"Jesus answered"			*this would summarize books that contain this phrase, with chapter references*
+
+"Jesus answered" | format *			*this would would print every matching verse*
+
+Because this latter form is a very common user expectation, the explicit SEARCH verb the explicit #find verb accomplishes exactly the same result as the second form above:
+
+#find "Jesus answered"
+
+#find and implicit-search provide the same set of results.  However, the #find form implies a trailing |format statement and obviates the need for subsequent usage of #print.
+
+#print and format verbs have additional options that can be used to further control how results are formatted.  Consult the remainder of this section for additional details.
 
 To print all matching synopses of the most recently executed search:
 

@@ -63,17 +63,17 @@ namespace QuelleHMI
         public const string MACRODEF= "DEFINITION"; // MACROS
 
         private static Dictionary<string, string[]> IndependentClauses = new Dictionary<string, string[]>() {
-            {SEARCH,    new string[] {SUMMARIZE, FIND }},       // When using default segment identification, the first entry ("search") is always the implied result
-            {SETTERS,   new string[] {"set" }},                // When using default segment identification, the first entry ("set") is always the implied result
+            {SEARCH,    new string[] {"find" }},                // When using default segment identification, the first entry ("search") is always the implied result
+            {SETTERS,   new string[] {"set" }},                 // When using default segment identification, the first entry ("set") is always the implied result
             {GETTERS,   new string[] {"#get", "#expand" }},     // registry-like program settings
             {REMOVAL,   new string[] {"#clear", "#remove" }}    // registry-like program settings
         };
         private static Dictionary<string, string[]> SimpleClauses = new Dictionary<string, string[]>() {
-            {DISPLAY,   new string[] { PRINT } },
+            {DISPLAY,   new string[] { "#print" } },
             {PROGRAM,   new string[] { HELP, BACKUP, RESTORE, EXIT } }
         };
         private static Dictionary<string, string[]> DependentClauses = new Dictionary<string, string[]>() {
-            {DISPLAY,   new string[] {"format" } },
+            {DISPLAY,   new string[] {"print" } },
             {MACRODEF,  new string[] {"define" } }
         };
         //  Independent/Ordinary Clauses
@@ -82,8 +82,7 @@ namespace QuelleHMI
         public static string[] SetterVerbs => IndependentClauses[SETTERS];
         public static string[] GetterVerbs => IndependentClauses[GETTERS];
 
-        public static string SUMMARIZE => "search";
-        public static string FIND => "#find";
+        public static string FIND => SearchVerbs[0];
         public static string SET => SetterVerbs[0];
 
         public static string GET => GetterVerbs[0];
@@ -108,7 +107,7 @@ namespace QuelleHMI
         public const string EXIT    = "#exit";
 
         public static string[] SimpleDisplayVerbs => SimpleClauses[DISPLAY];
-        public const string PRINT   = "#print";
+        public static string PRINT  = SimpleDisplayVerbs[0];
 
         public string misplaced { get; protected set; }
 
@@ -221,7 +220,7 @@ namespace QuelleHMI
             }
             //  No other segments can be implicitly recognized, it defaults to SEARCH
             //
-            return (new string[] { SUMMARIZE, text });
+            return (new string[] { FIND, text });
         }
         private bool error = false;
         private HMIStatement statement;
