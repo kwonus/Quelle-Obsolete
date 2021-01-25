@@ -7,7 +7,7 @@ namespace QuelleHMI
 {
 	public class HMIFragment
 	{
-		private HMISegment segment;
+		private HMIPhrase segment;
 		private HMIFragment previous
 		{ // used to determine position of previous token
 			get => (this.sequence > 1) && this.segment.fragments.ContainsKey(this.sequence-1) ? this.segment.fragments[this.sequence-1] : null;
@@ -62,7 +62,7 @@ namespace QuelleHMI
 				return (this.previous != null) ? this.previous.hasElipses() : false;
 			return !this.elipses.Value;
 		}
-		public HMIFragment(HMISegment segment, UInt32 order, UInt32 fragmentSeq, string fragment)
+		public HMIFragment(HMIPhrase segment, UInt32 order, UInt32 fragmentSeq, string fragment)
 		{
 			this.fragment = fragment;
 			this.segment = segment;

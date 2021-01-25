@@ -36,7 +36,6 @@ namespace QuelleHMI
 			if (command != null)
 			{
 				string statement = "";
-				int lenStatement = 0;
 
 				int pipe;
 				int start;
@@ -55,7 +54,6 @@ namespace QuelleHMI
 						break;
                     }
                 }
-				int len = 0;
 				if (pipe >= 0 && pipe + 1 < command.Length)
 				{
 					statement = (pipe > 0) ? command.Substring(0, pipe).Trim() : "";
@@ -76,7 +74,7 @@ namespace QuelleHMI
 
 		public HMIScope HasMacro()
 		{
-			if (this.dependentClause != null && this.dependentClause.directive == HMISegment.MACRODEF)
+			if (this.dependentClause != null && this.dependentClause.directive == HMIPhrase.MACRODEF)
 				return ((HMIMacroDefintion)this.dependentClause).macroScope;
 
 			return HMIScope.Undefined;

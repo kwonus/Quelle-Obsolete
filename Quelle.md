@@ -37,23 +37,23 @@ Quelle Syntax comprises a standard set of fourteen (14) verbs. Each verb corresp
 
 The verbs listed above are for the English flavor of Quelle. As Quelle is an open and extensible standard, verbs for other languages can be defined without altering the overall syntax structure of the HMI. The remainder of this document describes Version 1.0 of the Quelle-HMI specification.  
 
-In Quelle terminology, a statement is made up of segments. Each segment has a single verb. While there are fourteen verbs, there are only five distinct types of segments:
+In Quelle terminology, a statement is made up of clauses. Each clause has a single verb. While there are fourteen verbs, there are only five distinct types of clauses:
 
-1. SEARCH segment
+1. SEARCH clauses
    - find
    - search
-2. DISPLAY segment
+2. DISPLAY clauses
    - print
    - format
-3. CONTROL segments
+3. CONTROL clauses
    - get
    - set
    - clear
-4. MACRO segments
+4. MACRO clauses
    - define
    - expand
    - remove
-5. ENVIRONMENT segments
+5. ENVIRONMENT clauses
    - help
    - backup
    - restore
@@ -61,28 +61,28 @@ In Quelle terminology, a statement is made up of segments. Each segment has a si
 
 Each of the fourteen verbs has a minimum and maximum number of parameters. Some of the verbs have required operators.  See the Table 3-1 below:
 
-| Prefixes | Verb        | Phrase Restriction |   Silent   | Segment Type | Arguments | Required Operators |
-| :------: | ----------- | :----------------: | :--------: | ------------ | --------- | :----------------: |
-|          | **search**  |                    |   **x**    | SEARCH       | 1 or more |                    |
-|    #     | **find**    |                    |            | SEARCH       | 1 or more |                    |
-|    #     | **print**   |     **simple**     |            | DISPLAY      | 0 or more |                    |
-|    \|    | **format**  |   **dependent**    |            | DISPLAY      | 0 or more |                    |
-|    \|    | **define**  |   **dependent**    |            | MACRO        | 1         |        { }         |
-|    #     | **expand**  |                    |            | MACRO        | 1         |        { }         |
-|    #     | **remove**  |                    |            | MACRO        | 1         |        { }         |
-|    #     | **set**     |                    | *optional* | CONTROL      | 2         |         =          |
-|    #     | **get**     |                    |            | CONTROL      | 1         |                    |
-|    #     | **clear**   |                    |            | CONTROL      | 1         |                    |
-|    #     | **help**    |     **simple**     |            | ENVIRONMENT  | 0 or 1    |                    |
-|    #     | **backup**  |     **simple**     |            | ENVIRONMENT  | 1 to 3    |                    |
-|    #     | **restore** |     **simple**     |            | ENVIRONMENT  | 1 or 3    |                    |
-|    #     | **exit**    |     **simple**     |            | ENVIRONMENT  | 0         |                    |
+| Prefix | Verb        | Phrase Restriction |   Silent   | Clause Type | Arguments | Required Operators |
+| :----: | ----------- | :----------------: | :--------: | ----------- | --------- | :----------------: |
+|        | **search**  |                    |   **x**    | SEARCH      | 1 or more |                    |
+|   #    | **find**    |                    |            | SEARCH      | 1 or more |                    |
+|   #    | **print**   |     **simple**     |            | DISPLAY     | 0 or more |                    |
+|   \|   | **format**  |   **dependent**    |            | DISPLAY     | 0 or more |                    |
+|   \|   | **define**  |   **dependent**    |            | MACRO       | 1         |        { }         |
+|   #    | **expand**  |                    |            | MACRO       | 1         |        { }         |
+|   #    | **remove**  |                    |            | MACRO       | 1         |        { }         |
+|   #    | **set**     |                    | *optional* | CONTROL     | 2         |         =          |
+|   #    | **get**     |                    |            | CONTROL     | 1         |                    |
+|   #    | **clear**   |                    |            | CONTROL     | 1         |                    |
+|   #    | **help**    |     **simple**     |            | ENVIRONMENT | 0 or 1    |                    |
+|   #    | **backup**  |     **simple**     |            | ENVIRONMENT | 1 to 3    |                    |
+|   #    | **restore** |     **simple**     |            | ENVIRONMENT | 1 or 3    |                    |
+|   #    | **exit**    |     **simple**     |            | ENVIRONMENT | 0         |                    |
 
 **TABLE 3-1 -- Detailed verb descriptions with syntax implications**
 
 Phrase restricted verbs are unique in that they cannot be used to construct a compound statement.  Dependent phrases can be added as the final clause after an ordinary statement, but cannot be combined in any other way. Simple statements cannot be combined whatsoever.
 
-Quelle segments always have a verb, even if the verb might be "silent". From a linguistic standpoint, all Quelle segments are verbal phrases issued in the imperative. The syntax for each segment is dependent upon the type of directive for the segment, and each type of directive has its own parsing rules and special characters for the segment. The type of segment is controlled by the verb.
+Quelle clauses always have a verb, even if the verb might be "silent". From a linguistic standpoint, all Quelle clauses are verbal phrases issued in the imperative. The syntax for each clause is dependent upon the verb for the clause, and each clause type has its own parsing rules and special characters for the clause. The type of clause is controlled by the verb.
 
 Quelle supports three types of statements:
 
@@ -90,7 +90,7 @@ Quelle supports three types of statements:
 2. Ordinary statements
 3. Ordinary statements with a dependent clause
 
-A simple statement always has only a single verb. Some verbs are constrained to be constructed only as simple statements as identified in the table above.  Ordinary statements can have any number of verb phrases; an ordinary statement with more than a single verb is also referred to as a compound statement.  In Quelle, these verb phrases are called "segments".  So another way to describe a simple statement is that it must contain only one segment.  A special type of simple statement in Quelle is a dependent clause.  A dependent clause is still restricted to a single verb, but a dependent clause can be added to any ordinary statement.
+A simple statement always has only a single verb. Some verbs are constrained to be constructed only as simple statements as identified in the table above.  Ordinary statements can have any number of verb phrases; an ordinary statement with more than a single verb is also referred to as a compound statement.  In Quelle, these verb phrases are called "clauses".  So another way to describe a simple statement is that it must contain only one clause.  A special type of simple statement in Quelle is a dependent clause.  A dependent clause is still restricted to a single verb, but a dependent clause can be added to any ordinary statement.
 
 Even before we describe Quelle syntax generally, let's look at these concepts using examples:
 
@@ -103,17 +103,17 @@ Even before we describe Quelle syntax generally, let's look at these concepts us
 
 **TABLE 3-2 -- Examples of Quelle statement types**
 
-In the last example in Table 3-2, the final verb phrase, namely *print*, is the dependent clause. Dependent clauses are identified as a segment that begins after the pipe symbol ( | ). There are two functions associated with dependent clauses: printing search results and defining macros.  Macro definitions are a mechanism of making Quelle extensible by the user.  Macros are defined in the next section and are also referred to as "statement labels". Printing is described in section IX.
+In the last example in Table 3-2, the final verb phrase, namely *print*, is the dependent clause. Dependent clauses are identified as a clause that begins after the pipe symbol ( | ). There are two functions associated with dependent clauses: printing search results and defining macros.  Macro definitions are a mechanism of making Quelle extensible by the user.  Macros are defined in the next section and are also referred to as "statement labels". Printing is described in section IX.
 
 Consider this example of executing SEARCH:
 
 "in the beginning"
 
-Notice that we have one verb and one segment. Also notice that we have not informed our search engine what to search. So here is another statement using a CONTROL directive:
+Notice that we have one verb in a single clause.
 
 search.domain = bible
 
-If we had run this configuration command prior to the search command listed above, our first match would be found in Genesis 1:1. But as the source domain of our search is a key element of our search, we should have a way to express both of these in a single command. And this is the rationale behind a compound statement. A compound statement has more than one segment. To combine the previous two segments into one compound statement, issue this command:
+If we had run this configuration command prior to the search command listed above, our first match would be found in Genesis 1:1. But as the source domain of our search is a key element of our search, we should have a way to express both of these in a single command. And this is the rationale behind a compound statement. A compound statement has more than one clause. To combine the previous two clauses into one compound statement, issue this command:
 
 "in the beginning" // search.domain=bible
 
@@ -184,28 +184,28 @@ search.exact = 1 //  search.span  = 8 // Godhead // eternal
 
 If an execution ONLY contains CONTROL verbs, then the key-value pairs are saved. Otherwise, they only affect the current statement.
 
-| **Operative Segment** | Secondary Segments      | Dependent Clauses | Example                     |
-| --------------------- | ----------------------- | ----------------- | --------------------------- |
-| SEARCH                | any ordinary verb       | allowed           | godhead // span=8           |
-| CONTROL               | any CONTROL verb        | allowed           | domain = bible // span=7    |
-| MACRO                 | any ordinary MACRO verb | not allowed       | godhead \| define {trinity} |
-| ENVIRONMENT           | not allowed             | not allowed       | #backup now                 |
+| **Operative Clause** | Secondary Clauses       | Dependent Clauses | Example                     |
+| -------------------- | ----------------------- | ----------------- | --------------------------- |
+| SEARCH               | any ordinary verb       | allowed           | godhead // span=8           |
+| CONTROL              | any CONTROL verb        | allowed           | domain = bible // span=7    |
+| MACRO                | any ordinary MACRO verb | not allowed       | godhead \| define {trinity} |
+| ENVIRONMENT          | not allowed             | not allowed       | #backup now                 |
 
-**TABLE 5-1** -- **Primary** and **Secondary** Directives
+**TABLE 5-1** -- **Primary**, **Secondary**, and **Dependent** clauses
 
-CONTROL segments are coupled with SEARCH, CONTROL settings are not saved and only effect the current statement.
+CONTROL clauses are coupled with SEARCH, CONTROL settings are not saved and only effect the current statement.
 
-### VI. Quelle SEARCH Segments
+### VI. Quelle SEARCH clauses
 
 Consider the proximity search where the search target is the bible. Here is an example search using Quelle syntax:
 
 *domain=bible // beginning created earth*
 
-Quelle syntax can alter the span by supplying a CONTROL segment:
+Quelle syntax can alter the span by supplying a CONTROL clause:
 
 *domain=bible // span=8 // beginning created earth*
 
-The statement above has two CONTROL segments and one SEARCH segment 
+The statement above has two CONTROL clauses and one SEARCH clause 
 
 Now consider a different search:
 
@@ -245,15 +245,15 @@ This statement uses Boolean multiplication and is equivalent to this lengthier s
 
 *you shall not surely die // thou shall not surely die // ye shall not surely die*
 
-The example above also reveals how multiple search segments can be strung together to form a compound search: logically speaking, each segment is OR’ed together; this implies that any of the three matches is acceptable. using parenthetical terms produces more concise search statements.
+The example above also reveals how multiple search clauses can be strung together to form a compound search: logically speaking, each clause is OR’ed together; this implies that any of the three matches is acceptable. using parenthetical terms produces more concise search statements.
 
 ### VII. Quelle SEARCH Definitions
 
 While some of these concepts have already been introduced, the following section can be used as a glossary for the terminology used in the Quelle HMI specification.
 
-**Directives** are composed by verbs and are used to construct statements for the Quelle Command Interpreter. Each directive has specialized syntax tailored to the imperative verb used in the statement. The directive defines the segment type.
+**Directives** are composed by verbs and are used to construct statements for the Quelle Command Interpreter. Each clause type has specialized syntax tailored to the imperative verb used in the statement. 
 
-**Segments:** Segments are equivalent to an imperative [you-understood] verb phrase.  Most segments have one or more arguments.  But just like English, a verb phrase can be a single word with no explicit subject and no explicit object.  Consider this English sentence:
+**Clauses:** Clauses are equivalent to an imperative [you-understood] verb phrase.  Most clauses have one or more arguments.  But just like English, a verb phrase can be a single word with no explicit subject and no explicit object.  Consider this English sentence:
 
 Go!
 
@@ -263,11 +263,11 @@ Go Home!
 
 Like the earlier example, the subject is "you understood".  The object this time is defined and tells "you" where to go.  Some verbs always have objects, others sometimes do, and still others never do. Quelle follows this same pattern and each verb is defined to accept arguments or not.  See Table 3-1 where the column identified as "Argument Count" is identifying objects of the verb. 
 
-**SEARCH statement**: Each statement contains one or more *search segments*. If there is more than one SEARCH segment, each each segment is logically OR’ed with all other segments.
+**SEARCH statement**: Each statement contains one or more *search clauses*. If there is more than one SEARCH clause, each each clause is logically OR’ed with all other clauses.
 
-**SEARCH segment**: Each segment contains one or more *search terms*. A SEARCH segment is either unquoted statement or quoted.
+**SEARCH clause**: Each clause contains one or more *search terms*. A SEARCH clause is either unquoted statement or quoted.
 
-**Unquoted SEARCH segment:** an unquoted segment contains one or more search words. If there is more than one word, then each word is logically AND’ed with all other words within the segment. Like all other types of segments, the end of the segment terminates with any of this punctuation:
+**Unquoted SEARCH clause:** an unquoted clause contains one or more search words. If there is more than one word, then each word is logically AND’ed with all other words within the clause. Like all other types of clauses, the end of the clause terminates with any of this punctuation:
 
 - // [double-slash]
 - /- [slash-minus]
@@ -277,11 +277,11 @@ Like the earlier example, the subject is "you understood".  The object this time
 
 The absence of double-quotes means that the statement is unquoted.
 
-**Quoted SEARCH segment:** a quoted segment contains a single string of terms to search. An explicit match on the string is required. However, an ellipsis ( … ) can be used to indicate that wildcards may appear within the quoted string.
+**Quoted SEARCH clause:** a quoted clause contains a single string of terms to search. An explicit match on the string is required. However, an ellipsis ( … ) can be used to indicate that wildcards may appear within the quoted string.
 
 **NOTES:**
 
-It is called *quoted,* as the entire segment is sandwiched on both sides by double-quotes ( " ).
+It is called *quoted,* as the entire clause is sandwiched on both sides by double-quotes ( " ).
 
  
 
@@ -295,15 +295,15 @@ The above statement is equivalent to
 
 *“God created heaven and earth” // “created God heaven and earth” // source=bible*
 
-**and:** In Boolean logic, **and** means that all terms must be found. With Quelle-HMI, *and* is represented by terms that appear within an unquoted segment. 
+**and:** In Boolean logic, **and** means that all terms must be found. With Quelle-HMI, *and* is represented by terms that appear within an unquoted clause. 
 
-**or:** In Boolean logic, **or** means that any term constitutes a match. With Quelle=HMI, *or* is represented by the double-slash ( **//** ) between SEARCH segments. 
+**or:** In Boolean logic, **or** means that any term constitutes a match. With Quelle=HMI, *or* is represented by the double-slash ( **//** ) between SEARCH clauses. 
 
-**not:** In Boolean logic, **not** means that the term must not be found. With Quelle, *not* is represented by a slash+minus ( **/-** ) and applies to an entire segment (it cannot be applied to individual words unless the search segment has only a single term). In other words, a ​/-​ means subtract results; it cancels-out matches against all matches of other segments. Most segments are additive as each additional segment increases search results. Contrariwise, a **not** segment is subtractive as it decreases search results.
+**not:** In Boolean logic, **not** means that the term must not be found. With Quelle, *not* is represented by a slash+minus ( **/-** ) and applies to an entire clause (it cannot be applied to individual words unless the search clause has only a single term). In other words, a ​/-​ means subtract results; it cancels-out matches against all matches of other clauses. Most clauses are additive as each additional clause increases search results. Contrariwise, a **not** clause is subtractive as it decreases search results.
 
 **NOTE:**
 
-The /- means that the segment will be subtracted from the search results while its absence means that the segment will be added to the search results. When only a single segment follows a SEARCH directive, it is always positive. A single negative segment following the find imperative, while it might be grammatically valid syntax, will never match anything. Therefore, while permitted in theory, it would have no real-world meaning. Consequently, some implementations of Quelle-HMI may disallow such a construct.
+The /- means that the clause will be subtracted from the search results while its absence means that the clause will be added to the search results. When statement only contains a single search clause, it is always positive. A single negative clause following the find imperative, while it might be grammatically valid syntax, will never match anything. Therefore, while permitted in theory, it would have no real-world meaning. Consequently, some implementations of Quelle-HMI may disallow such a construct.
 
 **More Examples:**
 
@@ -419,7 +419,7 @@ When *clear* verbs are used alongside *set* verbs, clear verbs are always execut
 
 #clear span // span = 7 `>> implies >>` #clear span
 
-Otherwise, when multiple segments contain the same setting, the last setting in the list is preserved.  Example:
+Otherwise, when multiple clauses contain the same setting, the last setting in the list is preserved.  Example:
 
 md`>> implies >>` set format = text
 
@@ -451,7 +451,7 @@ md`>> implies >>` set format = text
 
 ### IX. Printing Results
 
-The DISPLAY directive has only a single verb, called *print*.
+:x: The DISPLAY directive has only a single verb, called *print*.  "#search" and "find"
 
 To print all matching synopses of the most recently executed search:
 
@@ -511,7 +511,7 @@ Final notes about *print*:
 
 In all cases, any number of spaces can be used between operators and terms. 
 
-Also noteworthy: The reference Quelle implementation automatically adjusts the span of your to be inclusive of the number of search terms for the largest segment. So if you were to express:
+Also noteworthy: The reference Quelle implementation automatically adjusts the span of your to be inclusive of the number of search terms for the most broad search clause. So if you were to express:
 
 **find span=1 + in the beginning (God Lord Jesus Christ Messiah)**
 
@@ -547,6 +547,6 @@ This will provide a help message in a Quelle interpreter.
 
 ------
 
-[[1\]](#_ftnref1) The *clear* verbs are supported as secondary directives, but not the *remove* verbs (The removal of labelled statements [aka macros] cannot be combined with any other segments).  The *remove* verb is always limited to a simple statement construction (simple statements contain only a single segment). Additionally, a statement with the *remove* verb cannot be used to define a newly labelled statement.
+[[1\]](#_ftnref1) The *clear* verbs are supported as secondary clauses, but not the *remove* verbs (The removal of labelled statements [aka macros] cannot be combined with any other clauses).  The *remove* verb is always limited to a simple statement construction (simple statements contain only a single clause). Additionally, a statement with the *remove* verb cannot be used to define a newly labelled statement.
 
-[[2\]](#_ftnref2) The *get* verbs are supported as secondary directives, but not the *expand* verbs (The expansion of labelled statements [aka macros] cannot be combined with any other segments).  The *expand* verb is always limited to a simple statement construction (simple statements contain only a single segment). Additionally, a statement with the *expand* verb cannot be used to define a newly labelled statement.
+[[2\]](#_ftnref2) The *get* verbs are supported as secondary clauses, but not the *expand* verbs (The expansion of labelled statements [aka macros] cannot be combined with any other clauses).  The *expand* verb is always limited to a simple statement construction (simple statements contain only a single clause). Additionally, a statement with the *expand* verb cannot be used to define a newly labelled statement.

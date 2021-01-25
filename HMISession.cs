@@ -55,7 +55,7 @@ namespace QuelleHMI
         {
             this.StandardConfig = new Dictionary<string, Dictionary<string, ControlInfo>>()
             {
-                { QUELLE,  StandardConfig_QUELLE }, 
+                { QUELLE,   StandardConfig_QUELLE }, 
                 { DISPLAY,  StandardConfig_DISPLAY },
                 { SEARCH,   StandardConfig_SEARCH },
                 { MACROS,   new Dictionary<string, ControlInfo>() }
@@ -86,6 +86,44 @@ namespace QuelleHMI
             { "debug",   new ControlInfo(0, 0, 1, hidden:true) },
             { "data",    new ControlInfo(new string[] { "binary", "json", "xml", "pb" }, hidden:true) }
         };
+        private static Dictionary<string, ICollection<string>> AllControls = new Dictionary<string, ICollection<string>>()
+        {
+            { QUELLE,   StandardConfig_QUELLE.Keys },
+            { DISPLAY,  StandardConfig_DISPLAY.Keys },
+            { SEARCH,   StandardConfig_SEARCH.Keys }
+        };
+        public static bool IsControl(string candidate)
+        {
+            if ((candidate == null) || string.IsNullOrWhiteSpace(candidate))
+                return false;
+
+            if (candidate.Contains('.'))
+            {
+                var parts = HMIPhrase.SmartSplit(candidate, '.');
+                if (parts.Length != 2)
+                    return false;
+
+                parts[0] = parts[0].ToLower();
+
+                if (AllControls.ContainsKey(parts[0]))
+                {
+                    parts[1] = parts[1].ToLower();
+                    return AllControls[parts[0]].Contains(parts[1]);
+                }
+            }
+            else
+            {
+                foreach (var key in AllControls.Keys)
+                {
+                    var values = AllControls[key];
+                    var lower = candidate.ToLower();
+
+                    if (values.Contains(lower))
+                        return true;
+                }
+            }
+            return false;
+        }
 
         public class HMIResultString: IQuelleResultString
         {

@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace QuelleHMI
 {
-    public class HMISegment
+    public class HMIPhrase
     {
         public enum HMIPolarity
         {
@@ -64,7 +64,7 @@ namespace QuelleHMI
 
         private static Dictionary<string, string[]> IndependentClauses = new Dictionary<string, string[]>() {
             {SEARCH,    new string[] {SUMMARIZE, FIND }},       // When using default segment identification, the first entry ("search") is always the implied result
-            {SETTERS,   new string[] {"#set" }},                // When using default segment identification, the first entry ("set") is always the implied result
+            {SETTERS,   new string[] {"set" }},                // When using default segment identification, the first entry ("set") is always the implied result
             {GETTERS,   new string[] {"#get", "#expand" }},     // registry-like program settings
             {REMOVAL,   new string[] {"#clear", "#remove" }}    // registry-like program settings
         };
@@ -82,15 +82,15 @@ namespace QuelleHMI
         public static string[] SetterVerbs => IndependentClauses[SETTERS];
         public static string[] GetterVerbs => IndependentClauses[GETTERS];
 
-        public static string SUMMARIZE => "#search";
+        public static string SUMMARIZE => "search";
         public static string FIND => "#find";
         public static string SET => SetterVerbs[0];
 
         public static string GET => GetterVerbs[0];
-        public static string EXPAND => GetterVerbs[2];
+        public static string EXPAND => GetterVerbs[1];
 
         public static string CLEAR => RemovalVerbs[0];
-        public static string REMOVE => RemovalVerbs[2];
+        public static string REMOVE => RemovalVerbs[1];
 
         //  Dependent Clause Verbs
         public static string[] DependentDisplayVerbs => DependentClauses[DISPLAY];
@@ -129,16 +129,15 @@ namespace QuelleHMI
 
             return null;
         }
-        public static string[] IsPersistencePattern(string text)
+        public static (string[] tokens, string error) IsPersistencePattern(string text)
         {
             if (text == null)
-                return null;
+                return (null, "Driver design error; cannot test patter when input is null");
 
             string[] parts;
             string[] tokens = text.Split(Whitespace, 2, StringSplitOptions.RemoveEmptyEntries);
             string verb = null;
-            bool failed = false;
-UseDefaultVerb:
+
             if (tokens.Length == 2)
             {
                 verb = tokens[0];
@@ -147,42 +146,25 @@ UseDefaultVerb:
                 if (verb != null)
                 {
                     string remainder = tokens[1];
-                    parts = remainder.Split(EqualSign, 2, StringSplitOptions.RemoveEmptyEntries);
-                    if (parts.Length == 2)
+                    parts = HMIPhrase.SmartSplit(remainder, '=');
+                    if (parts.Length == 2 && parts[0].Length > 0 && parts[1].Length > 0)
                     {
                         tokens = new string[3];
                         tokens[0] = verb;
-                        tokens[1] = parts[0].Trim();
-                        tokens[2] = parts[1].Trim();
+                        tokens[1] = parts[0];
+                        tokens[2] = parts[1];
 
                         if (parts[0].Length == 0 || parts[1].Length == 0)
-                            return null;
+                            return (tokens, "User input error; Control assignments require a name and a value");
 
                         var variable = tokens[1];
-                        foreach (char c in variable.ToCharArray())
-                        {
-                            if (char.IsWhiteSpace(c))
-                                return null;
-                            if (char.IsLetterOrDigit(c) || (c == '_') || (c == '-') || (c == '~') || (c == '.') || (c == '/') || (c == '\\'))
-                                continue;
-                            return null;
-                        }
+                        if (!HMISession.IsControl(variable))
+                            return (tokens, "User input error; The syntax of the phrase matches a control assigment, but the control name could not be found.");
                     }
-                    return tokens;
+                    return (tokens, null);
                 }
             }
-            if (!failed)
-            {
-                failed = true;
-                parts = text.Split(EqualSign, 2, StringSplitOptions.None);
-
-                if (parts.Length == 2)
-                {
-                    tokens = new string[] { SET, text };
-                    goto UseDefaultVerb;
-                }
-            }
-            return null;
+            return (null, null);
         }
         public static (HMIClauseType type, string verb, string directive) IsVerb(string verb)
         {
@@ -226,41 +208,28 @@ UseDefaultVerb:
             }
             return null;
         }
-        public static string[] IsSearchPattern(string text)
+        public static (string[] tokens, string error) IsSearchPattern(string text)
         {
             if (text == null)
-                return null;
+                return (null, "Driver design error; cannot test patter when input is null");
 
             var persistence = IsPersistencePattern(text);
-            if (persistence != null)
-                return null;
+            if (persistence.tokens != null)
+                return (null, null);
 
             string[] tokens = HasVerb(text);
 
             if (tokens == null)
-                tokens = new string[] { DirectiveDefault(SEARCH), text };
+                tokens = new string[] { DirectiveDefault(FIND), text };
 
             if (tokens.Length == 2)
             {
-                if (tokens[0].Length == 0 || tokens[1].Length == 0)
-                    return null;
+                if (tokens[0].Equals(FIND))
+                    return (tokens, null);
 
-                int countQuotes = 0;
-                var search = tokens[1];
-                for (int i = 0; i < search.Length; i++)
-                {
-                    if (search[i] == '"')
-                    {
-                        if (++countQuotes == 1 && i != 0)
-                            return null;
-                        if (countQuotes == 2 && i != search.Length - 1)
-                            return null;
-                    }
-                }
-                if (countQuotes > 0 && countQuotes != 2)
-                    return null;
+                return (null, null);
             }
-            return tokens;
+            return (new string[] { SUMMARIZE, null }, null);
         }
         public static string[] NormalizeSegment(string text)
         {
@@ -272,28 +241,29 @@ UseDefaultVerb:
             var tokens = HasVerb(text);
             if (tokens != null && tokens.Length >= 2)
             {
-                string[] config = IsPersistencePattern(text);
-                if (config != null)
-                    return config;
+                var settings = IsPersistencePattern(text);
+                if (settings.tokens != null)
+                    return settings.tokens;
 
-                string[] search = IsSearchPattern(text);
-                if (search != null)
-                    return search;
+                var search = IsSearchPattern(text);
+                if (search.tokens != null)
+                    return search.tokens;
 
                 return tokens;
             }
 
             // Persistence pattern is the most identifying pattern, because it MUST contain =
             //
-            var parts = IsPersistencePattern(text);
-            if (parts != null)
-                return parts;
-
+            var controls = IsPersistencePattern(text);
+            if (controls.tokens != null)
+            {
+                return controls.tokens;
+            }
             //  Since we test persistence patter first, we can serch for "set" as the first word of a segment
             //
-            parts = IsSearchPattern(text);
-            if (parts != null)
-                return parts;
+            var parts = IsSearchPattern(text);
+            if (parts.tokens != null)
+                return parts.tokens;
 
             //  No other segments can be implicitly recognized
             //
@@ -321,7 +291,6 @@ UseDefaultVerb:
 
         public Dictionary<UInt64, HMIFragment> fragments { get; private set; }
         public readonly static string[] Whitespace = new string[] { " ", "\t" };
-        public readonly static string[] EqualSign = new string[] { "=" };
 
         private void ProcessPreparsedFragments(string[] preparsed, uint skip = 0)
         {
@@ -373,7 +342,7 @@ UseDefaultVerb:
                 statement.Notify("error", "Segment processing has been aborted.");
             }
             this.segment = this.segment.Substring(1, this.segment.Length-2);
-            this.segment = HMISegment.UnspaceParenthetical(this.segment);
+            this.segment = HMIPhrase.UnspaceParenthetical(this.segment);
 
             List<string> listFragments = new List<string>();
 
@@ -414,7 +383,7 @@ UseDefaultVerb:
                 {
                     if (fragment.Length > 0)
                     {
-                        var respaced = HMISegment.RespaceParenthetical(prefix + fragment.Trim());
+                        var respaced = HMIPhrase.RespaceParenthetical(prefix + fragment.Trim());
                         listFragments.Add(respaced);
                         fragment = "";
                         prefix = "";
@@ -434,7 +403,7 @@ UseDefaultVerb:
                 {
                     statement.Notify("warning", "elipses at the end of a quoted string are ignored");
                 }
-                var respaced = HMISegment.RespaceParenthetical(prefix + fragment.Trim());
+                var respaced = HMIPhrase.RespaceParenthetical(prefix + fragment.Trim());
                 listFragments.Add(respaced);
             }
             UInt32 order = 1;
@@ -447,7 +416,7 @@ UseDefaultVerb:
                 order++;
             }
         }
-        public HMISegment(HMIStatement statement, UInt32 segmentOrder, UInt16 span, HMIPolarity polarity, string segment, HMIClauseType clauseType)
+        public HMIPhrase(HMIStatement statement, UInt32 segmentOrder, UInt16 span, HMIPolarity polarity, string segment, HMIClauseType clauseType)
         {
             this.misplaced = null;
 
@@ -587,6 +556,64 @@ UseDefaultVerb:
                 return builder.ToString();
             }
             return text;
+        }
+        public static string[] SmartSplit(string source, char delimit)
+        {
+            if (source == null || string.IsNullOrWhiteSpace(source))
+                return null;
+
+            int len = source.Length;
+
+            var splits = new List<string>();
+
+            var c_quoted = false;   // character-quoted means that crrent character is quoted with \
+            var d_quoted = false;   // double-quoted means that this character is enclosed in double-quotes
+            int last = 0;
+            int i;
+            for (i = 0; /**/; i++)  // looking for "//" or "/-"
+            {
+                if (i >= len)
+                {
+                    if (last < len)
+                        splits.Add(source.Substring(last, len).Trim());
+                    else
+                        splits.Add("");
+
+                    break;
+                }
+                if (c_quoted)   // then this character should be ignored as a delimiter and be ignored as per double-quoting
+                {
+                    c_quoted = false;
+                    continue;
+                }
+                char c = source[i];
+
+                if (d_quoted)   // ignore all characters enclosed in double-quotes for segmentation purposes
+                {
+                    d_quoted = (c != '\"'); // true only when this is the matching double-quote
+                    continue;
+                }
+                switch (c)
+                {
+                    case '\\': c_quoted = true; continue;
+                    case '"':  d_quoted = true; continue;
+                }
+                if (i >= len - 1)
+                    continue;
+
+                if (c != delimit)
+                    continue;
+
+                splits.Add(source.Substring(last, i).Trim());
+
+                last = i + 1;
+            }
+            switch (splits.Count)
+            {
+                case 0: return new string[0];
+                case 1: return new string[] { splits[0] };
+                default:return splits.ToArray();
+            }
         }
     }
 }
