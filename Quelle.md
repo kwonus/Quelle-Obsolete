@@ -424,11 +424,11 @@ md`>> implies >>` set format = text
 
 
 
-| Representation | Abbreviated Name |
-| -------------- | ---------------- |
-| display.*      | display          |
-| search.*       | search           |
-| quelle.*       | quelle           |
+| Wildcard Representation | Abbreviated Wildcard Representation |
+| ----------------------- | ----------------------------------- |
+| display.*               | display                             |
+| search.*                | search                              |
+| quelle.*                | quelle                              |
 
 **TABLE 8-4 -- Wildcard usage on Controls** (wildcard usage only applies to ***get*** and ***clear*** verbs)
 
@@ -449,7 +449,7 @@ Due to the latter the latter condition above, SEARCH, by default summarizes resu
 
 "Jesus answered"			*this would summarize books that contain this phrase, with chapter references*
 
-"Jesus answered" | format *			*this would would print every matching verse*
+"Jesus answered" | print [*]			*this would would print every matching verse*
 
 Consider this very general search
 
@@ -479,27 +479,27 @@ The remainder of this section further describes the various arguments for DISPLA
 
 To print all results:
 
-*print* [*]
+*#print* [*]
 
 To print only the first result:
 
-*print* [1]
+*#print* [1]
 
 As we saw earlier, to print only the first three results
 
-*print* [1,2,3]
+*#print* [1,2,3]
 
 Alternatively, this also works:
 
-*print* [1] [2] [3]
+*#print* [1] [2] [3]
 
 and this:
 
-*print* [1:3]
+*#print* [1:3]
 
 To print using a single display-coordinate:
 
-*print* genesis:1:1
+*#print* genesis:1:1
 
 NOTE: Display-coordinates are driver-specific and not part of standard Quelle driver definition; The display-coordinate in the example above is compatible with the Quelle-AVX implementation
 
@@ -509,7 +509,7 @@ display.record = %book% %chapter%\\:%verse% \\(KJV\\\)\\:\\n%text% | print
 
 A more vanilla decoration might be:
 
-*print* [1,2,3] + display.record= \<a href=\\"%url%\\"\>%abstract%\</a\>
+*#print* [1,2,3] + display.record= \<a href=\\"%url%\\"\>%abstract%\</a\>
 
 Keep in mind, however, the above two examples above are purely notional, your Quelle driver must support such annotation variables for them to render as expected. Consult the documentation for your Quelle cloud-capable driver to determine what record annotation variables are available in your driver.
 
@@ -517,7 +517,7 @@ So to break open the fragment from the *print* example above:
 
 In a separate example, we can label all results using the heading command:
 
-*print* display.heading = Verses containing 'Godhead' + %heading% %label% *
+*#print* display.heading = Verses containing 'Godhead' + %heading% %label% *
 
 The syntax above, while biased towards Quelle-AVX search results is standard Quelle-HMI syntax and supported in the standard Quelle driver implementation.
 
@@ -552,7 +552,7 @@ The minimum span has to be four(4). So the Quelle parser will adjust the search 
 
 There is one final variant of the print statement:
 
-*print* help
+*#print* help
 
 This will provide a help message in a Quelle interpreter.
 

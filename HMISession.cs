@@ -108,16 +108,20 @@ namespace QuelleHMI
                 if (AllControls.ContainsKey(parts[0]))
                 {
                     parts[1] = parts[1].ToLower();
-                    return AllControls[parts[0]].Contains(parts[1]);
+                    return AllControls[parts[0]].Contains(parts[1]) || (parts[1] == "*");
                 }
             }
             else
             {
+                var lower = candidate.ToLower();
+
+                if (AllControls.ContainsKey(lower))
+                    return true;
+
                 foreach (var key in AllControls.Keys)
                 {
                     var values = AllControls[key];
-                    var lower = candidate.ToLower();
-
+ 
                     if (values.Contains(lower))
                         return true;
                 }
