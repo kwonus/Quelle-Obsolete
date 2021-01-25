@@ -544,18 +544,9 @@ The minimum span has to be four(4). So the Quelle parser will adjust the search 
 | TYPE                   | Special characters |
 | ---------------------- | ------------------ |
 | ADDITIVE SEPERATORS    | //                 |
-| SUBTRACTIVE SEPERATORS | :-                 |
+| SUBTRACTIVE SEPERATORS | /-                 |
 
-**SPECIAL CHARACTERS & OPERATOR PRECEDENCE :** :x: REVIEW THIS:
 
-| Verb Class | Special characters         |
-| ---------- | -------------------------- |
-| SEARCH     | [ ] ( ) & / \  ... " " * ? |
-| DISPLAY    | [ ] * \                    |
-| CONTROL    | . = % % \ *                |
-| MACRO      | { }  :=                    |
-
- 
 
 **PROGRAM HELP**
 
