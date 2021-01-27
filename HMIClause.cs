@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace QuelleHMI
 {
-    public class HMIPhrase
+    public class HMIClause
     {
         public enum HMIPolarity
         {
@@ -95,7 +95,7 @@ namespace QuelleHMI
         public static string[] DependentDisplayVerbs => DependentClauses[DISPLAY];
         public static string[] DependentMacroVerbs => DependentClauses[MACRODEF];
 
-        public static string FORMAT => DependentDisplayVerbs[0];
+        public static string PRINT_SUB => DependentDisplayVerbs[0];
         public static string DEFINE => DependentMacroVerbs[0];
 
         //  Simple Clause Verbs
@@ -107,7 +107,7 @@ namespace QuelleHMI
         public const string EXIT    = "#exit";
 
         public static string[] SimpleDisplayVerbs => SimpleClauses[DISPLAY];
-        public static string PRINT  = SimpleDisplayVerbs[0];
+        public static string PRINT_SIMPLE  = SimpleDisplayVerbs[0];
 
         public string misplaced { get; protected set; }
 
@@ -131,14 +131,15 @@ namespace QuelleHMI
         //  Assume that an explicit verb has not been passed
         //  (We will not be looking for explicit verbs here)
         //
-        public static (string[] tokens, string error) IsPersistencePattern(string text)
+        public (string[] tokens, string error) IsPersistencePattern(string text)
         {
             if (text == null)
                 return (null, "Driver design error; cannot test patter when input is null");
 
-            var parts = HMIPhrase.SmartSplit(text, '=');
+            var parts = HMIClause.SmartSplit(text, '=');
             if (parts.Length == 2)
             {
+                this.maximumScope = HMIScope.System;
                 var tokens = new string[3];
                 tokens[0] = SET;
                 tokens[1] = parts[0];
@@ -183,30 +184,44 @@ namespace QuelleHMI
             }
             return (HMIClauseType.UNDEFINED, null, null);
         }
-        public static string[] HasVerb(string text)
+        protected (bool yes, string[] tokens) HasVerb(string text)
         {
             if (text == null)
-                return null;
+                return (false, null);
 
             string[] tokens = text.Split(Whitespace, 2, StringSplitOptions.RemoveEmptyEntries);
-            if (tokens.Length == 2)
+            var info = IsVerb(tokens[0]);
+            if (info.verb != null)
             {
-                tokens[0] = IsVerb(tokens[0]).verb;
-                if (tokens[0] != null)
-                    return tokens;
+                this.verb = info.verb;
+                tokens[0] = info.verb;
+
+                switch (info.directive)
+                {
+                    case HMIClause.MACRODEF:
+                    case HMIClause.GETTERS:
+                    case HMIClause.SETTERS:
+                    case HMIClause.REMOVAL: this.maximumScope = HMIScope.System; break;
+
+                    case HMIClause.SEARCH:
+                    case HMIClause.DISPLAY: this.maximumScope = HMIScope.Statement; break;
+
+                    case HMIClause.PROGRAM: this.maximumScope = HMIScope.Undefined; break;
+                }
+                return (true, tokens);
             }
-            return null;
+            return (false, null);
         }
-        public string[] NormalizeSegment(string text)
+        protected string[] NormalizeClause(string text)
         {
             if (text == null)
                 return null;
 
             //  Look first for explicit verb references:
             //
-            var tokens = HasVerb(text);
-            if (tokens != null && tokens.Length >= 2)
-                return tokens;
+            var tokens = this.HasVerb(text);
+            if (tokens.yes)
+                return tokens.tokens;
 
             //  Only CONTROL::SET can be implicitly recognized
             //
@@ -220,6 +235,7 @@ namespace QuelleHMI
             }
             //  No other segments can be implicitly recognized, it defaults to SEARCH
             //
+            this.maximumScope = HMIScope.Statement;
             return (new string[] { FIND, text });
         }
         private bool error = false;
@@ -238,23 +254,26 @@ namespace QuelleHMI
         public UInt32 sequence { get; private set; }  // Sequence number of segment
         public string segment { get; private set; }
         public string[] rawFragments { get; private set; }
-        private HMIPolarity polarity;
+        public HMIPolarity polarity { get; private set; }
+        public HMIScope maximumScope { get; private set; }
         private Boolean quoted;
 
         public Dictionary<UInt64, HMIFragment> fragments { get; private set; }
         public readonly static string[] Whitespace = new string[] { " ", "\t" };
 
+        //  These are not search fragments so they bypass the strict SEARCG fragment tokenization rules
+        //
         private void ProcessPreparsedFragments(string[] preparsed, uint skip = 0)
         {
-            UInt32 order = 1;
             this.rawFragments = skip == 0 ? preparsed : new string[preparsed.Length - skip];
             if (skip > 0)
                 for (int i = 0; i < this.rawFragments.Length; i++)
                     this.rawFragments[i] = preparsed[skip+i].Trim();
 
+            UInt32 order = 1;
             foreach (string frag in this.rawFragments)
             {
-                HMIFragment current = new HMIFragment(this, 0, order, frag);
+                HMIFragment current = new HMIFragment(this, frag, order++, singletonToken:true);
                 this.fragments.Add(order, current);
                 if (this.error)
                     break;
@@ -294,7 +313,7 @@ namespace QuelleHMI
                 statement.Notify("error", "Segment processing has been aborted.");
             }
             this.segment = this.segment.Substring(1, this.segment.Length-2);
-            this.segment = HMIPhrase.UnspaceParenthetical(this.segment);
+            this.segment = HMIClause.UnspaceParenthetical(this.segment);
 
             List<string> listFragments = new List<string>();
 
@@ -335,7 +354,7 @@ namespace QuelleHMI
                 {
                     if (fragment.Length > 0)
                     {
-                        var respaced = HMIPhrase.RespaceParenthetical(prefix + fragment.Trim());
+                        var respaced = HMIClause.RespaceParenthetical(prefix + fragment.Trim());
                         listFragments.Add(respaced);
                         fragment = "";
                         prefix = "";
@@ -355,7 +374,7 @@ namespace QuelleHMI
                 {
                     statement.Notify("warning", "elipses at the end of a quoted string are ignored");
                 }
-                var respaced = HMIPhrase.RespaceParenthetical(prefix + fragment.Trim());
+                var respaced = HMIClause.RespaceParenthetical(prefix + fragment.Trim());
                 listFragments.Add(respaced);
             }
             UInt32 order = 1;
@@ -368,12 +387,13 @@ namespace QuelleHMI
                 order++;
             }
         }
-        public HMIPhrase(HMIStatement statement, UInt32 segmentOrder, HMIPolarity polarity, string segment, HMIClauseType clauseType)
+        public HMIClause(HMIStatement statement, UInt32 segmentOrder, HMIPolarity polarity, string segment, HMIClauseType clauseType)
         {
             this.misplaced = null;
+            this.maximumScope = HMIScope.Undefined;
             this.statement = statement;
 
-            string[] normalized = NormalizeSegment(segment);
+            string[] normalized = NormalizeClause(segment);
 
             if (normalized == null || normalized.Length < 2)
             {

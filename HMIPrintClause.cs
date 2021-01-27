@@ -6,9 +6,9 @@ namespace QuelleHMI
 {
     public class HMIPrintClause : HMIDependentClause
     {
-        public HMIPrintClause(HMIPhrase subordinate) : base(subordinate)
+        public HMIPrintClause(HMIClause subordinate) : base(subordinate)
         {
-            this.directive = HMIPhrase.DISPLAY;
+            this.directive = HMIClause.DISPLAY;
         }
     }
 }

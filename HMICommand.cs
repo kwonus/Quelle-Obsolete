@@ -74,7 +74,7 @@ namespace QuelleHMI
 
 		public HMIScope HasMacro()
 		{
-			if (this.dependentClause != null && this.dependentClause.directive == HMIPhrase.MACRODEF)
+			if (this.dependentClause != null && this.dependentClause.directive == HMIClause.MACRODEF)
 				return ((HMIMacroDefintion)this.dependentClause).macroScope;
 
 			return HMIScope.Undefined;

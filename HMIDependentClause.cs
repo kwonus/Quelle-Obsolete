@@ -6,7 +6,7 @@ namespace QuelleHMI
 {
     public class HMIDependentClause
     {
-        public HMIPhrase subordinate;
+        public HMIClause subordinate;
 
         public string directive { get; protected set; }
 
@@ -15,7 +15,7 @@ namespace QuelleHMI
             this.subordinate = null;
             this.directive = null;
         }
-        protected HMIDependentClause(HMIPhrase subordinate)
+        protected HMIDependentClause(HMIClause subordinate)
         {
             this.subordinate = subordinate;
             this.directive = null;
@@ -23,15 +23,15 @@ namespace QuelleHMI
 
         public static HMIDependentClause Create(HMIStatement statement, string segment)    // FACTORY
         {
-            HMIPhrase subordinate = new HMIPhrase(statement, 1, HMIPhrase.HMIPolarity.UNDEFINED, segment, HMIPhrase.HMIClauseType.SUBORDINATE);
-            var info = HMIPhrase.IsVerb(segment);
+            HMIClause subordinate = new HMIClause(statement, 1, HMIClause.HMIPolarity.UNDEFINED, segment, HMIClause.HMIClauseType.SUBORDINATE);
+            var info = HMIClause.IsVerb(subordinate.verb);
  
-            if (info.type == HMIPhrase.HMIClauseType.SUBORDINATE)
+            if (info.type == HMIClause.HMIClauseType.SUBORDINATE)
             {
-                if (info.directive == HMIPhrase.MACRODEF)
+                if (info.directive == HMIClause.MACRODEF)
                     return new HMIMacroDefintion(subordinate);
 
-                else if (info.directive == HMIPhrase.DISPLAY)
+                else if (info.directive == HMIClause.DISPLAY)
                     return new HMIPrintClause(subordinate);
             }
             var verb = info.verb != null ? "the verb '" + info.verb + "' is not allowed on depenent clauses." : "no verb was found.";

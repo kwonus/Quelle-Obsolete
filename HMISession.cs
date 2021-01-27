@@ -99,7 +99,7 @@ namespace QuelleHMI
 
             if (candidate.Contains('.'))
             {
-                var parts = HMIPhrase.SmartSplit(candidate, '.');
+                var parts = HMIClause.SmartSplit(candidate, '.');
                 if (parts.Length != 2)
                     return false;
 
