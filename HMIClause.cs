@@ -295,6 +295,132 @@ namespace QuelleHMI
                 order++;
             }
         }
+        private (string token, int offset, bool bracketed, bool ordered, string error) GetNextQuotedSearchToken(string text, int offset = 0, bool bracketed = false)
+        {
+            if (text == null)
+                return (null, -1, false, !bracketed, "Cannot pass in null value for parsing");
+            if (offset < 0)
+                return (null, -1, false, !bracketed, "Cannot pass in a negative offset for parsing");
+
+            int len = text.Length;
+            (string token, int offset, bool bracketed, bool ordered, string error) result = (null, offset, bracketed, !bracketed, null);
+
+            for (result.offset = offset; result.offset < len; result.offset++)
+            {
+                char c = text[result.offset];
+                if (!char.IsWhiteSpace(c))
+                    break;
+            }
+            if (result.offset >= len)
+            {
+                result.offset = len;   // mark end-of-text with (-1)
+                if (result.bracketed)
+                    result.error = "Fragment contained an open square-brace. but no no closing square0-race.";
+                return result;          // this is not an error. It just means that there was trailing whitespace
+            }
+            offset = result.offset;
+            bool parenthetical = false;
+            if (text.Substring(result.offset).StartsWith("..."))
+            {
+                result.offset += 3;
+                result.token = "...";
+            }
+            else
+            {
+                bool c_quoted = false;
+
+                for (result.offset = offset; result.offset < len; result.offset++)
+                {
+                    if (c_quoted)
+                    {
+                        c_quoted = false;
+                        result.offset++;
+                        continue;
+                    }
+                    char c = text[result.offset];
+
+                    int isBrace = 0;
+                    int isParen = 0;
+
+                    if (char.IsWhiteSpace(c) && !parenthetical)
+                    {
+                        break;
+                    }
+                    else switch (c)
+                    {
+                        case '\\': c_quoted = true; continue;
+                        case '[': isBrace = (-1); break;
+                        case ']': isBrace =  (1); break;
+                        case '(': isParen = (-1); break;
+                        case ')': isParen =  (1); break;
+
+                        default: continue;
+                    }
+                    if (isParen < 0)
+                    {
+                        if (parenthetical)
+                        {
+                            result.error = "Fragment contained nested open parenthesis, but nesting parentheticals is not supported.";
+                            return result;
+                        }
+                        parenthetical = true;
+                    }
+                    else if (isParen > 0)
+                    {
+                        if (!parenthetical)
+                        {
+                            result.error = "Fragment contained a closing parenthesis, but no corresponding open parenthesis.";
+                            return result;
+                        }
+                        parenthetical = false;
+                        result.token = text.Substring(offset, ++result.offset - offset);
+                        break;
+                    }
+                    if (isBrace < 0)
+                    {
+                        if (parenthetical)
+                        {
+                            result.error = "Square braces cannot be contained within parenthetical tokens.";
+                            return result;
+                        }
+                        if (result.bracketed)
+                        {
+                            result.error = "Fragment contained nested open square-braces, but nesting is not supported.";
+                            return result;
+                        }
+                        result.bracketed = true;
+                    }
+                    else if (isBrace > 0)
+                    {
+                        if (parenthetical)
+                        {
+                            result.error = "Parenthesis and/or square-brace mismatch. Punctuation of this type must match.";
+                            return result;
+                        }
+                        if (!result.bracketed)
+                        {
+                            result.error = "Fragment contained a closing square-brace, but no corresponding open square-brace.";
+                            return result;
+                        }
+                        result.bracketed = true;
+                        break;
+                    }
+                }
+            }
+            if (result.offset >= len)
+            {
+                result.offset = len;   // mark end-of-text with (-1)
+                if (result.bracketed)
+                    result.error = "Fragment contained an open square-brace. but no no closing square-brace.";
+                else if (parenthetical)
+                    result.error = "Fragment contained an open parenthesis. but no no closing parentheis.";
+            }
+            if (result.error == null && result.token == null)
+            {
+                result.token = text.Substring(offset, result.offset-offset);
+            }
+            return result;
+        }
         private void ParseQuoted()
         {
             if (!(this.segment.StartsWith('"') && this.segment.EndsWith('"')))
@@ -313,78 +439,34 @@ namespace QuelleHMI
                 statement.Notify("error", "Segment processing has been aborted.");
             }
             this.segment = this.segment.Substring(1, this.segment.Length-2);
-            this.segment = HMIClause.UnspaceParenthetical(this.segment);
+            this.rawFragments = null;
 
-            List<string> listFragments = new List<string>();
-
-            var openBrace = false;
-            string prefix = "";
-            string fragment = "";
-            for (int i = 0; i < this.segment.Length; i++)
+            int len = this.segment.Length;
+            string error = null;
+            uint sequence = 1;
+            (string token, int offset, bool bracketed, bool ordered, string error) fragment;
+            for (var frag = GetNextQuotedSearchToken(this.segment); (frag.error == null) && (frag.offset > 0) && (frag.offset <= len || frag.token != null);
+                     frag = GetNextQuotedSearchToken(this.segment, frag.offset, frag.bracketed))
             {
-                char c = this.segment[i];
-
-                if (c == ']')
+                if (frag.error != null)
                 {
-                    if (openBrace)
-                    {
-                        openBrace = false;
-                        listFragments.Add(prefix + fragment.Trim() + c.ToString());
-                        fragment = "";
-                        prefix = "";
-                        continue;
-                    }
-                    statement.Notify("error", "Mismatched square braces provided:");
-                    statement.Notify("error", "Fragment processing has been aborted.");
-                    return;
+                    error = frag.error;
+                    break;
                 }
-                if (c == '[')
+                if (frag.token != null)
                 {
-                    openBrace = true;
-                    prefix = c.ToString();
-                    continue;
+                    uint order = frag.ordered ? sequence : 0;
+                    sequence++;
+                    HMIFragment current = new HMIFragment(this, frag.token, order, !(frag.token.StartsWith("(") && frag.token.EndsWith(")")));
+                    this.fragments.Add(sequence, current);
                 }
-                if (c == '.' && (i < this.segment.Length-2) && (this.segment[i+1] == '.') && (this.segment[i+2] == '.'))
-                {
-                    prefix = "...";
-                    i += 2;
-                    continue;
-                }
-                if (char.IsWhiteSpace(c))
-                {
-                    if (fragment.Length > 0)
-                    {
-                        var respaced = HMIClause.RespaceParenthetical(prefix + fragment.Trim());
-                        listFragments.Add(respaced);
-                        fragment = "";
-                        prefix = "";
-                    }
-                }
-                fragment += c;
+                if (frag.offset >= len)
+                    break;
             }
-            if (fragment.Length > 0)
+            if (error != null)
             {
-                if (prefix.Contains('['))
-                {
-                    statement.Notify("error", "Mismatched square braces provided:");
-                    statement.Notify("error", "Fragment processing has been aborted.");
-                    return;
-                }
-                if (prefix.Contains("..."))
-                {
-                    statement.Notify("warning", "elipses at the end of a quoted string are ignored");
-                }
-                var respaced = HMIClause.RespaceParenthetical(prefix + fragment.Trim());
-                listFragments.Add(respaced);
-            }
-            UInt32 order = 1;
-            this.rawFragments = listFragments.ToArray();
-            foreach (string frag in this.rawFragments)
-            {
-                HMIFragment current = new HMIFragment(this, order, order, frag);
-                this.fragments.Add(order, current);
-
-                order++;
+                this.Notify("error", error);
+                return;
             }
         }
         public HMIClause(HMIStatement statement, UInt32 segmentOrder, HMIPolarity polarity, string segment, HMIClauseType clauseType)
@@ -423,111 +505,6 @@ namespace QuelleHMI
             {
                 this.ProcessPreparsedFragments(normalized, 1);
             }
-        }
-        public static string UnspaceParenthetical(string text)
-        {
-            if (text == null)
-                return null;
-            int p = text.IndexOf('(');
-            if (p >= 0 || text.IndexOf("...") >= 0)
-            {
-                bool paren = false;
-                bool elipses = false;
-
-                StringBuilder builder = new StringBuilder("", text.Length)
-                    .Replace("[", "[ ")
-                    .Replace("(", "( ")
-                    .Replace("]", " ] ")
-                    .Replace(")", " ) ")
-                    .Replace("...", " ...");
-
-                for (int i = 0; i < text.Length; i++)
-                    if (text[i] == '(')
-                    {
-                        elipses = false;
-                        paren = true;
-                        builder.Append(text[i]);
-                    }
-                    else if (text[i] == ')')
-                    {
-                        elipses = false;
-                        paren = false;
-                        builder.Append(text[i]);
-                    }
-                    else if ((text[i] == '.') && text.Substring(i).StartsWith("..."))
-                    {
-                        elipses = true;
-                        builder.Append(text[i++]);
-                        builder.Append(text[i++]);
-                        builder.Append(text[i]);
-                    }
-                    else if (char.IsWhiteSpace(text[i]))
-                    {
-                        builder.Append(paren || elipses ? '@' : text[i]);
-                    }
-                    else
-                    {
-                        elipses = false;
-                        builder.Append(text[i]);
-                    }
-                return builder.ToString();
-            }
-            return text;
-        }
-        public static string RespaceParenthetical(string text)
-        {
-            if (text == null)
-                return null;
-            int a = text.IndexOf('@');
-            if (a >= 0)
-            {
-                bool paren = false;
-                bool elipses = false;
-
-                StringBuilder builder = new StringBuilder("", text.Length);
-                for (int i = 0; i < text.Length; i++)
-                    if (text[i] == '(')
-                    {
-                        elipses = false;
-                        paren = true;
-                        builder.Append(text[i]);
-                    }
-                    else if (text[i] == ')')
-                    {
-                        elipses = false;
-                        paren = false;
-                        builder.Append(text[i]);
-                    }
-                    else if ((text[i] == '.') && text.Substring(i).StartsWith("..."))
-                    {
-                        elipses = true;
-                        builder.Append(text[i++]);
-                        builder.Append(text[i++]);
-                        builder.Append(text[i]);
-                    }
-                    else if (text[i] == '@')
-                    {
-                        builder.Append(paren || elipses ? ' ' : text[i]);
-                    }
-                    else
-                    {
-                        elipses = false;
-                        builder.Append(text[i]);
-                    }
-                int original = builder.Length + 1;
-                while(builder.Length < original)
-                {
-                    original = builder.Length;
-
-                    builder.Replace("( ", "(");
-                    builder.Replace("[ ", "[");
-                    builder.Replace(" )", ")");
-                    builder.Replace(" ]", "]");
-                    builder.Replace("  ", " ");
-                }
-                return builder.ToString();
-            }
-            return text;
         }
         public static string[] SmartSplit(string source, char delimit)
         {
