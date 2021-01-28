@@ -133,7 +133,7 @@ namespace QuelleHMI
                     this.rawSegments[i] = parsed.Value;
                     this.polarities[i] = HMIPolarity.POSITIVE;
 
-                    var current = new HMIClause(this, parsed.Key, this.polarities[i], parsed.Value, HMIClauseType.ORDINARY);
+                    var current = HMIClause.CreateVerbClause(this, parsed.Key, this.polarities[i], parsed.Value);
                     var tuple = (parsed.Key, polarities[i], parsed.Value);
                     this.segmentation.Add(tuple, current);
                     this.segments.Add(current.sequence, current);
@@ -150,7 +150,7 @@ namespace QuelleHMI
                     this.rawSegments[i] = parsed.Value;
                     this.polarities[i] = HMIPolarity.NEGATIVE;
 
-                    var current = new HMIClause(this, parsed.Key, this.polarities[i], parsed.Value, HMIClauseType.ORDINARY);
+                    var current = HMIClause.CreateVerbClause(this, parsed.Key, this.polarities[i], parsed.Value);
                     var tuple = (parsed.Key, polarities[i], parsed.Value);
                     this.segmentation.Add(tuple, current);
                     this.segments.Add(current.sequence, current);
@@ -180,6 +180,8 @@ namespace QuelleHMI
 
             var errors = new List<string>();
 
+            return (HMIScope.Undefined, null, results);
+/*
             //  (HMIScope scope, string verb, HMISegment[] segments)
 
             var search      = NormalizeSearchSegments(errors);
@@ -230,247 +232,7 @@ namespace QuelleHMI
                     results.Add(command.verb, command.segments);
 
             return (minimalScope, errors.Count > 0 ? errors.ToArray() : null, results);
-        }
-
-        protected (HMIScope scope, string verb, HMIClause[] segments) NormalizeSearchSegments(List<string> errors)
-        {
-            if (this.statement == null || this.segments == null)
-                return (HMIScope.Undefined, null, null);
-
-            int cnt = 0;
-            var verbs = new List<string>();
-            var conformingSegments = new List<HMIClause>();
-
-            foreach (var segment in this.segments.Values)
-            {
-                var verb = (from candidate in HMIClause.SearchVerbs where candidate == segment.verb select candidate).FirstOrDefault();
-                if (verb != null)
-                {
-                    conformingSegments.Add(segment);
-                    AddConformingVerb(verbs, verb);
-                    cnt++;
-                }
-            }
-            var normalizedVerb = verbs.Count >= 1 ? verbs[0] : null;
-            var scoped = normalizedVerb != null ? HMIScope.Statement : HMIScope.Undefined;
-            if (verbs.Count >= 2)
-            {
-                normalizedVerb = null;  // // if it cannot be normalized/upgraded to a find verb, then the list of verbs cannot be normalized
-                foreach (var verb in verbs)
-                    if (verb == HMIClause.SearchVerbs[0] /*"find"*/)
-                    {
-                        normalizedVerb = HMIClause.SearchVerbs[0];
-                        break;
-                    }
-                if (normalizedVerb == null)
-                {
-                    GetSearchMultiverbErrorMessage(verbs);
-                    scoped = HMIScope.Undefined;
-                }
-            }
-            return (scoped, normalizedVerb, conformingSegments.Count > 0 ? conformingSegments.ToArray() : null);
-        }
-
-        protected (HMIScope scope, string verb, HMIClause[] segments) NormalizeFileSegments(List<string> errors)
-        {
-            if (this.statement == null || this.segments == null)
-                return (HMIScope.Undefined, null, null);
-
-            int cnt = 0;
-            var verbs = new List<string>();
-            var conformingSegments = new List<HMIClause>();
-
-            foreach (var segment in this.segments.Values)
-            {
-                var verb = (from candidate in HMIClause.SimpleDisplayVerbs where candidate == segment.verb select candidate).FirstOrDefault();
-                if (verb != null)
-                {
-                    conformingSegments.Add(segment);
-                    AddConformingVerb(verbs, verb);
-                    cnt++;
-                }
-            }
-            var normalizedVerb = verbs.Count == 1 ? verbs[0] : null;
-            var scoped = verbs.Count == 1 ? HMIScope.Statement : HMIScope.Undefined;
-            if (verbs.Count > 1)
-                errors.Add(GetStandardMultiverbErrorMessage(verbs));
-
-            return (scoped, normalizedVerb, conformingSegments.Count > 0 ? conformingSegments.ToArray() : null);
-        }
-
-        protected (HMIScope scope, string verb, HMIClause[] segments) NormalizeRemovalSegments(List<string> errors)
-        {
-            if (this.statement == null || this.segments == null)
-                return (HMIScope.Undefined, null, null);
-
-            var verbs = new List<string>();
-            var conformingSegments = new List<HMIClause>();
-
-            var scope = HMIScope.System;
-            int scopeLevel = (int)scope;
-
-            int cnt = 0;
-            foreach (var segment in this.segments.Values)
-            {
-                var verb = (from candidate in HMIClause.RemovalVerbs
-                            where candidate == segment.verb
-                            select char.IsLetter(candidate[0]) ? candidate : candidate.Substring(1)).FirstOrDefault();
-
-                if (verb != null)
-                {
-                    conformingSegments.Add(segment);
-                    AddConformingVerb(verbs, verb, ref scope);
-                    cnt++;
-                }
-            }
-            var scoped = verbs.Count == 1 ? (HMIScope)scope : HMIScope.Undefined;
-            var normalizedVerb = verbs.Count == 1 ? verbs[0] : null;
-            if (verbs.Count > 1)
-            {
-                scoped = HMIScope.Undefined;
-                errors.Add(GetStandardMultiverbErrorMessage(verbs));
-            }
-            if (verbs.Count >= 1 && normalizedVerb != HMIClause.RemovalVerbs[0] && cnt > 1)
-            {
-                scoped = HMIScope.Undefined;
-                string error = GetConflictingVerbsErrorMessage(HMIClause.CLEAR, HMIClause.REMOVE);
-                errors.Add(error);
-            }
-            return (scoped, normalizedVerb, conformingSegments.Count > 0 ? conformingSegments.ToArray() : null);
-        }
-
-        protected (HMIScope scope, string verb, HMIClause[] segments) NormalizeStatusSegments(List<string> errors)
-        {
-            if (this.statement == null || this.segments == null)
-                return (HMIScope.Undefined, null, null);
-
-            var verbs = new List<string>();
-            var conformingSegments = new List<HMIClause>();
-
-            var scope = HMIScope.System;
-            int scopeLevel = (int)scope;
-
-            int cnt = 0;
-            foreach (var segment in this.segments.Values)
-            {
-                var verb = (from candidate in HMIClause.GetterVerbs
-                            where candidate == segment.verb
-                            select char.IsLetter(candidate[0]) ? candidate : candidate.Substring(1)).FirstOrDefault();
-
-                if (verb != null)
-                {
-                    conformingSegments.Add(segment);
-                    AddConformingVerb(verbs, verb, ref scope);
-                    cnt++;
-                }
-            }
-            var normalizedVerb = verbs.Count == 1 ? verbs[0] : null;
-            var scoped = verbs.Count == 1 ? (HMIScope)scope : HMIScope.Undefined;
-            if (verbs.Count > 1)
-            {
-                scoped = HMIScope.Undefined;
-                errors.Add(GetStandardMultiverbErrorMessage(verbs));
-            }
-            return (scoped, normalizedVerb, conformingSegments.Count > 0 ? conformingSegments.ToArray() : null);
-        }
-
-        protected (HMIScope scope, string verb, HMIClause[] segments) NormalizePersistenceSegments(List<string> errors, HMIScope maxScope)
-        {
-            if (this.statement == null || this.segments == null)
-                return (HMIScope.Undefined, null, null);
-
-            var verbs = new List<string>();
-            var conformingSegments = new List<HMIClause>();
-
-            var scope = maxScope;
-            int scopeLevel = (int)scope;
-
-            int cnt = 0;
-            foreach (var segment in this.segments.Values)
-            {
-                var verb = (from candidate in HMIClause.SetterVerbs
-                            where candidate == segment.verb
-                            select char.IsLetter(candidate[0]) ? candidate : candidate.Substring(1)).FirstOrDefault();
-
-                if (verb != null)
-                {
-                    conformingSegments.Add(segment);
-                    AddConformingVerb(verbs, verb, ref scope);
-                    cnt++;
-                }
-            }
-            var normalizedVerb = verbs.Count == 1 ? verbs[0] : null;
-            var scoped = verbs.Count == 1 ? (HMIScope) scope : HMIScope.Undefined;
-            if (verbs.Count > 1)
-            {
-                scoped = HMIScope.Undefined;
-                string error = GetStandardMultiverbErrorMessage(verbs);
-                errors.Add(error);
-            }
-            return (scoped, normalizedVerb, conformingSegments.Count > 0 ? conformingSegments.ToArray() : null);
-        }
-
-        protected static void AddConformingVerb(List<string> verbs, string verb, ref HMIScope scope)
-        {
-            if (scope != HMIScope.Statement)
-            {
-                var segmentScope = GetScope(verb[0]);
-                if ((int)segmentScope < (int)scope)
-                    scope = segmentScope;
-            }
-            AddConformingVerb(verbs, verb);
-        }
-        protected static void AddConformingVerb(List<string> verbs, string verb)
-        {
-            if (!verbs.Contains(verb))
-                verbs.Add(verb);
-        }
-        protected static HMIScope GetScope(char scope)
-        {
-            switch (scope)
-            {
-                case '#': return HMIScope.System;
-                default: return HMIScope.Statement;
-            }
-        }
-        protected static string GetStandardMultiverbErrorMessage(List<string> verbs)
-        {
-            if (verbs != null && verbs.Count > 1)
-            {
-                var type = HMIClause.IsVerb(verbs[0]).directive.ToLower();
-
-                string error = "More than one " + type + " verb was provided.  All verbs have to be consistant across all segments. Please submit only one of these verbs";
-                var comma = ": ";
-                foreach (string verb in verbs)
-                {
-                    error += comma;
-                    error += verb;
-                    comma = ", ";
-                }
-                return error + ".";
-            }
-            return null;
-        }
-        protected static string GetSearchMultiverbErrorMessage(List<string> verbs)
-        {
-            if (verbs != null && verbs.Count > 1)
-            {
-                string error = "More than one search verb was provided.  All search verbs can be promoted to 'find' when the 'find' verb is provided.  Otherwise all verbs have to be consistant across all segments. Please submit only one of these verbs";
-                var comma = ": ";
-                foreach (string verb in verbs)
-                {
-                    error += comma;
-                    error += verb;
-                    comma = ", ";
-                }
-                return error + ".";
-            }
-            return null;
-        }
-        protected static string GetConflictingVerbsErrorMessage(string verb1, string verb2)
-        {
-            var type = HMIClause.IsVerb(verb1).directive.ToLower();
-            return "Only the verb '" + verb1 + "' can be combined into multiple " + type + " segments. Other verbs such as '" + verb2 + "' cannot be combined";
+*/
         }
     }
 }

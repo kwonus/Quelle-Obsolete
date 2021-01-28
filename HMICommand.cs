@@ -7,7 +7,7 @@ namespace QuelleHMI
     public class HMICommand
     {
 		public HMIStatement statement { get; private set; }
-		public HMIDependentClause dependentClause { get; private set; }
+		public HMIClause dependentClause { get; private set; }
 		public string command { get; private set; }
 		public List<string> errors { get; private set; }
 		public List<string> warnings { get; private set; }
@@ -62,7 +62,7 @@ namespace QuelleHMI
 
 					if (this.statement != null)
 					{
-						this.dependentClause = HMIDependentClause.Create(this.statement, command.Substring(pipe + 1).Trim());
+						;// this.dependentClause = HMIDependentClause.Create(this.statement, command.Substring(pipe + 1).Trim());
 					}
 				}
 				else if (this.errors == null)
@@ -74,10 +74,24 @@ namespace QuelleHMI
 
 		public HMIScope HasMacro()
 		{
-			if (this.dependentClause != null && this.dependentClause.directive == HMIClause.MACRODEF)
-				return ((HMIMacroDefintion)this.dependentClause).macroScope;
+			if (this.dependentClause != null && this.dependentClause.verb == Verbs.Define.VERB)
+				return ((Verbs.Define)this.dependentClause).macroScope;
 
 			return HMIScope.Undefined;
+		}
+		public Verbs.Define GetMacroSubordinate()
+		{
+			if (this.dependentClause != null && this.dependentClause.verb == Verbs.Define.VERB)
+				return (Verbs.Define)this.dependentClause;
+
+			return null;
+		}
+		public Verbs.Print GetPrintSubordinate()
+		{
+			if (this.dependentClause != null && this.dependentClause.verb == Verbs.Print.VERB)
+				return (Verbs.Print)this.dependentClause;
+
+			return null;
 		}
 	}
 }

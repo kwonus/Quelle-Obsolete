@@ -59,7 +59,7 @@ In Quelle terminology, a statement is made up of clauses. Each clause has a sing
    - restore
    - exit
 
-If we ignore the SYSTEM clauses for the moment, we can focus on the six primary operational verbs in Quelle. Each verb has a minimum and maximum number of parameters (A similar table for SYSTEM commands can be found in Section X, near the end of this document). For a list of the primary Quelle See the Table 3-1 below:
+If we ignore the SYSTEM clauses for the moment, we can focus on the six primary operational verbs in Quelle. Each verb has a minimum and maximum number of parameters (A similar table for SYSTEM commands can be found in Section X, near the end of this document). For a list of primary operational verbs in Quelle, see the Table 3-1 below:
 
 | Verb        | Verb is Inferred | Clause Type |     Clause Restriction      | Required Arguments | Optional Operators |
 | ----------- | :--------------: | ----------- | :-------------------------: | ------------------ | :----------------: |
@@ -85,7 +85,7 @@ Quelle clauses always have a verb, even if the verb might be "inferred". From a 
 Even before we describe Quelle syntax generally, let's look at these concepts using examples:
 
 |                                                     | Example                                  |
-| --------------------------------------------------- | ---------------------------------------- |
+| --------------------------------------------------- | :--------------------------------------- |
 | Simple statement                                    | @print [*]                               |
 | Ordinary statement                                  | "this is some text I expect to be found" |
 | Ordinary/Compound statement                         | "this text" // "other text"              |
@@ -93,17 +93,15 @@ Even before we describe Quelle syntax generally, let's look at these concepts us
 
 **TABLE 3-2 -- Examples of Quelle statement types**
 
-In the last example in Table 3-2, the final verb phrase, namely *@print*, is a dependent clause. Dependent clauses are relegated to always being the last phrase of the statement. While @print can function as a dependent @clause, it it unique in that it can also function as a simple statement.  @define can only be used as a dependent clause, and therefore can never be used in single-clause statements.  Macros are a mechanism of making Quelle extensible by the user.  Macros are defined in the next section and are also referred to as "statement labels". Printing is described in section IX.
+In the last example in Table 3-2, the final verb phrase, namely *@print*, is a dependent clause. Dependent clauses are relegated to always being the last phrase of the statement. While @print can function as a dependent @clause, it it unique in that it can also function as a simple statement.  @define can only be used as a dependent clause, and therefore can never be used in single-clause statements.  Macros are a mechanism of making Quelle extensible by the user.  Macros are defined in the next section. Printing is described in section IX.
 
-Consider these two examples of Quelle statement (first CONTROL; then SEARCH):
+Consider these two examples of Quelle statements (first CONTROL; then SEARCH):
 
 search.domain = bible
 
 "in the beginning"
 
-Notice that each of the above, while ordinary statements, are .
-
-If we had run these statements in the order listed above, the first match for the search would be in the book of Genesis. But as the source domain of our search is a key element of our search, we should have a way to express both of these in a single command. And this is the rationale behind a compound statement. A compound statement has more than one clause. To combine the previous two clauses into one compound statement, issue this command:
+Notice that both statements above are ordinary statements.  If we had run these statements in the order listed above, the first match for the search would be in the book of Genesis. But as the source domain of our search is a key element of our search, we should have a way to express both of these in a single command. And this is the rationale behind a compound statement. A compound statement has more than one clause. To combine the previous two clauses into one compound statement, issue this command:
 
 "in the beginning" // search.domain=bible
 
@@ -118,7 +116,7 @@ In this section, we will examine how user-defined macros are used in Quelle.  A 
 
 Let’s say we want to name our previously identified SEARCH directive with a label; We’ll call it “genesis”. To accomplish this, we would issue this command:
 
-“in the beginning” // search.domain=bible | define {genesis} 
+“in the beginning” // search.domain=bible // @define {genesis} 
 
 It’s that simple, now instead of typing the entire statement, we can use the label to execute our newly saved statement. Here is how we would execute the macro:
 
@@ -170,9 +168,9 @@ The expansion would be:
 
 search.exact = 1 //  search.span  = 8 // Godhead // eternal
 
-### V. More about Segmentation of Quelle Statements
+The one restriction on macro definitions is that they must represent valid Quelle statements.  The statement will not be labelled if it would result in invalid Quelle syntax. 
 
-If an execution ONLY contains CONTROL verbs, then the key-value pairs are saved. Otherwise, they only affect the current statement.
+### V. More about Segmentation of Quelle Statements
 
 | **Operative Clause** | Secondary Clauses       | Dependent Clauses | Example                     |
 | -------------------- | ----------------------- | ----------------- | --------------------------- |
@@ -183,7 +181,7 @@ If an execution ONLY contains CONTROL verbs, then the key-value pairs are saved.
 
 **TABLE 5-1** -- **Primary**, **Secondary**, and **Dependent** clauses
 
-CONTROL clauses that are coupled with SEARCH statements are not saved and only effect the current statement.
+CONTROL clauses that are coupled with SEARCH statements are not saved and only effect the current statement. 
 
 ### VI. Quelle SEARCH clauses
 
@@ -191,7 +189,7 @@ Consider the proximity search where the search target is the bible. Here is an e
 
 *domain=bible // beginning created earth*
 
-Quelle syntax can alter the span by supplying a CONTROL clause:
+Quelle syntax can alter the span by also supplying an additional CONTROL clause:
 
 *domain=bible // span=8 // beginning created earth*
 
@@ -201,7 +199,7 @@ Now consider a different search:
 
 *God created earth*
 
- Next, consider a search to find that God created heaven or earth:
+Next, consider a search to find that God created heaven or earth:
 
 *God created (earth heaven)*
 
@@ -235,7 +233,7 @@ This statement uses Boolean multiplication and is equivalent to this lengthier s
 
 *you shall not surely die // thou shall not surely die // ye shall not surely die*
 
-The example above also reveals how multiple search clauses can be strung together to form a compound search: logically speaking, each clause is OR’ed together; this implies that any of the three matches is acceptable. using parenthetical terms produces more concise search statements.
+The example above also reveals how multiple search clauses can be strung together to form a compound search: logically speaking, each clause is OR’ed together; this implies that any of the three matches is acceptable. Using parenthetical terms produces more concise search statements.
 
 ### VII. Quelle SEARCH Definitions
 
