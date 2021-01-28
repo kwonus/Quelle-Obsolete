@@ -6,6 +6,25 @@ using System.Linq;
 
 namespace QuelleHMI
 {
+    static class HMIClauseType_Methods
+    {
+        public static bool IsDependent(this HMIClause.HMIClauseType type)
+        {
+            if (((uint)type & (uint)HMIClause.HMIClauseType.DEPENDENT) != 0)
+                return type != HMIClause.HMIClauseType.UNDEFINED;
+            return false;
+        }
+        public static bool IsSimple(this HMIClause.HMIClauseType type)
+        {
+            if (((uint)type & (uint)HMIClause.HMIClauseType.SIMPLE) != 0)
+                return type != HMIClause.HMIClauseType.UNDEFINED;
+            return false;
+        }
+        public static bool Isordinary(this HMIClause.HMIClauseType type)
+        {
+            return type == HMIClause.HMIClauseType.ORDINARY;
+        }
+    }
     public class HMIClause
     {
         public enum HMIPolarity
@@ -16,11 +35,13 @@ namespace QuelleHMI
         }
         public enum HMIClauseType
         {
-            UNDEFINED = 0,
+            UNDEFINED = 0xF,
+            ORDINARY = 0,
             SIMPLE = 1,
-            INDEPENDENT = 2,
-            SUBORDINATE = 3
+            DEPENDENT = 2,
+            SIMPLE_OR_DEPENDENT = 3
         }
+
         public static string[] DirectiveVerbs(string directive)
         {
             if (directive == null)
@@ -59,22 +80,23 @@ namespace QuelleHMI
         public const string SETTERS = "SETTERS";    // CONTROL
         public const string GETTERS = "GETTERS";    // CONTROL, MACROS
         public const string REMOVAL = "REMOVAL";    // CONTROL, MACROS
-        public const string PROGRAM = "ENVIRONMENT";
-        public const string MACRODEF= "DEFINITION"; // MACROS
+        public const string PROGRAM = "SYSTEM";
+        public const string MACRODEF= "MACRODEF";   // MACROS
 
+        //  Inferred verbs are not prefixed. Explcit verbs are prefixed with @ to make parsing the DSL unambiguous.
         private static Dictionary<string, string[]> IndependentClauses = new Dictionary<string, string[]>() {
-            {SEARCH,    new string[] {"find" }},                // When using default segment identification, the first entry ("search") is always the implied result
-            {SETTERS,   new string[] {"set" }},                 // When using default segment identification, the first entry ("set") is always the implied result
-            {GETTERS,   new string[] {"#get", "#expand" }},     // registry-like program settings
-            {REMOVAL,   new string[] {"#clear", "#remove" }}    // registry-like program settings
+            {SEARCH,    new string[] {"find"   }},  // When using default segment identification, the first entry ("search") is always the implied result
+            {SETTERS,   new string[] {"set"    }},  // When using default segment identification, the first entry ("set") is always the implied result
+            {GETTERS,   new string[] {"@show"  }},  // registry-like program settings, or macros
+            {REMOVAL,   new string[] {"@clear" }}   // registry-like program settings, or macros
         };
         private static Dictionary<string, string[]> SimpleClauses = new Dictionary<string, string[]>() {
-            {DISPLAY,   new string[] { "#print" } },
+            {DISPLAY,   new string[] { "@print" } },
             {PROGRAM,   new string[] { HELP, BACKUP, RESTORE, EXIT } }
         };
         private static Dictionary<string, string[]> DependentClauses = new Dictionary<string, string[]>() {
-            {DISPLAY,   new string[] {"print" } },
-            {MACRODEF,  new string[] {"define" } }
+            {DISPLAY,   new string[] {"@print" } },
+            {MACRODEF,  new string[] {"@define" } }
         };
         //  Independent/Ordinary Clauses
         public static string[] SearchVerbs => IndependentClauses[SEARCH];
@@ -86,7 +108,6 @@ namespace QuelleHMI
         public static string SET => SetterVerbs[0];
 
         public static string GET => GetterVerbs[0];
-        public static string EXPAND => GetterVerbs[1];
 
         public static string CLEAR => RemovalVerbs[0];
         public static string REMOVE => RemovalVerbs[1];
@@ -101,10 +122,10 @@ namespace QuelleHMI
         //  Simple Clause Verbs
         public static string[] ProgramVerbs => SimpleClauses[PROGRAM];
 
-        public const string HELP    = "#help";
-        public const string BACKUP  = "#backup";
-        public const string RESTORE = "#restore";
-        public const string EXIT    = "#exit";
+        public const string HELP    = "@help";
+        public const string BACKUP  = "@backup";
+        public const string RESTORE = "@restore";
+        public const string EXIT    = "@exit";
 
         public static string[] SimpleDisplayVerbs => SimpleClauses[DISPLAY];
         public static string PRINT_SIMPLE  = SimpleDisplayVerbs[0];
@@ -166,14 +187,14 @@ namespace QuelleHMI
                 var verbs = IndependentClauses[directive];
                 foreach (var candidate in verbs)
                     if (verb.Equals(candidate, StringComparison.InvariantCultureIgnoreCase))
-                        return (HMIClauseType.INDEPENDENT, candidate, directive);
+                        return (HMIClauseType.ORDINARY, candidate, directive);
             }
             foreach (var directive in DependentClauses.Keys)
             {
                 var verbs = DependentClauses[directive];
                 foreach (var candidate in verbs)
                     if (verb.Equals(candidate, StringComparison.InvariantCultureIgnoreCase))
-                        return (HMIClauseType.SUBORDINATE, candidate, directive);
+                        return (HMIClauseType.DEPENDENT, candidate, directive);
             }
             foreach (var directive in SimpleClauses.Keys)
             {

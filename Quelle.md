@@ -1,5 +1,11 @@
 # Quelle HMI v1.0 Specification
 
+**NOTE:** At times, the Quelle specification can be a week or two ahead of the C# implementation. This is a side-effect of a lean TDD-style development process. The normal sequence is:
+
+1. Update specification
+2. Update Unit-Tests
+3. Update C# reference implementation
+
 ### I. Background
 
 Most modern search engines, provide a mechanism for searching via a text input box where the user is expected to type search terms. While primitive, this interface was pioneered by major web-search providers and represented an evolution from the far more complex interfaces that came earlier. When you search for multiple terms, however, there seems to be only one basic paradigm: “find every term”. At AV Text Ministries, we believe that the vast world of search is rife for a search-syntax that moves us past only basic search expressions. To this end, we are proposing a Human-Machine-Interface (HMI) that can be invoked within a simple text input box. The syntax fully supports basic Boolean operations such as AND, OR, and NOT. While great care has been taken to support the construction of complex queries, greater care has been taken to maintain a clear and concise syntax.
@@ -20,16 +26,14 @@ Any application can implement the Quelle specification without royalty. We provi
 
 The Quelle specification defines a declarative syntax for specifying search criteria using the *find* verb. Quelle also defines additional verbs to round out its syntax as a simple straightforward means to interact with custom applications where searching text is the fundamental problem at hand. As mentioned earlier, AV Text Ministries provides a reference implementation. This implementation is written in C# and runs on most operating systems (e.g. Windows, Mac, Linux, iOS, Android, etc).  As source code is provided, it can be seamlessly extended by application programmers.
 
-Quelle Syntax comprises a standard set of twelve (12) verbs. Each verb corresponds to a basic operation:
+Quelle Syntax comprises a standard set of ten (10) verbs. Each verb corresponds to a basic operation:
 
-- find
-- print
-- set
-- get
+- find *(inferred)*
+- set *(inferred)*
 - clear
+- show
+- print
 - define
-- expand
-- remove
 - help
 - backup
 - restore
@@ -37,49 +41,38 @@ Quelle Syntax comprises a standard set of twelve (12) verbs. Each verb correspon
 
 The verbs listed above are for the English flavor of Quelle. As Quelle is an open and extensible standard, verbs for other languages can be defined without altering the overall syntax structure of the HMI. The remainder of this document describes Version 1.0 of the Quelle-HMI specification.  
 
-In Quelle terminology, a statement is made up of clauses. Each clause has a single verb. While there are twelve verbs, there are only five distinct types of clauses:
+In Quelle terminology, a statement is made up of clauses. Each clause has a single verb. While there are ten verbs, there are only five distinct types of clauses:
 
-1. SEARCH clauses
-   - find
-2. DISPLAY clauses
-   - print
-3. CONTROL clauses
-   - get
-   - set
+1. SEARCH clause
+   - find *(inferred)*
+2. CONTROL clauses
+   - set *(inferred)*
    - clear
-4. MACRO clauses
+   - show
+3. DISPLAY clause
+   - print
+4. MACRO clause
    - define
-   - expand
-   - remove
-5. ENVIRONMENT clauses
+5. SYSTEM commands
    - help
    - backup
    - restore
    - exit
 
-Each of the twelve verbs has a minimum and maximum number of parameters. Note that MACRO clauses also require special operators.  See the Table 3-1 below:
+If we ignore the SYSTEM clauses for the moment, we can focus on the six primary operational verbs in Quelle. Each verb has a minimum and maximum number of parameters (A similar table for SYSTEM commands can be found in Section X, near the end of this document). For a list of the primary Quelle See the Table 3-1 below:
 
-| Prefix | Verb        | Verb is Inferred | Clause Type | Clause Restriction | Required Arguments | Required Operators |
-| :----: | ----------- | :--------------: | ----------- | :----------------: | ------------------ | :----------------: |
-|        | **find**    |      **x**       | SEARCH      |                    | 1 or more          |                    |
-|        | **set**     |      **x**       | CONTROL     |                    | 2                  |         =          |
-|   #    | **get**     |                  | CONTROL     |                    | 1                  |                    |
-|   #    | **clear**   |                  | CONTROL     |                    | 1                  |                    |
-|   #    | **expand**  |                  | MACRO       |                    | 1                  |        { }         |
-|   #    | **remove**  |                  | MACRO       |                    | 1                  |        { }         |
-|   \|   | **define**  |                  | MACRO       |   **dependent**    | 1                  |        { }         |
-|   \|   | **print**   |                  | DISPLAY     |   **dependent**    | 0 or more          |                    |
-|   #    | **print**   |                  | DISPLAY     |     **simple**     | 0 or more          |                    |
-|   #    | **help**    |                  | ENVIRONMENT |     **simple**     | 0 or 1             |                    |
-|   #    | **backup**  |                  | ENVIRONMENT |     **simple**     | 1 to 3             |                    |
-|   #    | **restore** |                  | ENVIRONMENT |     **simple**     | 1 or 3             |                    |
-|   #    | **exit**    |                  | ENVIRONMENT |     **simple**     | 0                  |                    |
+| Verb        | Verb is Inferred | Clause Type |     Clause Restriction      | Required Arguments | Optional Operators |
+| ----------- | :--------------: | ----------- | :-------------------------: | ------------------ | :----------------: |
+| *find*      |      **x**       | SEARCH      |                             | 1 or more          |                    |
+| *set*       |      **x**       | CONTROL     |                             | 2                  |  **=** (required)  |
+| **@clear**  |                  | CONTROL     |                             | 1                  |      **{ }**       |
+| **@show**   |                  | CONTROL     |         **simple**          | 1 or more          |      **{ }**       |
+| **@define** |                  | MACRO       |        **dependent**        | 1                  |      **{ }**       |
+| **@print**  |                  | DISPLAY     | **simple** or **dependent** | 0 or more          |      **[ ] **      |
 
 **TABLE 3-1 -- Detailed verb descriptions with syntax implications**
 
-Phrase-restricted verbs are unique in that they cannot be used to construct compound statements.  Dependent phrases can be added as the final clause after an ordinary statement, but cannot be combined in any other way. Simple statements cannot be combined whatsoever.
-
-Quelle clauses always have a verb, even if the verb might be "silent". From a linguistic standpoint, all Quelle clauses are verbal phrases issued in the imperative. The syntax for each clause is dependent upon the verb for the clause, and each clause type has its own parsing rules and special characters for the clause. The type of clause is controlled by the verb.
+Phrase-restricted verbs are unique in that they are constrained on how they may be combined with other clauses when constructing a Quelle command.  Simple clauses are the most restrictive in that  they cannot be combined with any other clauses whatsoever.  Dependent phrases are limited to being the last phrase of a statement that has at least one phrase preceding it.
 
 Quelle supports three types of statements:
 
@@ -87,26 +80,26 @@ Quelle supports three types of statements:
 2. Ordinary statements
 3. Ordinary statements with a dependent clause
 
-A simple statement always has only a single verb. Some verbs are constrained to be constructed only as simple statements as identified in the table above.  Ordinary statements can have any number of verb phrases; an ordinary statement with more than a single verb is also referred to as a compound statement.  In Quelle, these verb phrases are called "clauses".  So another way to describe a simple statement is that it must contain only one clause.  A special type of simple statement in Quelle is a dependent clause.  A dependent clause is still restricted to a single verb, but a dependent clause can be added to any ordinary statement.
+Quelle clauses always have a verb, even if the verb might be "inferred". From a linguistic standpoint, all Quelle clauses are verbal phrases issued in the imperative. The syntax for each clause is dependent upon the verb for the clause. The subject of the clause is always "you understood". In other words, you are commanding Quelle what to do. Some verbs have direct objects [aka required arguments] which give Quelle more specific instructions about <u>what</u> to do. In short, the type of clause and the syntax of the phrase is always defined by the verb.
 
 Even before we describe Quelle syntax generally, let's look at these concepts using examples:
 
-|                                            | Example                                       |
-| ------------------------------------------ | --------------------------------------------- |
-| Simple statement                           | "look for this text"                          |
-| Dependent clause                           | \| print                                      |
-| Ordinary statement                         | "look for this text" // "other text"          |
-| Ordinary statement with a dependent clause | "look for this text" // "other text" \| print |
+|                                                     | Example                                  |
+| --------------------------------------------------- | ---------------------------------------- |
+| Simple statement                                    | @print [*]                               |
+| Ordinary statement                                  | "this is some text I expect to be found" |
+| Ordinary/Compound statement                         | "this text" // "other text"              |
+| Ordinary/Compound statement with a dependent clause | "this text" // "other text" // @print    |
 
 **TABLE 3-2 -- Examples of Quelle statement types**
 
-In the last example in Table 3-2, the final verb phrase, namely *format*, is the dependent clause. Dependent clauses are identified as a clause that begins after the pipe symbol ( | ). There are two functions associated with dependent clauses: printing search results and defining macros.  Macro definitions are a mechanism of making Quelle extensible by the user.  Macros are defined in the next section and are also referred to as "statement labels". Printing is described in section IX.
+In the last example in Table 3-2, the final verb phrase, namely *@print*, is a dependent clause. Dependent clauses are relegated to always being the last phrase of the statement. While @print can function as a dependent @clause, it it unique in that it can also function as a simple statement.  @define can only be used as a dependent clause, and therefore can never be used in single-clause statements.  Macros are a mechanism of making Quelle extensible by the user.  Macros are defined in the next section and are also referred to as "statement labels". Printing is described in section IX.
 
 Consider these two examples of Quelle statement (first CONTROL; then SEARCH):
 
 search.domain = bible
 
-#find "in the beginning"
+"in the beginning"
 
 Notice that each of the above, while ordinary statements, are .
 
@@ -186,7 +179,7 @@ If an execution ONLY contains CONTROL verbs, then the key-value pairs are saved.
 | SEARCH               | any ordinary verb       | allowed           | godhead // span=8           |
 | CONTROL              | any CONTROL verb        | allowed           | domain = bible // span=7    |
 | MACRO                | any ordinary MACRO verb | not allowed       | godhead \| define {trinity} |
-| ENVIRONMENT          | not allowed             | not allowed       | #backup now                 |
+| SYSTEM               | not allowed             | not allowed       | @backup now                 |
 
 **TABLE 5-1** -- **Primary**, **Secondary**, and **Dependent** clauses
 
@@ -380,13 +373,13 @@ The "*print*" verb has very limited grammar. And it can only be used in a depend
 
 
 
-| **example**                              | **explanation**                              |
-| ---------------------------------------- | -------------------------------------------- |
-| *quelle*.host = https://avbible.net/     | Setting a control variable for session       |
-| #get *quelle*.host= https://avbible.net/ | Getting a control variable for system        |
-| #clear *quelle*.host                     | clear a control variable (system or session) |
+| **example**                          | **explanation**                              |
+| ------------------------------------ | -------------------------------------------- |
+| *quelle*.host = https://avbible.net/ | Setting a control variable for session       |
+| @print [*quelle*.host]               | Getting a control variable for system        |
+| @clear *quelle*.host                 | clear a control variable (system or session) |
 
-**TABLE 8-2** -- **get**/**set** and **#get/#set** command can be used to retrieve Quelle configuration settings
+**TABLE 8-2** -- **set**/**clear/print** command can be used to retrieve Quelle configuration settings
 
 
 
@@ -394,15 +387,15 @@ The "*print*" verb has very limited grammar. And it can only be used in a depend
 
 Control settings can be cleared using wildcards:
 
-**#clear search.*** 
+**@clear search.*** 
 
-**#clear search.span.***
+**@clear search.span.***
 
-**#clear display.format.***
+**@clear display.format.***
 
 When *clear* verbs are used alongside *set* verbs, clear verbs are always executed after *set* verbs. 
 
-#clear span // span = 7 `>> implies >>` #clear span
+@clear span // span = 7 `>> implies >>` @clear span
 
 Otherwise, when multiple clauses contain the same setting, the last setting in the list is preserved.  Example:
 
@@ -436,7 +429,7 @@ md`>> implies >>` set format = text
 
 ### IX. Printing Results
 
-The DISPLAY directive has only a single verb, but it is manifest both as a simple statement (#print) and also as a dependent clause ( | print ).
+The DISPLAY directive has only a single verb, but it is manifest both as a simple statement (@print) and also as a dependent clause ( | print ).
 
 The arguments to both forms of the verb are identical, but the usage syntax varies.
 
@@ -445,7 +438,7 @@ Consider that there are two distinct methods because there are two fundamental t
 - Searches that return a limited set of results
 - Searches that either return loads of results of searches where the result count is unknown (and potentially very large)
 
-Due to the latter the latter condition above, SEARCH, by default summarizes results (it does NOT automatically print every result found). The idea is that the user can drill down into the summary and print limited sets of results, using the #print command to selectively print portions of the most previously executed SEARCH.  The dependent clause can be used to circumvent the summary and immediately every record that is returned from the search. Here are two parallel examples:
+Due to the latter the latter condition above, SEARCH, by default summarizes results (it does NOT automatically print every result found). The idea is that the user can drill down into the summary and print limited sets of results, using the @print command to selectively print portions of the most previously executed SEARCH.  The dependent clause can be used to circumvent the summary and immediately every record that is returned from the search. Here are two parallel examples:
 
 "Jesus answered"			*this would summarize books that contain this phrase, with chapter references*
 
@@ -455,15 +448,13 @@ Consider this very general search
 
 "he ... said"
 
-I can sample the first three results after the search by executing
-
-#find and implicit-search provide the same set of results.  However, the #find form implies a trailing |format statement and obviates the need for subsequent usage of #print.
-
-#print and format verbs have additional options that can be used to further control how results are formatted.  Consult the remainder of this section for additional details.
-
 To print all matching synopses of the most recently executed search:
 
-*#print* [1,2,3]
+*@print* [*]
+
+I can sample the first three results after the search by executing
+
+*@print* [1,2,3]
 
 Or I can add a header using this variant of print as a dependent clause:
 
@@ -479,27 +470,27 @@ The remainder of this section further describes the various arguments for DISPLA
 
 To print all results:
 
-*#print* [*]
+*@print* [*]
 
 To print only the first result:
 
-*#print* [1]
+*@print* [1]
 
 As we saw earlier, to print only the first three results
 
-*#print* [1,2,3]
+*@print* [1,2,3]
 
 Alternatively, this also works:
 
-*#print* [1] [2] [3]
+*@print* [1] [2] [3]
 
 and this:
 
-*#print* [1:3]
+*@print* [1:3]
 
 To print using a single display-coordinate:
 
-*#print* genesis:1:1
+*@print* genesis:1:1
 
 NOTE: Display-coordinates are driver-specific and not part of standard Quelle driver definition; The display-coordinate in the example above is compatible with the Quelle-AVX implementation
 
@@ -509,7 +500,7 @@ display.record = %book% %chapter%\\:%verse% \\(KJV\\\)\\:\\n%text% | print
 
 A more vanilla decoration might be:
 
-*#print* [1,2,3] + display.record= \<a href=\\"%url%\\"\>%abstract%\</a\>
+*@print* [1,2,3] + display.record= \<a href=\\"%url%\\"\>%abstract%\</a\>
 
 Keep in mind, however, the above two examples above are purely notional, your Quelle driver must support such annotation variables for them to render as expected. Consult the documentation for your Quelle cloud-capable driver to determine what record annotation variables are available in your driver.
 
@@ -517,7 +508,7 @@ So to break open the fragment from the *print* example above:
 
 In a separate example, we can label all results using the heading command:
 
-*#print* display.heading = Verses containing 'Godhead' + %heading% %label% *
+*@print* display.heading = Verses containing 'Godhead' + %heading% %label% *
 
 The syntax above, while biased towards Quelle-AVX search results is standard Quelle-HMI syntax and supported in the standard Quelle driver implementation.
 
@@ -527,7 +518,54 @@ Final notes about *print*:
 
 
 
-### X. Wrap-up
+### X. System Commands
+
+| Verb         | Clause Type | Clause Restriction | Required Arguments |
+| ------------ | ----------- | :----------------: | ------------------ |
+| **@help**    | SYSTEM      |     **simple**     | 0 or 1             |
+| **@backup**  | SYSTEM      |     **simple**     | 0 or 1             |
+| **@restore** | SYSTEM      |     **simple**     | 0 to 2             |
+| **@exit**    | SYSTEM      |     **simple**     | 0                  |
+
+**PROGRAM HELP**
+
+*@help*
+
+This will provide a help message in a Quelle interpreter.
+
+**BACKING YOUR ENVIRONMENT**
+
+*@backup*
+
+You can also name your backup
+
+*@backup* MyFavoriteSettings
+
+**RESTORING YOUR ENVIRONMENT**
+
+This will restore the most recent backup
+
+*@restore*
+
+This will restore the most recent backup named MyFavoriteSettings (backups never overwrite; they always have a time-stamp)
+
+*@restore* MyFavoriteSettings
+
+This will restore the most recent automatic backup (backups are made automatically when the user issues certain destructive commands)
+
+*@restore* automatic
+
+This will itemize all backups
+
+*@restore* list
+
+**EXITING QUELLE**
+
+Type this to terminate the Quelle interpreter:
+
+*@exit*
+
+### XI. Wrap-up
 
 In all cases, any number of spaces can be used between operators and terms. 
 
@@ -547,14 +585,6 @@ The minimum span has to be four(4). So the Quelle parser will adjust the search 
 | SUBTRACTIVE SEPERATORS | /-                 |
 
 
-
-**PROGRAM HELP**
-
-There is one final variant of the print statement:
-
-*#print* help
-
-This will provide a help message in a Quelle interpreter.
 
 ------
 

@@ -133,7 +133,7 @@ namespace QuelleHMI
                     this.rawSegments[i] = parsed.Value;
                     this.polarities[i] = HMIPolarity.POSITIVE;
 
-                    var current = new HMIClause(this, parsed.Key, this.polarities[i], parsed.Value, HMIClauseType.INDEPENDENT);
+                    var current = new HMIClause(this, parsed.Key, this.polarities[i], parsed.Value, HMIClauseType.ORDINARY);
                     var tuple = (parsed.Key, polarities[i], parsed.Value);
                     this.segmentation.Add(tuple, current);
                     this.segments.Add(current.sequence, current);
@@ -150,7 +150,7 @@ namespace QuelleHMI
                     this.rawSegments[i] = parsed.Value;
                     this.polarities[i] = HMIPolarity.NEGATIVE;
 
-                    var current = new HMIClause(this, parsed.Key, this.polarities[i], parsed.Value, HMIClauseType.INDEPENDENT);
+                    var current = new HMIClause(this, parsed.Key, this.polarities[i], parsed.Value, HMIClauseType.ORDINARY);
                     var tuple = (parsed.Key, polarities[i], parsed.Value);
                     this.segmentation.Add(tuple, current);
                     this.segments.Add(current.sequence, current);
@@ -370,12 +370,6 @@ namespace QuelleHMI
             {
                 scoped = HMIScope.Undefined;
                 errors.Add(GetStandardMultiverbErrorMessage(verbs));
-            }
-            if (verbs.Count >= 1 && normalizedVerb != HMIClause.RemovalVerbs[0] && cnt > 1)
-            {
-                scoped = HMIScope.Undefined;
-                string error = GetConflictingVerbsErrorMessage(HMIClause.SET, HMIClause.EXPAND);
-                errors.Add(error);
             }
             return (scoped, normalizedVerb, conformingSegments.Count > 0 ? conformingSegments.ToArray() : null);
         }

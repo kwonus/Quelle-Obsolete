@@ -23,10 +23,10 @@ namespace QuelleHMI
 
         public static HMIDependentClause Create(HMIStatement statement, string segment)    // FACTORY
         {
-            HMIClause subordinate = new HMIClause(statement, 1, HMIClause.HMIPolarity.UNDEFINED, segment, HMIClause.HMIClauseType.SUBORDINATE);
+            HMIClause subordinate = new HMIClause(statement, 1, HMIClause.HMIPolarity.UNDEFINED, segment, HMIClause.HMIClauseType.DEPENDENT);
             var info = HMIClause.IsVerb(subordinate.verb);
  
-            if (info.type == HMIClause.HMIClauseType.SUBORDINATE)
+            if (info.type.IsDependent())
             {
                 if (info.directive == HMIClause.MACRODEF)
                     return new HMIMacroDefintion(subordinate);
