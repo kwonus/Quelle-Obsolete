@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Text;
 using static QuelleHMI.HMIStatement;
-using System.Linq;
 
 namespace QuelleHMI
 {
@@ -28,6 +27,18 @@ namespace QuelleHMI
     public abstract class HMIClause
     {
         abstract protected bool Parse();
+        abstract public bool Execute();
+        protected List<string> errors { get => this.statement.command.errors; }
+        protected List<string> warnings { get => this.statement.command.warnings; }
+        public HMIClauseType type { get; protected set; }
+
+        public (bool ok, string[] errors, string[] warnings) Status
+        {
+            get
+            {
+                return (this.errors.Count == 0, this.errors.Count == 0 ? this.errors.ToArray() : null, this.warnings.Count == 0 ? this.warnings.ToArray() : null);
+            }
+        }
 
         public enum HMIPolarity
         {
@@ -43,33 +54,7 @@ namespace QuelleHMI
             DEPENDENT = 2,
             SIMPLE_OR_DEPENDENT = 3
         }
-        //  Assume that an explicit verb has not been passed
-        //  (We will not be looking for explicit verbs here)
-        //
-        public static (string[] tokens, string error) IsPersistencePattern(string text)
-        {
-            if (text == null)
-                return (null, "Driver design error; cannot test patter when input is null");
-
-            var parts = HMIClause.SmartSplit(text, '=');
-            if (parts.Length == 2)
-            {
-                var tokens = new string[3];
-                tokens[0] = Verbs.Set.VERB;
-                tokens[1] = parts[0];
-                tokens[2] = parts[1];
-
-                if (parts[0].Length == 0 || parts[1].Length == 0)
-                    return (tokens, "User input error; Control assignments require a name and a value");
-
-                var variable = tokens[1];
-                if (!HMISession.IsControl(variable))
-                    return (tokens, "User input error; The syntax of the phrase matches a control assigment, but the control name could not be found.");
-
-                return (tokens, null);
-            }
-            return (null, null);
-        }
+ 
         public static HMIClause CreateVerbClause(HMIStatement statement, uint order, HMIPolarity polarity, string text)
         {
             if (statement == null)
@@ -99,8 +84,7 @@ namespace QuelleHMI
             }
             //  Only CONTROL::SET can be implicitly recognized
             //
-            var controls = IsPersistencePattern(text);
-            if (controls.tokens != null)
+            if (Verbs.Set.Test(text))
             {
                 return new Verbs.Set(statement, order, text);
             }
@@ -108,7 +92,6 @@ namespace QuelleHMI
             //
             return new Verbs.Search(statement, order, polarity, text);
         }
-        protected bool error = false;
         protected HMIStatement statement;
         public string verb;
 
@@ -116,9 +99,6 @@ namespace QuelleHMI
         {
             if (this.statement != null)
                 this.statement.Notify(mode, message);
-
-            if (!this.error)
-                this.error = mode == null || !mode.Equals("warning", StringComparison.InvariantCultureIgnoreCase);
         }
         public UInt32 order { get; private set;  }
         public UInt32 sequence { get; private set; }  // Sequence number of segment
@@ -133,6 +113,7 @@ namespace QuelleHMI
         {
             this.maximumScope = HMIScope.Undefined;
             this.statement = statement;
+            this.type = clauseType;
 
             string normalized = segment.Trim();
 

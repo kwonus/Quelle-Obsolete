@@ -363,11 +363,11 @@ The "*print*" verb has very limited grammar. And it can only be used in a depend
 
 **CONTROL::SETTING directives:**
 
-| **Markdown**                | **HTML**                      | **Text**                      |
-| --------------------------- | ----------------------------- | ----------------------------- |
-| *display.content-type = md* | *display.content-type = html* | *display.content-type = text* |
+| **Markdown**          | **HTML**                | **Text**                |
+| --------------------- | ----------------------- | ----------------------- |
+| *display.format = md* | *display.format = html* | *display.format = text* |
 
-**TABLE 8-1** -- **set** content-type command can be used to set the default content formatting for printing
+**TABLE 8-1** -- **set** format command can be used to set the default content formatting for printing
 
 
 

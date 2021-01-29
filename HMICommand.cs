@@ -11,27 +11,29 @@ namespace QuelleHMI
 		public string command { get; private set; }
 		public List<string> errors { get; private set; }
 		public List<string> warnings { get; private set; }
-        public object Directives { get; private set; }
+		public static IQuelleDriver Driver { get; protected set; } = null;
 
-        public void Notify(string level, string message)
+		public void Notify(string level, string message)
         {
 			if (level != null && level.Equals("warning", StringComparison.InvariantCultureIgnoreCase))
             {
-				if (warnings == null)
-					warnings = new List<string>();
 				warnings.Add(message.Trim());
 			}
             else
             {
-				if (errors == null)
-					errors = new List<string>();
 				errors.Add(message.Trim());
 			}
 		}
+		public static void Intitialize(IQuelleDriver driver)
+        {
+			HMICommand.Driver = driver;
+        }
 		public HMICommand(String command)
         {
 			this.command = command.Trim();
 			this.dependentClause = null;
+			this.warnings = new List<string>();
+			this.errors = new List<string>();
 
 			if (command != null)
 			{
@@ -93,5 +95,9 @@ namespace QuelleHMI
 
 			return null;
 		}
+		public bool Search()
+        {
+			return false;	// This will call into cloud
+        }
 	}
 }

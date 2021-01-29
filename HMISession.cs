@@ -92,8 +92,10 @@ namespace QuelleHMI
             { DISPLAY,  StandardConfig_DISPLAY.Keys },
             { SEARCH,   StandardConfig_SEARCH.Keys }
         };
-        public static bool IsControl(string candidate)
+        public static bool IsControl(string candidate, out string normalizedName)
         {
+            normalizedName = null;
+
             if ((candidate == null) || string.IsNullOrWhiteSpace(candidate))
                 return false;
 
@@ -108,7 +110,12 @@ namespace QuelleHMI
                 if (AllControls.ContainsKey(parts[0]))
                 {
                     parts[1] = parts[1].ToLower();
-                    return AllControls[parts[0]].Contains(parts[1]) || (parts[1] == "*");
+                    var found = AllControls[parts[0]].Contains(parts[1]) || (parts[1] == "*");
+                    if (found)
+                    {
+                        normalizedName = candidate.ToLower();
+                        return true;
+                    }
                 }
             }
             else
@@ -116,14 +123,19 @@ namespace QuelleHMI
                 var lower = candidate.ToLower();
 
                 if (AllControls.ContainsKey(lower))
+                {
+                    normalizedName = lower + ".*";
                     return true;
-
+                }
                 foreach (var key in AllControls.Keys)
                 {
                     var values = AllControls[key];
- 
+
                     if (values.Contains(lower))
+                    {
+                        normalizedName = key + "." + lower;
                         return true;
+                    }
                 }
             }
             return false;

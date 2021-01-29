@@ -14,21 +14,24 @@ namespace QuelleHMI
             Write = 1,
             Remove = (-1)
         }
-        private HMICommand command;
+        public HMICommand command { get; protected set; }
         public void Notify(string mode, string message)
         {
             if (this.command != null)
                 this.command.Notify(mode, message);
         }
+        protected List<string> errors { get => this.command.errors; }
+        protected List<string> warnings { get => this.command.warnings; }
+
         public string statement { get; private set; }
         public HMIScope scope { get; private set; }
-        public String[] rawSegments { get; private set; }  // right-side: each segment has a POLARITY
-        private HMIPolarity[] polarities;
-        public Dictionary<(UInt32 order, HMIPolarity polarity, string segment), HMIClause> segmentation { get; private set; }
-        public Dictionary<UInt64, HMIClause> segments { get; private set; }
+         public Dictionary<(UInt32 order, HMIPolarity polarity, string segment), HMIClause> segmentation { get; private set; }
+
+        protected (HMIClause singleton, HMIClause suborinate, HMIClause[] setters, HMIClause[] removals, HMIClause[] searches) normalized;
 
         public HMIStatement(HMICommand command, string statement)
         {
+            this.normalized = (null, null, null, null, null);
             if (command == null)
                 return;
             if (statement == null)
@@ -52,7 +55,7 @@ namespace QuelleHMI
             var d_quoted = false;   // double-quoted means that this character is enclosed in double-quotes
             var negatives = new Dictionary<UInt32, string>(); // order, rawSegment
             var positives = new Dictionary<UInt32, string>(); // order, rawSegment
-            var polarity  = positives;
+            var polarity = positives;
             int last = 0;
             UInt32 order = 1;
             int i;
@@ -60,7 +63,7 @@ namespace QuelleHMI
             {
                 if (i >= len && last < len)
                 {
-                    polarity.Add(order++, this.statement.Substring(last, len-last).Trim());
+                    polarity.Add(order++, this.statement.Substring(last, len - last).Trim());
                     break;
                 }
                 if (c_quoted)   // then this character should be ignored as a delimiter and be ignored as per double-quoting
@@ -77,9 +80,9 @@ namespace QuelleHMI
                 }
                 switch (c)
                 {
-                    case '\\':  c_quoted = true; continue;
-                    case '"':   d_quoted = true; continue;
-                    case '|':   break;                          // this should never see this trigger, but add for fail-safety and QC breakpoint during debugging
+                    case '\\': c_quoted = true; continue;
+                    case '"': d_quoted = true; continue;
+                    case '|': break;                          // this should never see this trigger, but add for fail-safety and QC breakpoint during debugging
                 }
                 if (i >= len - 1)
                     continue;
@@ -87,16 +90,17 @@ namespace QuelleHMI
                 if (c != '/')
                     continue;
 
-                char next = this.statement[i+1];
+                char next = this.statement[i + 1];
 
                 if (last < i)
-                { 
+                {
                     switch (next)
                     {
                         case '/':
-                        case '-': polarity.Add(order++, this.statement.Substring(last, i-last).Trim());
-                                  break;
-                        default:  continue;
+                        case '-':
+                            polarity.Add(order++, this.statement.Substring(last, i - last).Trim());
+                            break;
+                        default: continue;
                     }
                 }
                 switch (next)
@@ -117,26 +121,18 @@ namespace QuelleHMI
             foreach (var cancel in removals)
                 positives.Remove(cancel);
 
-            this.rawSegments = new string[positives.Count + negatives.Count];
-            this.polarities = new HMIPolarity[this.rawSegments.Length];
-
             this.segmentation = new Dictionary<(UInt32 order, HMIPolarity polarity, string segment), HMIClause>();
-            this.segments = new Dictionary<ulong, HMIClause>();
             i = 0;
             foreach (var parsed in positives)
             {
                 if (command.errors != null)
                     break;
-                
+
                 if (parsed.Value.Length > 0)
                 {
-                    this.rawSegments[i] = parsed.Value;
-                    this.polarities[i] = HMIPolarity.POSITIVE;
-
-                    var current = HMIClause.CreateVerbClause(this, parsed.Key, this.polarities[i], parsed.Value);
-                    var tuple = (parsed.Key, polarities[i], parsed.Value);
+                    var current = HMIClause.CreateVerbClause(this, parsed.Key, HMIPolarity.POSITIVE, parsed.Value);
+                    var tuple = (parsed.Key, HMIPolarity.POSITIVE, parsed.Value);
                     this.segmentation.Add(tuple, current);
-                    this.segments.Add(current.sequence, current);
                     i++;
                 }
             }
@@ -147,18 +143,14 @@ namespace QuelleHMI
 
                 if (parsed.Value.Length > 0)
                 {
-                    this.rawSegments[i] = parsed.Value;
-                    this.polarities[i] = HMIPolarity.NEGATIVE;
-
-                    var current = HMIClause.CreateVerbClause(this, parsed.Key, this.polarities[i], parsed.Value);
-                    var tuple = (parsed.Key, polarities[i], parsed.Value);
+                    var current = HMIClause.CreateVerbClause(this, parsed.Key, HMIPolarity.NEGATIVE, parsed.Value);
+                    var tuple = (parsed.Key, HMIPolarity.NEGATIVE, parsed.Value);
                     this.segmentation.Add(tuple, current);
-                    this.segments.Add(current.sequence, current);
                     i++;
                 }
             }
             HMIScope? scope = null;
-            foreach(var phrase in this.segments.Values)
+            foreach (var phrase in this.segmentation.Values)
             {
                 if (phrase.maximumScope != HMIScope.Undefined)
                 {
@@ -171,68 +163,136 @@ namespace QuelleHMI
             this.scope = scope.HasValue ? scope.Value : HMIScope.Undefined;
         }
 
-        public (HMIScope scope, string[] errors, Dictionary<string, HMIClause[]> normalization) NormalizeStatement()
+        private void Append(ref HMIClause[] array, HMIClause item)
         {
-            var results = new Dictionary<string, HMIClause[]>();
-
-            if (this.statement == null || this.segments == null)
-                return (HMIScope.Undefined, new string[] { "Driver design error" }, results);
-
-            var errors = new List<string>();
-
-            return (HMIScope.Undefined, null, results);
-/*
-            //  (HMIScope scope, string verb, HMISegment[] segments)
-
-            var search      = NormalizeSearchSegments(errors);
-            var file        = NormalizeFileSegments(errors);
-            var persistence = NormalizePersistenceSegments(errors, (search.scope == HMIScope.Statement) || (file.scope == HMIScope.Statement) ? HMIScope.Statement : HMIScope.Statement);   // FILE or SEARCH segments coerce PERSISTENCE segments to Statement scope
-            var status      = NormalizeStatusSegments(errors);
-            var removal     = NormalizeRemovalSegments(errors);
-
-
-            if (file.scope != HMIScope.Undefined && search.scope != HMIScope.Undefined)
-                errors.Add("Cannot combine search segments with file segments.");
-
-
-            int nonPersitence = (removal.scope != HMIScope.Undefined ? 1 : 0)
-                              + (status.scope != HMIScope.Undefined ? 1 : 0);
-
-            if (nonPersitence > 0)
+            if (array == null)
+                array = new HMIClause[] { item };
+            else
             {
-                if (file.scope != HMIScope.Undefined)
-                    errors.Add("Cannot combine file segments with status or removal segments.");
-                if (search.scope != HMIScope.Undefined)
-                    errors.Add("Cannot combine search segments with status or removal segments.");
+                HMIClause[] updated = new HMIClause[array.Length + 1];
+                for (int i = 0; i < array.Length; i++)
+                    updated[i] = array[i];
+                updated[array.Length] = item;
+
+                array = updated;
             }
+        }
+        protected bool Normalize()
+        {
+            //      (HMIClause singleton, HMIClause suborinate, HMIClause[] setters, HMIClause[] removals, HMIClause[] searches)
+            this.normalized = (null, null, null, null, null);
 
-            int configCount = (removal.scope     != HMIScope.Undefined ? 1 : 0)
-                            + (status.scope      != HMIScope.Undefined ? 1 : 0)
-                            + (persistence.scope != HMIScope.Undefined ? 1 : 0);
-
-            if (configCount == 3)
+            if (this.statement == null || this.segmentation == null)
             {
-                if (removal.scope != HMIScope.Undefined)
-                    errors.Add("Cannot combine removal segments with status or persistence segments.");
-                if (status.scope != HMIScope.Undefined)
-                    errors.Add("Cannot combine status segments with removal or persistence segments.");
-                if (persistence.scope != HMIScope.Undefined)
-                    errors.Add("Cannot combine persistence segments with status or removal segments.");
+                this.Notify("error", "Could not normalize statement: driver design error");
+                return false;
             }
+            int position = 1;
+            int last = this.segmentation.Count;
+            var clauses = (from key in this.segmentation.Keys orderby key.order select this.segmentation[key]);
+            foreach (var clause in clauses)
+            {
+                if (clause.type.IsSimple())
+                    this.normalized.singleton = clause;
+                else if (clause.type.IsDependent())
+                    this.normalized.suborinate = clause;
+                else if (clause.verb == Verbs.Search.VERB)
+                    Append(ref this.normalized.searches, clause);
+                else if (clause.verb == Verbs.Clear.VERB)
+                    Append(ref this.normalized.removals, clause);
+                else if (clause.verb == Verbs.Set.VERB)
+                    Append(ref this.normalized.setters, clause);
+                else
+                    this.Notify("error", "Could not normalize statement: unexpected clause type encountered.");
 
-            HMIScope minimalScope = errors.Count > 0 ? HMIScope.Undefined : HMIScope.System;
+                var simpleOutOfPlace = clause.type.IsSimple() && (position != 1);
+                var dependentOutOfPlace = clause.type.IsDependent() && (position == 1 || position != last);
 
-            if (minimalScope != HMIScope.Undefined)
-                foreach (var scope in new HMIScope[]{ file.scope, search.scope, status.scope, persistence.scope, removal.scope})
-                    if (scope != HMIScope.Undefined && (int)scope < (int)minimalScope)
-                        minimalScope = scope;
+                if (simpleOutOfPlace && !clause.type.IsDependent())
+                {
+                    this.Notify("error", "The verb " + clause.verb + "can only be used to construct a simple statement");
+                }
+                else if (dependentOutOfPlace && !clause.type.IsSimple())
+                {
+                    this.Notify("error", "The verb " + clause.verb + "can only be used as a dependent clause");
+                }
+                else if (simpleOutOfPlace && dependentOutOfPlace)
+                {
+                    this.Notify("error", "The verb " + clause.verb + "can only be used to construct a simple statement or as the final dependent clause of the statement");
+                }
+            }
+            return this.errors.Count == 0;
+        }
+        public bool Execute()
+        {
+            if (command.errors.Count == 0)
+            {
+                if (!this.Normalize())
+                    return false;
 
-            foreach (var command in new (HMIScope scope, string verb, HMIClause[] segments)[] { persistence, search, file, status, removal })
-                if (command.verb != null && command.segments != null && command.scope != HMIScope.Undefined)
-                    results.Add(command.verb, command.segments);
+                if (command.HasMacro() != HMIScope.Undefined)
+                {
+                    var macroDef = command.GetMacroSubordinate();
+                    var result = HMICommand.Driver.Write("quelle.macro." + macroDef.macroName, macroDef.macroScope, command.statement.statement);
+                    if (result.errors != null)
+                    {
+                        foreach (var error in result.errors)
+                            this.Notify("error", error);
 
-            return (minimalScope, errors.Count > 0 ? errors.ToArray() : null, results);
-*/
+                        return false;
+                    }
+                    if (!result.success)
+                    {
+                        this.Notify("error", "Unspecific macro error; Please contact vendor about this Quelle driver implementation");
+                        return false;
+                    }
+                    return true;
+                }
+
+                if (normalized.singleton != null)
+                {
+                    normalized.singleton.Execute();
+                }
+                else
+                {
+                    if (normalized.setters != null)
+                        foreach (var clause in normalized.setters)
+                        {
+                            clause.Execute();
+                            if (this.errors.Count > 0)
+                                return false;
+                        }
+                    if (normalized.removals != null)
+                        foreach (var clause in normalized.removals)
+                        {
+                            clause.Execute();
+                            if (this.errors.Count > 0)
+                                return false;
+                        }
+                    if (normalized.searches != null)
+                    {
+                        foreach (var clause in normalized.searches)
+                        {
+                            clause.Execute();
+                            if (this.errors.Count > 0)
+                                return false;
+                        }
+                        if (!this.command.Search())
+                            return false;
+                    }
+                    if (normalized.suborinate != null)
+                    {
+                        normalized.suborinate.Execute();
+                        if (this.errors.Count > 0)
+                            return false;
+                    }
+                    else if (normalized.searches != null)
+                    {
+                        ;   // default search summarization out goes here
+                    }
+                }
+            }
+            return true;
         }
     }
 }

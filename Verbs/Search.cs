@@ -11,14 +11,18 @@ namespace QuelleHMI.Verbs
 
         protected override bool Parse()
         {
-            this.quoted = this.ParseQuotedSearch() || this.error;
+            this.quoted = this.ParseQuotedSearch() || (this.errors.Count > 0);
 
-            if (this.error)
+            if (this.errors.Count > 0)
                 return false;
             else if (this.quoted)
                 return true;
 
             return this.ParseUnquotedSearch();
+        }
+        public override bool Execute()
+        {
+            throw new NotImplementedException();
         }
 
         public Search(HMIStatement statement, UInt32 segmentOrder, HMIPolarity polarity, string segment)

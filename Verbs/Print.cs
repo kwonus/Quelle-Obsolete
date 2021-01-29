@@ -19,6 +19,10 @@ namespace QuelleHMI.Verbs
         {
             throw new NotImplementedException();
         }
+        public override bool Execute()
+        {
+            throw new NotImplementedException();
+        }
         private (string token, int offset, string error) GetNextPrintToken(string text, int offset = 0)
         {
             if (text == null)

@@ -18,5 +18,9 @@ namespace QuelleHMI.Verbs
         {
             throw new NotImplementedException();
         }
+        public override bool Execute()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
