@@ -9,7 +9,7 @@ namespace QuelleHMI.Verbs
         public const string VERB = "@print";
 
         public Print(HMIStatement statement, UInt32 segmentOrder, string segment)
-            : base(statement, segmentOrder, HMIPolarity.UNDEFINED, segment, HMIClauseType.SIMPLE_OR_DEPENDENT)
+            : base(statement, segmentOrder, HMIPolarity.UNDEFINED, segment, HMIClauseType.EXPLICIT_INDEPENDENT)
         {
             this.maximumScope = HMIScope.Statement;
             this.verb = VERB;
@@ -17,7 +17,33 @@ namespace QuelleHMI.Verbs
         }
         protected override bool Parse()
         {
-            throw new NotImplementedException();
+            int len = this.segment.Length;
+            string error = null;
+            uint sequence = 1;
+
+            for (var frag = this.GetNextPrintToken(this.segment); (frag.error == null) && (frag.offset > 0) && (frag.offset <= len || frag.token != null);
+                     frag = this.GetNextPrintToken(this.segment, frag.offset))
+            {
+                if (frag.error != null)
+                {
+                    error = frag.error;
+                    break;
+                }
+                if (frag.token != null)
+                {
+                    sequence++;
+                    HMIFragment current = new HMIFragment(this, frag.token, sequence, !(frag.token.StartsWith("[") && frag.token.EndsWith("]")));
+                    this.fragments.Add(sequence, current);
+                }
+                if (frag.offset >= len)
+                    break;
+            }
+            if (error != null)
+            {
+                this.Notify("error", error);
+                return false;
+            }
+            return true;
         }
         public override bool Execute()
         {

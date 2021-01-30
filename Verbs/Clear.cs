@@ -8,7 +8,7 @@ namespace QuelleHMI.Verbs
     {
         public const string VERB = "@clear";
         public Clear(HMIStatement statement, UInt32 segmentOrder, string segment)
-    : base(statement, segmentOrder, HMIPolarity.UNDEFINED, segment, HMIClauseType.ORDINARY)
+    : base(statement, segmentOrder, HMIPolarity.UNDEFINED, segment, HMIClauseType.IMPLICIT)
         {
             this.maximumScope = HMIScope.System;
             this.verb = VERB;

@@ -5,25 +5,6 @@ using static QuelleHMI.HMIStatement;
 
 namespace QuelleHMI
 {
-    static class HMIClauseType_Methods
-    {
-        public static bool IsDependent(this HMIClause.HMIClauseType type)
-        {
-            if (((uint)type & (uint)HMIClause.HMIClauseType.DEPENDENT) != 0)
-                return type != HMIClause.HMIClauseType.UNDEFINED;
-            return false;
-        }
-        public static bool IsSimple(this HMIClause.HMIClauseType type)
-        {
-            if (((uint)type & (uint)HMIClause.HMIClauseType.SIMPLE) != 0)
-                return type != HMIClause.HMIClauseType.UNDEFINED;
-            return false;
-        }
-        public static bool Isordinary(this HMIClause.HMIClauseType type)
-        {
-            return type == HMIClause.HMIClauseType.ORDINARY;
-        }
-    }
     public abstract class HMIClause
     {
         abstract protected bool Parse();
@@ -49,10 +30,10 @@ namespace QuelleHMI
         public enum HMIClauseType
         {
             UNDEFINED = 0xF,
-            ORDINARY = 0,
-            SIMPLE = 1,
-            DEPENDENT = 2,
-            SIMPLE_OR_DEPENDENT = 3
+            IMPLICIT = 0,
+            SIMPLE = 1,                         // also explicit
+            EXPLICIT_DEPENDENT = 2,             // e.g. @define
+            EXPLICIT_INDEPENDENT = 3            // e.g. @print: not simple AND not dependent, but positionally similar to both
         }
  
         public static HMIClause CreateVerbClause(HMIStatement statement, uint order, HMIPolarity polarity, string text)

@@ -25,13 +25,28 @@ namespace QuelleHMI
 
         public string statement { get; private set; }
         public HMIScope scope { get; private set; }
-         public Dictionary<(UInt32 order, HMIPolarity polarity, string segment), HMIClause> segmentation { get; private set; }
+        public Dictionary<UInt32, HMIClause> segmentation { get; private set; }
 
-        protected (HMIClause singleton, HMIClause suborinate, HMIClause[] setters, HMIClause[] removals, HMIClause[] searches) normalized;
+        protected (bool simple, HMIClause explicitClause, HMIClause[] setters, HMIClause[] removals, HMIClause[] searches) normalized;
+        public HMIClause explicitClause
+        {
+            get
+            {
+                return normalized.explicitClause;
+            }
+        }
 
+        public static string SquenchAndNormalizeText(string text)
+        {
+            return System.Text.RegularExpressions.Regex.Replace(text, @"\s+", " ").ToLower();
+        }
+        public static string SquenchText(string text)
+        {
+            return System.Text.RegularExpressions.Regex.Replace(text, @"\s+", " ");
+        }
         public HMIStatement(HMICommand command, string statement)
         {
-            this.normalized = (null, null, null, null, null);
+            this.normalized = (false, null, null, null, null);
             if (command == null)
                 return;
             if (statement == null)
@@ -82,13 +97,23 @@ namespace QuelleHMI
                 {
                     case '\\': c_quoted = true; continue;
                     case '"': d_quoted = true; continue;
-                    case '|': break;                          // this should never see this trigger, but add for fail-safety and QC breakpoint during debugging
                 }
                 if (c == ';')
                 {
                     polarity.Add(order++, this.statement.Substring(last, i - last).Trim());
                     polarity = positives;
                     last = i + 1;
+                }
+                else if (c == '@')
+                {
+                    // allow semicolon before @
+                    var token = this.statement.Substring(last, i - last).Trim();
+                    if (token.Length > 0)
+                    {
+                        polarity.Add(order++, token);
+                        polarity = positives;
+                        last = i;
+                    }
                 }
                 else
                 {
@@ -109,44 +134,44 @@ namespace QuelleHMI
                     }
                 }
             }
-            // Delete redundant [+] and [-] polarities
-            var removals = new List<UInt32>();
-            foreach (var segment in negatives.Values)
-                foreach (var record in positives)
-                    if (record.Value.Equals(segment, StringComparison.InvariantCultureIgnoreCase))
-                        removals.Add(record.Key);
 
-            foreach (var cancel in removals)
-                positives.Remove(cancel);
-
-            this.segmentation = new Dictionary<(UInt32 order, HMIPolarity polarity, string segment), HMIClause>();
+            this.segmentation = new Dictionary<UInt32, HMIClause>();
             i = 0;
-            foreach (var parsed in positives)
-            {
-                if (command.errors != null)
-                    break;
-
-                if (parsed.Value.Length > 0)
-                {
-                    var current = HMIClause.CreateVerbClause(this, parsed.Key, HMIPolarity.POSITIVE, parsed.Value);
-                    var tuple = (parsed.Key, HMIPolarity.POSITIVE, parsed.Value);
-                    this.segmentation.Add(tuple, current);
-                    i++;
-                }
-            }
+            // Eliminate duplicate segments (NOTE [-] polarity has precedence over [+] polarity)
+            var inventory = new List<string>();
             foreach (var parsed in negatives)
             {
-                if (command.errors != null)
+                if (command.errors.Count > 0)
                     break;
 
                 if (parsed.Value.Length > 0)
                 {
-                    var current = HMIClause.CreateVerbClause(this, parsed.Key, HMIPolarity.NEGATIVE, parsed.Value);
-                    var tuple = (parsed.Key, HMIPolarity.NEGATIVE, parsed.Value);
-                    this.segmentation.Add(tuple, current);
-                    i++;
+                    var squenched = SquenchAndNormalizeText(parsed.Value);
+                    if (!inventory.Contains(squenched))
+                    {
+                        var current = HMIClause.CreateVerbClause(this, parsed.Key, HMIPolarity.NEGATIVE, parsed.Value);
+                        this.segmentation.Add(parsed.Key, current);
+                        i++;
+                    }
                 }
             }
+            foreach (var parsed in positives)
+            {
+                if (command.errors.Count > 0)
+                    break;
+
+                if (parsed.Value.Length > 0)
+                {
+                    var squenched = SquenchAndNormalizeText(parsed.Value);
+                    if (!inventory.Contains(squenched))
+                    {
+                        var current = HMIClause.CreateVerbClause(this, parsed.Key, HMIPolarity.POSITIVE, parsed.Value);
+                        this.segmentation.Add(parsed.Key, current);
+                        i++;
+                    }
+                }
+            }
+
             HMIScope? scope = null;
             foreach (var phrase in this.segmentation.Values)
             {
@@ -177,8 +202,8 @@ namespace QuelleHMI
         }
         protected bool Normalize()
         {
-            //      (HMIClause singleton, HMIClause suborinate, HMIClause[] setters, HMIClause[] removals, HMIClause[] searches)
-            this.normalized = (null, null, null, null, null);
+            //           (bool singleton, HMIClause explicitClause, HMIClause[] setters, HMIClause[] removals, HMIClause[] searches)
+            this.normalized = (false, null, null, null, null);
 
             if (this.statement == null || this.segmentation == null)
             {
@@ -187,13 +212,14 @@ namespace QuelleHMI
             }
             int position = 1;
             int last = this.segmentation.Count;
-            var clauses = (from key in this.segmentation.Keys orderby key.order select this.segmentation[key]);
+            var clauses = (from key in this.segmentation.Keys orderby key select this.segmentation[key]);
             foreach (var clause in clauses)
             {
-                if (clause.type.IsSimple())
-                    this.normalized.singleton = clause;
-                else if (clause.type.IsDependent())
-                    this.normalized.suborinate = clause;
+                this.normalized.simple = this.normalized.simple || (clause.type == HMIClauseType.SIMPLE);
+                if (clause.type == HMIClauseType.UNDEFINED)
+                    this.Notify("error", "The type of clause could not be identified");
+                if (clause.type != HMIClauseType.IMPLICIT)
+                    this.normalized.explicitClause = clause;
                 else if (clause.verb == Verbs.Search.VERB)
                     Append(ref this.normalized.searches, clause);
                 else if (clause.verb == Verbs.Clear.VERB)
@@ -203,21 +229,8 @@ namespace QuelleHMI
                 else
                     this.Notify("error", "Could not normalize statement: unexpected clause type encountered.");
 
-                var simpleOutOfPlace = clause.type.IsSimple() && (position != 1);
-                var dependentOutOfPlace = clause.type.IsDependent() && (position == 1 || position != last);
-
-                if (simpleOutOfPlace && !clause.type.IsDependent())
-                {
-                    this.Notify("error", "The verb " + clause.verb + "can only be used to construct a simple statement");
-                }
-                else if (dependentOutOfPlace && !clause.type.IsSimple())
-                {
-                    this.Notify("error", "The verb " + clause.verb + "can only be used as a dependent clause");
-                }
-                else if (simpleOutOfPlace && dependentOutOfPlace)
-                {
-                    this.Notify("error", "The verb " + clause.verb + "can only be used to construct a simple statement or as the final dependent clause of the statement");
-                }
+                if (this.normalized.simple == true && position > 1)
+                    this.Notify("error", "More than one clause was combined with a verb that must be a simple statement");
             }
             return this.errors.Count == 0;
         }
@@ -247,9 +260,9 @@ namespace QuelleHMI
                     return true;
                 }
 
-                if (normalized.singleton != null)
+                if (normalized.simple)
                 {
-                    normalized.singleton.Execute();
+                    normalized.explicitClause.Execute();
                 }
                 else
                 {
@@ -278,9 +291,9 @@ namespace QuelleHMI
                         if (!this.command.Search())
                             return false;
                     }
-                    if (normalized.suborinate != null)
+                    if (normalized.explicitClause != null)
                     {
-                        normalized.suborinate.Execute();
+                        normalized.explicitClause.Execute();
                         if (this.errors.Count > 0)
                             return false;
                     }

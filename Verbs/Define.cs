@@ -13,7 +13,7 @@ namespace QuelleHMI.Verbs
 
 
         public Define(HMIStatement statement, UInt32 segmentOrder, string segment)
-    : base(statement, segmentOrder, HMIPolarity.UNDEFINED, segment, HMIClauseType.DEPENDENT)
+    : base(statement, segmentOrder, HMIPolarity.UNDEFINED, segment, HMIClauseType.EXPLICIT_DEPENDENT)
         {
             this.maximumScope = HMIScope.System;
             this.verb = VERB;

@@ -7,7 +7,13 @@ namespace QuelleHMI
     public class HMICommand
     {
 		public HMIStatement statement { get; private set; }
-		public HMIClause explicitClause { get; private set; }
+		public HMIClause explicitClause
+        {
+			get
+			{
+				return this.statement != null ? statement.explicitClause : null;
+			}
+        }
 		public string command { get; private set; }
 		public List<string> errors { get; private set; }
 		public List<string> warnings { get; private set; }
@@ -31,7 +37,6 @@ namespace QuelleHMI
 		public HMICommand(String command)
         {
 			this.command = command.Trim();
-			this.explicitClause = null;
 			this.warnings = new List<string>();
 			this.errors = new List<string>();
 

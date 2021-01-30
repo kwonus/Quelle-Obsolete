@@ -26,7 +26,7 @@ namespace QuelleHMI.Verbs
         }
 
         public Search(HMIStatement statement, UInt32 segmentOrder, HMIPolarity polarity, string segment)
-            : base(statement, segmentOrder, polarity, segment, HMIClauseType.ORDINARY)
+            : base(statement, segmentOrder, polarity, segment, HMIClauseType.IMPLICIT)
         {
             this.maximumScope = HMIScope.Statement;
             this.verb = VERB;

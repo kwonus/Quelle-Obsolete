@@ -11,7 +11,7 @@ namespace QuelleHMI.Verbs
         public string controlValue { get; private set; }
  
         public Set(HMIStatement statement, UInt32 segmentOrder, string segment)
-    : base(statement, segmentOrder, HMIPolarity.UNDEFINED, segment, HMIClauseType.ORDINARY)
+    : base(statement, segmentOrder, HMIPolarity.UNDEFINED, segment, HMIClauseType.IMPLICIT)
         {
             this.maximumScope = HMIScope.System;
             this.verb = VERB;
