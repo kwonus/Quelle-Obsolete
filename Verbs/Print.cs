@@ -17,12 +17,16 @@ namespace QuelleHMI.Verbs
         }
         protected override bool Parse()
         {
-            int len = this.segment.Length;
+            var segment = this.segment.Trim();
+            if (segment.StartsWith(VERB))
+                segment = segment.Substring(VERB.Length).TrimStart();
+
+            int len = segment.Length;
             string error = null;
             uint sequence = 1;
 
-            for (var frag = this.GetNextPrintToken(this.segment); (frag.error == null) && (frag.offset > 0) && (frag.offset <= len || frag.token != null);
-                     frag = this.GetNextPrintToken(this.segment, frag.offset))
+            for (var frag = this.GetNextPrintToken(segment); (frag.error == null) && (frag.offset > 0) && (frag.offset <= len || frag.token != null);
+                     frag = this.GetNextPrintToken(segment, frag.offset))
             {
                 if (frag.error != null)
                 {

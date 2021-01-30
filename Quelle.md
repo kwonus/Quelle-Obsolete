@@ -68,7 +68,7 @@ A similar table for SYSTEM commands can be found in Section IX, near the end of 
 | ----------- | :---------: | ----------- | ------------------ | --------------------------------------------- | :----------------: | :----------------: |
 | *find*      |  implicit   | SEARCH      |                    | **1**: *search_specification*                 |                    |  **" " [ ] ( )**   |
 | *set*       |  implicit   | CONTROL     |                    | **2**: *control_name* = *control_value*       |       **=**        |                    |
-| *clear*     |  implicit   | CONTROL     |                    | **1**: *control_name* or *macro_label*        |    **.clear()**    |      **{ }**       |
+| *clear*     |  implicit   | CONTROL     |                    | **1**: *control_name* or *macro_label*        |    **::clear!**    |      **{ }**       |
 | **@show**   |  explicit   | STATUS      | Simple Statement   | **1+**: *control_names* and/or *macro_labels* |                    |      **{ }**       |
 | **@print**  |  explicit   | DISPLAY     | End of Statement   | **0+**: *record_identifiers*                  |                    |      **[ ]**       |
 | **@define** |  explicit   | LABEL       | End of Statement   | **1**: *macro_label*                          |      **{ }**       |                    |
@@ -86,7 +86,7 @@ There are two types of verbs:
 - Implicit
 - Explicit
 
-Explicit verbs always begin with an **@**.  There can be, at most, one explicit action per statement. Any number of implicit actions are allowed in a compound statement.  Implicit clauses are always separated by a semi-colon. A semi-colon is not required to separated implicit clauses from a final explicit clause.
+Explicit verbs always begin with an **@**.  There can be, at most, one *explicit* action per statement. Contrariwise, any number of *implicit* actions are allowed in a compound statement.  Implicit clauses are to be separated by a semi-colon. A semi-colon is <u>not</u> required to separate an *implicit* clauses from a final *explicit* action.  Similarly, a semi-colon is <u>not</u> required after a *clear* clause, as these clauses already terminate with punctuation (!). However, extraneous semi-colons are permitted, even when not required.
 
 STATUS and SYSTEM clauses are constrained to be Simple Statements.  Therefore, a simple statement in Quelle has one of these two forms:
 
@@ -95,7 +95,7 @@ STATUS and SYSTEM clauses are constrained to be Simple Statements.  Therefore, a
 
 All other clause types can be combined to form compound Quelle statements. Compound statements are made up of two or more clauses. When a compound statement includes an explicit action, the explicit action must be the last clause of the statement.
 
-CONTROL phrases require no delimiters. SEARCH clauses require a semi-colon ( ; ) to precede every search clause except if that first SEARCH clause has no other clauses preceding it (In that case the delimiter is optional; Three examples of SEARCH clauses with the leading delimiter omitted on the first SEARCH clause can be found in Table 3-2).
+*Implicit* [CONTROL::set and SEARCH::find] clauses require a semi-colon ( ; ). A semi-colon is optional, but not required after CONTROL::clear! clauses.
 
 Every Quelle clause has a verb, even though it might be "implicit". Consequently, from a linguistic standpoint, all Quelle clauses are verb-phrases issued in the imperative. The syntax for each clause is dependent upon the verb for the clause. The subject of the clause is always "you understood". In other words, you are commanding Quelle what to do. Some verbs have direct objects [aka required parameters] which give Quelle more specific instructions about <u>what</u> to do. In short, the type of clause and the syntax of the phrase is always defined by the verb.
 
@@ -109,8 +109,8 @@ Even before we describe Quelle syntax generally, let's look at these concepts us
 | Ordinary statement with a single SEARCH clause  | this is some text expected to be found          |
 | Compound statement: single SEARCH & DISPLAY     | this is some text expected to be found @print   |
 | Compound statement: two SEARCH clauses          | "this quoted text" ; other unquoted text        |
-| Compound statement: two CONTROL clauses         | search.span.clear() ; display.heading.clear()   |
-| Compound: CONTROL, SEARCH, & DISPLAY            | span = 7; heading.clear() ; "Moses said" @print |
+| Compound statement: two CONTROL clauses         | search.span::clear!   display.heading::clear!   |
+| Compound: CONTROL, SEARCH, & DISPLAY            | span = 7; heading::clear! ; "Moses said" @print |
 | Compound: CONTROL, SEARCH, & LABEL              | display.span=7; "Moses said" @define {my macro} |
 
 **TABLE 3-2 -- Examples of Quelle statement types**
@@ -204,7 +204,7 @@ In last macro definition above where we created {sample2}, the user could see th
 
 If the user wanted to clear this definition, the same syntax is used as that which clears controls.  Here is how to remove the definition of the {sample2} macro label:
 
-{sample2}.clear()
+{sample2}::clear!
 
 ### V. Quelle SEARCH clauses
 
@@ -399,7 +399,7 @@ in a beginning, God created heaven and earth
 | ------------------------------------ | -------------------------- |
 | *quelle*.host = https://avbible.net/ | Assign a control setting   |
 | **@show** *quelle*.host              | Show/Get a control setting |
-| *quelle*.host.clear()                | clear a control setting    |
+| *quelle*.host::clear!                | clear a control setting    |
 
 **TABLE 7-2** -- **set**/**clear/print** command can be used to retrieve Quelle configuration settings
 
@@ -435,23 +435,23 @@ The control names are applicable to ***set***, ***clear***, and ***@show*** verb
 
 Control settings can be cleared using implicit wildcards, by using the shared control-prefix:
 
-search.clear()
+search::clear!
 
-display.clear()
+display::clear!
 
-quelle.clear()
+quelle::clear!
 
 For example, this ordinary implicit wildcard statement:
 
-search.clear()
+search::clear!
 
 is exactly equivalent to this compound statement:
 
-search.span.clear() ; search.domain.clear() ; search.exact.clear()
+search.span::clear! search.domain::clear! search.exact::clear!
 
 and also is exactly equivalent to this compound statement:
 
-span.clear() ; domain.clear() ; exact.clear()
+span::clear! ; domain::clear! ; exact::clear!
 
 ### VIII. Printing Results
 

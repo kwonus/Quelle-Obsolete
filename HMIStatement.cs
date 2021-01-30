@@ -200,7 +200,7 @@ namespace QuelleHMI
                 array = updated;
             }
         }
-        protected bool Normalize()
+        public bool Normalize()
         {
             //           (bool singleton, HMIClause explicitClause, HMIClause[] setters, HMIClause[] removals, HMIClause[] searches)
             this.normalized = (false, null, null, null, null);
