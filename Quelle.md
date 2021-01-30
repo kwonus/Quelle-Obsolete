@@ -30,7 +30,7 @@ Quelle Syntax comprises a standard set of ten (10) verbs. Each verb corresponds 
 
 - find *(inferred)*
 - set *(inferred)*
-- clear
+- clear *(inferred)*
 - show
 - print
 - define
@@ -59,41 +59,57 @@ In Quelle terminology, a statement is made up of clauses. Each clause has a sing
    - restore
    - exit
 
-If we ignore the SYSTEM clauses for the moment, we can focus on the six primary operational verbs in Quelle. Each verb has a minimum and maximum number of parameters (A similar table for SYSTEM commands can be found in Section X, near the end of this document). For a list of primary operational verbs in Quelle, see the Table 3-1 below:
+If we ignore the SYSTEM clauses for the moment, we can focus on the six primary operational verbs in Quelle. Each verb has a minimum and maximum number of parameters (A similar table for SYSTEM commands can be found in Section IX, near the end of this document). For a list of primary operational verbs in Quelle, see the Table 3-1 below:
 
-| Verb        | Verb is Inferred | Clause Type |     Clause Restriction      | Required Arguments | Optional Operators |
-| ----------- | :--------------: | ----------- | :-------------------------: | ------------------ | :----------------: |
-| *find*      |      **x**       | SEARCH      |                             | 1 or more          |                    |
-| *set*       |      **x**       | CONTROL     |                             | 2                  |  **=** (required)  |
-| **@clear**  |                  | CONTROL     |                             | 1                  |      **{ }**       |
-| **@show**   |                  | CONTROL     |         **simple**          | 1 or more          |      **{ }**       |
-| **@define** |                  | MACRO       |        **dependent**        | 1                  |      **{ }**       |
-| **@print**  |                  | DISPLAY     | **simple** or **dependent** | 0 or more          |      **[ ] **      |
+| Verb        | Action Type | Clause Type | Clause Restriction | Required Parameters | Required Operators | Optional Operators |
+| ----------- | :---------: | ----------- | ------------------ | ------------------- | :----------------: | :----------------: |
+| *find*      |  implicit   | SEARCH      |                    | 1 or more           |                    |  **" " [ ] ( )**   |
+| *set*       |  implicit   | CONTROL     |                    | 2                   |       **=**        |                    |
+| *clear*     |  implicit   | CONTROL     |                    | 1                   |    **.clear()**    |      **{ }**       |
+| **@print**  |  explicit   | DISPLAY     | End of Statement   | 0 or more           |                    |      **[ ]**       |
+| **@define** |  explicit   | DEFINITION  | End of Statement   | 1                   |      **{ }**       |                    |
+| **@show**   |  explicit   | STATUS      | Simple Statement   | 1 or more           |                    |      **{ }**       |
 
 **TABLE 3-1 -- Detailed verb descriptions with syntax implications**
 
-Phrase-restricted verbs are unique in that they are constrained on how they may be combined with other clauses when constructing a Quelle command.  Simple clauses are the most restrictive in that  they cannot be combined with any other clauses whatsoever.  Dependent phrases are limited to being the last phrase of a statement that has at least one phrase preceding it.
-
 Quelle supports three types of statements:
 
-1. Simple statements
-2. Ordinary statements
-3. Ordinary statements with a dependent clause
+1. Simple statements [clause-restricted statements]
+2. Ordinary statements [Also containing only one phrase, but not clause-restricted]
+3. Compound statements [Contains two or more phrases]
 
-Quelle clauses always have a verb, even if the verb might be "inferred". From a linguistic standpoint, all Quelle clauses are verbal phrases issued in the imperative. The syntax for each clause is dependent upon the verb for the clause. The subject of the clause is always "you understood". In other words, you are commanding Quelle what to do. Some verbs have direct objects [aka required arguments] which give Quelle more specific instructions about <u>what</u> to do. In short, the type of clause and the syntax of the phrase is always defined by the verb.
+There are two types of verbs:
+
+- Implicit
+- Explicit
+
+Explicit verbs always begin with an **@**.  There can be, at most, one explicit action per statement. Any number of implicit actions are allowed in a statement.
+
+Clause-restricted verbs are unique in that they constrain the command to a single clause. Only the STATUS clause and SYSTEM clauses are constrained in this manner.  Therefore, simple statement in Quelle has one of these two forms:
+
+- STATUS clause
+- SYSTEM clause
+
+All other clause types can be combined to form compound Quelle statements. Compound statements are made up of two or more clauses. When a compound statement includes an explicit action, the explicit action must be the last clause of the statement.
+
+CONTROL phrases require no delimiters. SEARCH clauses require a delimiter ( // ) to precede every search clause unless the search clause is the first clause of the command (In that case the delimiter is optional; Three examples of SEARCH clauses with the leading delimiter omitted on the first SEARCH clause can be found in Table 3-2).
+
+Every Quelle clause has a verb, even though it might be "implicit". Consequently, from a linguistic standpoint, all Quelle clauses are verb-phrases issued in the imperative. The syntax for each clause is dependent upon the verb for the clause. The subject of the clause is always "you understood". In other words, you are commanding Quelle what to do. Some verbs have direct objects [aka required parameters] which give Quelle more specific instructions about <u>what</u> to do. In short, the type of clause and the syntax of the phrase is always defined by the verb.
 
 Even before we describe Quelle syntax generally, let's look at these concepts using examples:
 
-|                                                     | Example                                  |
-| --------------------------------------------------- | :--------------------------------------- |
-| Simple statement                                    | @print [*]                               |
-| Ordinary statement                                  | "this is some text I expect to be found" |
-| Ordinary/Compound statement                         | "this text" // "other text"              |
-| Ordinary/Compound statement with a dependent clause | "this text" // "other text" // @print    |
+|                                                  | Example                                         |
+| ------------------------------------------------ | :---------------------------------------------- |
+| Simple SYSTEM statement                          | @help                                           |
+| Simple STATUS statement                          | @show span domain                               |
+| Ordinary statement with a single DISPLAY clause  | @print [*]                                      |
+| Ordinary statement with a single SEARCH clause   | this is some text expected to be found          |
+| Ordinary statement with SEARCH & DISPLAY clauses | this is some text expected to be found @print   |
+| Compound statement with two SEARCH clauses       | "this quoted text" // other unquoted text       |
+| Compound statement with two CONTROL clauses      | search.span.clear()  display.heading.clear()    |
+| Compound statement with all three clause types   | span = 7 heading.clear() // "Moses said" @print |
 
 **TABLE 3-2 -- Examples of Quelle statement types**
-
-In the last example in Table 3-2, the final verb phrase, namely *@print*, is a dependent clause. Dependent clauses are relegated to always being the last phrase of the statement. While @print can function as a dependent @clause, it it unique in that it can also function as a simple statement.  @define can only be used as a dependent clause, and therefore can never be used in single-clause statements.  Macros are a mechanism of making Quelle extensible by the user.  Macros are defined in the next section. Printing is described in section IX.
 
 Consider these two examples of Quelle statements (first CONTROL; then SEARCH):
 
@@ -104,6 +120,15 @@ search.domain = bible
 Notice that both statements above are ordinary statements.  If we had run these statements in the order listed above, the first match for the search would be in the book of Genesis. But as the source domain of our search is a key element of our search, we should have a way to express both of these in a single command. And this is the rationale behind a compound statement. A compound statement has more than one clause. To combine the previous two clauses into one compound statement, issue this command:
 
 "in the beginning" // search.domain=bible
+
+In general, we can summarize the forms of statements as follows:
+
+- simple clause
+- ordinary clause
+- SEARCH clauses
+- SEARCH clauses @print
+- CONTROL clauses @print
+- CONTROL clauses // SEARCH clauses @print
 
 ### IV. Statement Labels
 
@@ -116,19 +141,19 @@ In this section, we will examine how user-defined macros are used in Quelle.  A 
 
 Let’s say we want to name our previously identified SEARCH directive with a label; We’ll call it “genesis”. To accomplish this, we would issue this command:
 
-“in the beginning” // search.domain=bible // @define {genesis} 
+search.domain=bible // “in the beginning” @define {genesis} 
 
 It’s that simple, now instead of typing the entire statement, we can use the label to execute our newly saved statement. Here is how we would execute the macro:
 
 {genesis}
 
-Labelled statements also support compounding, as follows:
+Labelled statements also support compounding using the delimiter ( // ), as follows:
 
 {genesis} // {my label can contain spaces}
 
 As the previous command is valid syntax for a statement, it even follows that we can define this macro:
 
-{genesis} // {my label can contain spaces} | define sample
+{genesis} // {my label can contain spaces} @define sample
 
 Later I can issue this command:
 
@@ -138,27 +163,23 @@ Which is obviously equivalent to executing these labeled statements:
 
 {genesis} // {my label can contain spaces}
 
-Labels can be defined in terms of an ordinary statement or using one or more labels inside of braces. And the two constructs can be mixed
-
-{derived}: {original} // "find some more text"
-
 To illustrate this further, here are four more examples of labeled statement definitions:
 
-search.exact = 1| define {C1}
+search.exact=1 @define {C1}
 
-search.span  = 8 | define {C2}
+search.span=8  @define {C2}
 
-Godhead | define {F1}
+Godhead  @define {F1}
 
-eternal | define {F2}
+eternal  @define {F2}
 
 We can execute these as a compound statement by issuing this command:
 
- {C1} // {C2} // {F1} // {F2}
+{C1} // {C2} // {F1} // {F2}
 
 Similarly, we could define another label from these, by issuing this command:
 
-{C1} // {C2} // {F1} // {F2} | {sample2}
+{C1} // {C2} // {F1} // {F2}  @define {sample2}
 
 if we expand this macro ...
 
@@ -166,24 +187,16 @@ expand {sample2}
 
 The expansion would be:
 
-search.exact = 1 //  search.span  = 8 // Godhead // eternal
+search.exact = 1 search.span = 8 // Godhead // eternal
 
-The one restriction on macro definitions is that they must represent valid Quelle statements.  The statement will not be labelled if it would result in invalid Quelle syntax. 
+There are two restrictions on macro definitions:
 
-### V. More about Segmentation of Quelle Statements
+1. Macro definition must represent a valid Quelle statements:
+   - The syntax is verified prior to saving the statement label.
+2. The statement cannot contain explicit actions:
+   - Only implicit actions are permitted in a labelled statement.
 
-| **Operative Clause** | Secondary Clauses       | Dependent Clauses | Example                     |
-| -------------------- | ----------------------- | ----------------- | --------------------------- |
-| SEARCH               | any ordinary verb       | allowed           | godhead // span=8           |
-| CONTROL              | any CONTROL verb        | allowed           | domain = bible // span=7    |
-| MACRO                | any ordinary MACRO verb | not allowed       | godhead \| define {trinity} |
-| SYSTEM               | not allowed             | not allowed       | @backup now                 |
-
-**TABLE 5-1** -- **Primary**, **Secondary**, and **Dependent** clauses
-
-CONTROL clauses that are coupled with SEARCH statements are not saved and only effect the current statement. 
-
-### VI. Quelle SEARCH clauses
+### V. Quelle SEARCH clauses
 
 Consider the proximity search where the search target is the bible. Here is an example search using Quelle syntax:
 
@@ -191,7 +204,7 @@ Consider the proximity search where the search target is the bible. Here is an e
 
 Quelle syntax can alter the span by also supplying an additional CONTROL clause:
 
-*domain=bible // span=8 // beginning created earth*
+*domain=bible span=8 // beginning created earth*
 
 The statement above has two CONTROL clauses and one SEARCH clause 
 
@@ -235,13 +248,13 @@ This statement uses Boolean multiplication and is equivalent to this lengthier s
 
 The example above also reveals how multiple search clauses can be strung together to form a compound search: logically speaking, each clause is OR’ed together; this implies that any of the three matches is acceptable. Using parenthetical terms produces more concise search statements.
 
-### VII. Quelle SEARCH Definitions
+### VI. Quelle SEARCH Definitions
 
 While some of these concepts have already been introduced, the following section can be used as a glossary for the terminology used in the Quelle HMI specification.
 
 **Directives** are composed by verbs and are used to construct statements for the Quelle Command Interpreter. Each clause type has specialized syntax tailored to the imperative verb used in the statement. 
 
-**Clauses:** Clauses are equivalent to an imperative [you-understood] verb phrase.  Most clauses have one or more arguments.  But just like English, a verb phrase can be a single word with no explicit subject and no explicit object.  Consider this English sentence:
+**Clauses:** Clauses are equivalent to an imperative [you-understood] verb phrase.  Most clauses have one or more parameters.  But just like English, a verb phrase can be a single word with no explicit subject and no explicit object.  Consider this English sentence:
 
 Go!
 
@@ -249,7 +262,7 @@ The subject of this sentence is "you understood".  Similarly, all Quelle verbs a
 
 Go Home!
 
-Like the earlier example, the subject is "you understood".  The object this time is defined and tells "you" where to go.  Some verbs always have objects, others sometimes do, and still others never do. Quelle follows this same pattern and each verb is defined to accept arguments or not.  See Table 3-1 where the column identified as "Argument Count" is identifying objects of the verb. 
+Like the earlier example, the subject is "you understood".  The object this time is defined and tells "you" where to go.  Some verbs always have objects, others sometimes do, and still others never do. Quelle follows this same pattern and each some Quelle verbs require direct-objects; and some do not.  See Table 3-1 where the column identified as "Parameter Count" identifies objects of the verb. 
 
 **SEARCH statement**: Each statement contains one or more *search clauses*. If there is more than one SEARCH clause, each each clause is logically OR’ed with all other clauses.
 
@@ -297,7 +310,7 @@ The /- means that the clause will be subtracted from the search results while it
 
 Consider a query for all passages that contain God AND created, but NOT containing earth AND NOT containing heaven:
 
-*domain = bible.old-testament // span = 15 // created GOD /- Heaven Earth*
+*domain = bible.old-testament  span = 15 // created GOD /- Heaven Earth*
 
 *(this could be read as: find in the old testament using a span of 15, the words*
 
@@ -333,6 +346,10 @@ in the beginning
 
 in that beginning
 
+or more generally where /det/ marks any word that is marked as a determiner (Not all Quelle drivers handle part-of-speech marking in this manner; but Quelle recognizes this syntax):
+
+"in /det/ beginning"
+
  
 
 If you are unsure which words might separate a phrase, you could issue this statement:
@@ -355,11 +372,7 @@ in a beginning, God created heaven and earth
 
 
 
-### VIII. More about Segmentation of Quelle Statements
-
-The "*print*" verb has very limited grammar. And it can only be used in a dependent clause of SEARCH.
-
- 
+### VII. More about Segmentation of Quelle Statements
 
 **CONTROL::SETTING directives:**
 
@@ -367,17 +380,17 @@ The "*print*" verb has very limited grammar. And it can only be used in a depend
 | --------------------- | ----------------------- | ----------------------- |
 | *display.format = md* | *display.format = html* | *display.format = text* |
 
-**TABLE 8-1** -- **set** format command can be used to set the default content formatting for printing
+**TABLE 7-1** -- **set** format command can be used to set the default content formatting for printing
 
 
 
-| **example**                          | **explanation**                              |
-| ------------------------------------ | -------------------------------------------- |
-| *quelle*.host = https://avbible.net/ | Setting a control variable for session       |
-| @print [*quelle*.host]               | Getting a control variable for system        |
-| @clear *quelle*.host                 | clear a control variable (system or session) |
+| **example**                          | **explanation**            |
+| ------------------------------------ | -------------------------- |
+| *quelle*.host = https://avbible.net/ | Assign a control setting   |
+| **@show** *quelle*.host              | Show/Get a control setting |
+| *quelle*.host.clear()                | clear a control setting    |
 
-**TABLE 8-2** -- **set**/**clear/print** command can be used to retrieve Quelle configuration settings
+**TABLE 7-2** -- **set**/**clear/print** command can be used to retrieve Quelle configuration settings
 
 
 
@@ -406,12 +419,12 @@ md`>> implies >>` set format = text
 | search.exact    | exact      | exact match vs liberal/fuzzy | true/false | normal     |
 | display.heading | heading    | heading of results           | string     | normal     |
 | display.record  | record     | annotation of results        | string     | normal     |
-| display.format  | format     | display format of results    | Table 8-1  | normal     |
+| display.format  | format     | display format of results    | Table 7-1  | normal     |
 | quelle.host     | host       | URL of driver                | string     | normal     |
 | quelle.debug    | debug      | on or off                    | true/false | *hidden*   |
 | quelle.data     | data       | quelle data format           | *reserved* | *hidden*   |
 
-**TABLE 8-3 -- List of Controls** (The control parameters are applicable to ***set***, ***get*** and ***clear*** verbs)
+**TABLE 7-3 -- List of Controls** (The control parameters are applicable to ***set***, ***get*** and ***clear*** verbs)
 
 
 
@@ -421,26 +434,22 @@ md`>> implies >>` set format = text
 | search.*                | search                              |
 | quelle.*                | quelle                              |
 
-**TABLE 8-4 -- Wildcard usage on Controls** (wildcard usage only applies to ***get*** and ***clear*** verbs)
+**TABLE 7-4 -- Wildcard usage on Controls** (wildcard usage only applies to ***get*** and ***clear*** verbs)
 
 
 
-### IX. Printing Results
+### VIII. Printing Results
 
-The DISPLAY directive has only a single verb, but it is manifest both as a simple statement (@print) and also as a dependent clause ( | print ).
-
-The arguments to both forms of the verb are identical, but the usage syntax varies.
-
-Consider that there are two distinct methods because there are two fundamental types of searches:
+Consider that there are two fundamental types of searches:
 
 - Searches that return a limited set of results
-- Searches that either return loads of results of searches where the result count is unknown (and potentially very large)
+- Searches that either return loads of results; or searches where the result count is unknown (and potentially very large)
 
-Due to the latter the latter condition above, SEARCH, by default summarizes results (it does NOT automatically print every result found). The idea is that the user can drill down into the summary and print limited sets of results, using the @print command to selectively print portions of the most previously executed SEARCH.  The dependent clause can be used to circumvent the summary and immediately every record that is returned from the search. Here are two parallel examples:
+Due to the latter condition above, SEARCH, by default summarizes results (it does NOT automatically print every result found). The idea is that the user can drill down into the summary and print limited sets of results on demand using subsequent discrete @print commands. Ordinary @print statements operate against the most previously executed SEARCH in the current Quelle session.  Here are two parallel examples:
 
 "Jesus answered"			*this would summarize books that contain this phrase, with chapter references*
 
-"Jesus answered" | print [*]			*this would would print every matching verse*
+"Jesus answered" @print [*]			*this would would print every matching verse*
 
 Consider this very general search
 
@@ -450,19 +459,17 @@ To print all matching synopses of the most recently executed search:
 
 *@print* [*]
 
-I can sample the first three results after the search by executing
+Alternatively, I can sample the first three results after the search by executing
 
 *@print* [1,2,3]
 
 Or I can add a header using this variant of print as a dependent clause:
 
-heading = The first three results | print [1,2,3]
+heading = The first three results: @print [1,2,3]
 
 Or I can combine all three into a single statement:
 
-"he ... said" // heading = The first three results | print [1,2,3]
-
-While similar, there is flexibility made available to the user to control SEARCH vs DISPLAY.
+heading = The first three results: // "he ... said" @print [1,2,3]
 
 The remainder of this section further describes the various arguments for DISPLAY phrases.
 
@@ -494,36 +501,32 @@ NOTE: Display-coordinates are driver-specific and not part of standard Quelle dr
 
 We can also decorate/annotate each record that we find. Using Quelle-AVX extensions, adding an annotation to each search result can be accomplished by adding this to the print statement:
 
-display.record = %book% %chapter%\\:%verse% \\(KJV\\\)\\:\\n%text% | print
+display.record = %book% %chapter%:%verse% (KJV):\\n%text% | print
 
 A more vanilla decoration might be:
 
-*@print* [1,2,3] + display.record= \<a href=\\"%url%\\"\>%abstract%\</a\>
+*@print* [1,2,3] + display.record= \<a href="%url%">%abstract%\</a\>
 
-Keep in mind, however, the above two examples above are purely notional, your Quelle driver must support such annotation variables for them to render as expected. Consult the documentation for your Quelle cloud-capable driver to determine what record annotation variables are available in your driver.
+Keep in mind, however, the above two examples above are purely notional, your Quelle driver must support such annotation-variables for them to render as expected. Consult the documentation for your Quelle driver vender to determine what record annotation-variables are available in your driver.
 
 So to break open the fragment from the *print* example above:
 
 In a separate example, we can label all results using the heading command:
 
-*@print* display.heading = Verses containing 'Godhead' + %heading% %label% *
+heading = Verses containing 'Godhead' record = %book% %chapter%\\:%verse% (KJV): @print [*]
 
 The syntax above, while biased towards Quelle-AVX search results is standard Quelle-HMI syntax and supported in the standard Quelle driver implementation.
 
-Final notes about *print*:
-
-%heading% and %record% are always implied if not cleared)
 
 
-
-### X. System Commands
+### IX. System Commands
 
 | Verb         | Clause Type | Clause Restriction | Required Arguments |
-| ------------ | ----------- | :----------------: | ------------------ |
-| **@help**    | SYSTEM      |     **simple**     | 0 or 1             |
-| **@backup**  | SYSTEM      |     **simple**     | 0 or 1             |
-| **@restore** | SYSTEM      |     **simple**     | 0 to 2             |
-| **@exit**    | SYSTEM      |     **simple**     | 0                  |
+| ------------ | ----------- | ------------------ | ------------------ |
+| **@help**    | SYSTEM      | Simple Statement   | 0 or 1             |
+| **@backup**  | SYSTEM      | Simple Statement   | 0 or 1             |
+| **@restore** | SYSTEM      | Simple Statement   | 0 to 2             |
+| **@exit**    | SYSTEM      | Simple Statement   | 0                  |
 
 **PROGRAM HELP**
 
@@ -563,7 +566,7 @@ Type this to terminate the Quelle interpreter:
 
 *@exit*
 
-### XI. Wrap-up
+### X. Wrap-up
 
 In all cases, any number of spaces can be used between operators and terms. 
 

@@ -232,7 +232,7 @@ namespace QuelleHMI
 
                 if (command.HasMacro() != HMIScope.Undefined)
                 {
-                    var macroDef = command.GetMacroSubordinate();
+                    var macroDef = command.GetMacroDefinition();
                     var result = HMICommand.Driver.Write("quelle.macro." + macroDef.macroName, macroDef.macroScope, command.statement.statement);
                     if (result.errors != null)
                     {
