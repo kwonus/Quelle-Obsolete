@@ -59,7 +59,7 @@ namespace QuelleHMI
             int last = 0;
             UInt32 order = 1;
             int i;
-            for (i = 0; /**/; i++)  // looking for "//" or "/-"
+            for (i = 0; /**/; i++)  // looking for ";" or "--" or "@print" or "@define"
             {
                 if (i >= len && last < len)
                 {
@@ -84,32 +84,30 @@ namespace QuelleHMI
                     case '"': d_quoted = true; continue;
                     case '|': break;                          // this should never see this trigger, but add for fail-safety and QC breakpoint during debugging
                 }
-                if (i >= len - 1)
-                    continue;
-
-                if (c != '/')
-                    continue;
-
-                char next = this.statement[i + 1];
-
-                if (last < i)
+                if (c == ';')
                 {
-                    switch (next)
+                    polarity.Add(order++, this.statement.Substring(last, i - last).Trim());
+                    polarity = positives;
+                    last = i + 1;
+                }
+                else
+                {
+                    if (c != '-' || i >= len - 1)
+                        continue;
+
+                    char next = this.statement[i + 1];
+
+                    if (last < i)
                     {
-                        case '/':
-                        case '-':
+                        if (next == '-')
+                        {
                             polarity.Add(order++, this.statement.Substring(last, i - last).Trim());
-                            break;
-                        default: continue;
+                            polarity = negatives;
+                            last = i + 2;
+                            i++;
+                        }
                     }
                 }
-                switch (next)
-                {
-                    case '/': polarity = positives; break;
-                    case '-': polarity = negatives; break;
-                }
-                last = i + 2;
-                i++;
             }
             // Delete redundant [+] and [-] polarities
             var removals = new List<UInt32>();
