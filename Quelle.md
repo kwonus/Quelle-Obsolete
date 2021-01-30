@@ -66,7 +66,7 @@ A similar table for SYSTEM commands can be found in Section IX, near the end of 
 
 | Verb        | Action Type | Clause Type | Clause Restriction | Required Parameters                           | Required Operators | Optional Operators |
 | ----------- | :---------: | ----------- | ------------------ | --------------------------------------------- | :----------------: | :----------------: |
-| *find*      |  implicit   | SEARCH      |                    | **1**: *search_specification*                 |                    | **; " " [ ] ( )**  |
+| *find*      |  implicit   | SEARCH      |                    | **1**: *search_specification*                 |                    |  **" " [ ] ( )**   |
 | *set*       |  implicit   | CONTROL     |                    | **2**: *control_name* = *control_value*       |       **=**        |                    |
 | *clear*     |  implicit   | CONTROL     |                    | **1**: *control_name* or *macro_label*        |    **.clear()**    |      **{ }**       |
 | **@show**   |  explicit   | STATUS      | Simple Statement   | **1+**: *control_names* and/or *macro_labels* |                    |      **{ }**       |
@@ -86,7 +86,7 @@ There are two types of verbs:
 - Implicit
 - Explicit
 
-Explicit verbs always begin with an **@**.  There can be, at most, one explicit action per statement. Any number of implicit actions are allowed in a compound statement.
+Explicit verbs always begin with an **@**.  There can be, at most, one explicit action per statement. Any number of implicit actions are allowed in a compound statement.  Implicit clauses are always separated by a semi-colon. A semi-colon is not required to separated implicit clauses from a final explicit clause.
 
 STATUS and SYSTEM clauses are constrained to be Simple Statements.  Therefore, a simple statement in Quelle has one of these two forms:
 
@@ -109,8 +109,8 @@ Even before we describe Quelle syntax generally, let's look at these concepts us
 | Ordinary statement with a single SEARCH clause  | this is some text expected to be found          |
 | Compound statement: single SEARCH & DISPLAY     | this is some text expected to be found @print   |
 | Compound statement: two SEARCH clauses          | "this quoted text" ; other unquoted text        |
-| Compound statement: two CONTROL clauses         | search.span.clear()  display.heading.clear()    |
-| Compound: CONTROL, SEARCH, & DISPLAY            | span = 7; heading.clear(); "Moses said" @print  |
+| Compound statement: two CONTROL clauses         | search.span.clear() ; display.heading.clear()   |
+| Compound: CONTROL, SEARCH, & DISPLAY            | span = 7; heading.clear() ; "Moses said" @print |
 | Compound: CONTROL, SEARCH, & LABEL              | display.span=7; "Moses said" @define {my macro} |
 
 **TABLE 3-2 -- Examples of Quelle statement types**
@@ -321,7 +321,7 @@ The -- means that the clause will be subtracted from the search results while it
 
 Consider a query for all passages that contain God AND created, but NOT containing earth AND NOT containing heaven:
 
-*domain = bible.old-testament  span = 15 ; created GOD -- Heaven Earth*
+*domain = bible.old-testament ; span = 15 ; created GOD -- Heaven Earth*
 
 *(this could be read as: find in the old testament using a span of 15, the words*
 
@@ -447,11 +447,11 @@ search.clear()
 
 is exactly equivalent to this compound statement:
 
-search.span.clear()  search.domain.clear()  search.exact.clear()
+search.span.clear() ; search.domain.clear() ; search.exact.clear()
 
 and also is exactly equivalent to this compound statement:
 
-span.clear()  domain.clear()  exact.clear()
+span.clear() ; domain.clear() ; exact.clear()
 
 ### VIII. Printing Results
 
@@ -516,11 +516,11 @@ NOTE: Display-coordinates are driver-specific and not part of standard Quelle dr
 
 We can also decorate/annotate each record that we find. Using Quelle-AVX extensions, adding an annotation to each search result can be accomplished by adding this to the print statement:
 
-display.record = %book% %chapter%:%verse% (KJV):\\n%text% | print
+display.record = %book% %chapter%:%verse% (KJV):\\n%text%  *@print*
 
 A more vanilla decoration might be:
 
-*@print* [1,2,3] + display.record= \<a href="%url%">%abstract%\</a\>
+display.record = \<a href="%url%">%abstract%\</a\> *@print* [1,2,3]
 
 Keep in mind, however, the above two examples above are purely notional, your Quelle driver must support such annotation-variables for them to render as expected. Consult the documentation for your Quelle driver vender to determine what record annotation-variables are available in your driver.
 
@@ -587,23 +587,15 @@ In all cases, any number of spaces can be used between operators and terms.
 
 Also noteworthy: The reference Quelle implementation automatically adjusts the span of your to be inclusive of the number of search terms for the most broad search clause. So if you were to express:
 
-**find span=1 + in the beginning (God Lord Jesus Christ Messiah)**
+**find span=1 ; in the beginning (God Lord Jesus Christ Messiah)**
 
 The minimum span has to be four(4). So the Quelle parser will adjust the search criteria as if the following command had been issued:
 
-**find span=4 + in the beginning (God Lord Jesus Christ Messiah)**
+**find span=4 ; in the beginning (God Lord Jesus Christ Messiah)**
 
-**SPECIAL CHARACTERS FOR STATEMENTS, INCLUDING STATEMENT SEPERATORS:**
+**IMPLICIT-CLAUSE DELIMITERS:**
 
-| TYPE                         | Special characters |
-| ---------------------------- | ------------------ |
-| ADDITIVE SEARCH SEPERATOR    | ;                  |
-| SUBTRACTIVE SEARCH SEPERATOR | --                 |
-
-
-
-------
-
-[[1\]](#_ftnref1) The *clear* verbs are supported as secondary clauses, but not the *remove* verbs (The removal of labelled statements [aka macros] cannot be combined with any other clauses).  The *remove* verb is always limited to a simple statement construction (simple statements contain only a single clause). Additionally, a statement with the *remove* verb cannot be used to define a newly labelled statement.
-
-[[2\]](#_ftnref2) The *get* verbs are supported as secondary clauses, but not the *expand* verbs (The expansion of labelled statements [aka macros] cannot be combined with any other clauses).  The *expand* verb is always limited to a simple statement construction (simple statements contain only a single clause). Additionally, a statement with the *expand* verb cannot be used to define a newly labelled statement.
+| TYPE                                              | Special characters |
+| ------------------------------------------------- | ------------------ |
+| UNIVERSAL [*positive*] IMPLICIT-CLAUSE DELIMITERS | ;                  |
+| SUBTRACTIVE [*negative*] SEARCH-CLAUSE SEPERATOR  | --                 |
