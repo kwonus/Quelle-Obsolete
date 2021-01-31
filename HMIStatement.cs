@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using static QuelleHMI.HMIClause;
+using QuelleHMI.Verbs;
 
 namespace QuelleHMI
 {
@@ -76,9 +77,10 @@ namespace QuelleHMI
             int i;
             for (i = 0; /**/; i++)  // looking for ";" or "--" or "@print" or "@define"
             {
-                if (i >= len && last < len)
+                if (i >= len)
                 {
-                    polarity.Add(order++, this.statement.Substring(last, len - last).Trim());
+                    if (last < len)
+                        polarity.Add(order++, this.statement.Substring(last, len - last).Trim());
                     break;
                 }
                 if (c_quoted)   // then this character should be ignored as a delimiter and be ignored as per double-quoting
@@ -98,9 +100,19 @@ namespace QuelleHMI
                     case '\\': c_quoted = true; continue;
                     case '"': d_quoted = true; continue;
                 }
-                if (c == ';')
+                if (c == ';')   // extra semi-colons are allowed ... ignore extraneous ones here
                 {
-                    polarity.Add(order++, this.statement.Substring(last, i - last).Trim());
+                    var segment = this.statement.Substring(last, i - last).Trim();
+                    if (segment.Length > 0)
+                    {
+                        polarity.Add(order++, segment);
+                    }
+                    polarity = positives;
+                    last = i + 1;
+                }
+                else if (c == '!')  // ::clear! syntax counts as a segment delimiter
+                {
+                    polarity.Add(order++, this.statement.Substring(last, 1 + i - last).Trim());
                     polarity = positives;
                     last = i + 1;
                 }
@@ -216,16 +228,22 @@ namespace QuelleHMI
             foreach (var clause in clauses)
             {
                 this.normalized.simple = this.normalized.simple || (clause.type == HMIClauseType.SIMPLE);
+
                 if (clause.type == HMIClauseType.UNDEFINED)
                     this.Notify("error", "The type of clause could not be identified");
+
                 if (clause.type != HMIClauseType.IMPLICIT)
                     this.normalized.explicitClause = clause;
+
                 else if (clause.verb == Verbs.Search.VERB)
                     Append(ref this.normalized.searches, clause);
-                else if (clause.verb == Verbs.Clear.VERB)
+
+                else if (clause.verb == Verbs.Control.CLEAR)
                     Append(ref this.normalized.removals, clause);
-                else if (clause.verb == Verbs.Set.VERB)
+
+                else if (clause.verb == Verbs.Control.SET)
                     Append(ref this.normalized.setters, clause);
+
                 else
                     this.Notify("error", "Could not normalize statement: unexpected clause type encountered.");
 

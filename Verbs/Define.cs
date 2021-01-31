@@ -6,6 +6,8 @@ namespace QuelleHMI.Verbs
 {
     public class Define : HMIClause
     {
+        public const string SYNTAX = "LABEL";
+        public override string syntax { get => SYNTAX; }
         public const string VERB = "@define";
         public string macroName { get; private set; }
         public string macroValue { get => this.statement.statement; }

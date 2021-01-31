@@ -6,6 +6,8 @@ namespace QuelleHMI.Verbs
 {
     public class Backup : HMIClause
     {
+        public const string SYNTAX = "SYSTEM";
+        public override string syntax { get => SYNTAX; }
         public const string VERB = "@backup";
         public Backup(HMIStatement statement, string segment)
     : base(statement, 1, HMIPolarity.UNDEFINED, segment, HMIClauseType.SIMPLE)

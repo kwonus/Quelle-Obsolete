@@ -6,6 +6,8 @@ namespace QuelleHMI.Verbs
 {
     public class Restore : HMIClause
     {
+        public const string SYNTAX = "SYSTEM";
+        public override string syntax { get => SYNTAX; }
         public const string VERB = "@restore";
 
         public Restore(HMIStatement statement, string segment)

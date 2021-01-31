@@ -4,17 +4,21 @@ using System.Text;
 
 namespace QuelleHMI.Verbs
 {
-    public class Set : HMIClause
+    public class Control : HMIClause
     {
-        public const string VERB = "set";
+        public const string SYNTAX = "CONTROL";
+        public override string syntax { get => SYNTAX; }
+        public const string SET = "set";
+        public const string CLEAR = "clear";
         public string controlName { get; private set; }
         public string controlValue { get; private set; }
- 
-        public Set(HMIStatement statement, UInt32 segmentOrder, string segment)
+
+        public Control(HMIStatement statement, UInt32 segmentOrder, string segment)
     : base(statement, segmentOrder, HMIPolarity.UNDEFINED, segment, HMIClauseType.IMPLICIT)
         {
             this.maximumScope = HMIScope.System;
-            this.verb = VERB;
+            if (this.verb == null)
+                this.verb = this.syntax;
         }
         protected override bool Parse()
         {
@@ -23,13 +27,14 @@ namespace QuelleHMI.Verbs
                 this.Notify("error", "Cannot parse an empty clause");
                 return false;
             }
-            var pair = Set.GetTokenPair(this.segment);
-            if (pair.token != null && pair.token.Length == 2 && pair.error == null)
+            var pair = Control.GetTokenPair(this.segment);
+            if (pair.token != null && pair.token.Length >= 1 && pair.error == null)
             {
                 this.controlName = pair.token[0].Trim();
-                this.controlValue = pair.token[1].Trim();
+                this.controlValue = pair.token.Length > 1 ? pair.token[1].Trim() : null;
+                this.verb = pair.verb;
             }
-            return false;
+            return this.verb == Control.CLEAR || this.verb == Control.SET;
         }
         public override bool Execute()
         {
@@ -53,12 +58,13 @@ namespace QuelleHMI.Verbs
             }
             return (this.errors.Count == 0);
         }
-        private static (string[] token, string error) GetTokenPair(string text)
+        private static (string verb, string[] token, string error) GetTokenPair(string text)
         {
+            // TODO: How to handle ::clear!
             int i;
             int offset;
             int len = text.Length;
-            (string[] tokens, string error) result = (null, null);
+            (string verb, string[] tokens, string error) result = (Control.SYNTAX, null, null);
 
             for (offset = 0; offset < len; offset++)
             {
@@ -72,7 +78,7 @@ namespace QuelleHMI.Verbs
             }
             bool c_quoted = false;
             string[] tokens = null;
-
+            string remainder;
             for (i = offset; i < len; i++)
             {
                 if (c_quoted)
@@ -87,14 +93,38 @@ namespace QuelleHMI.Verbs
                     c_quoted = true;
                     continue;
                 }
+                remainder = text.Substring(i);
                 if (c == '=')
                 {
-                    if (i+1 < len)
-                        tokens = new string[] { text.Substring(offset, i-offset).Trim().ToLower(), text.Substring(i+1).Trim().ToLower() };
+                    if (i + 1 < len)
+                    {
+                        result.verb = Control.SET;
+                        tokens = new string[] { text.Substring(offset, i - offset).Trim().ToLower(), text.Substring(i + 1).Trim().ToLower() };
+                    }
+                    break;
+                }
+                else if (remainder.StartsWith("::"))
+                {
+                    var semicolon = i;
+                    if (i + 2 < len)
+                    {
+                        i += 2;
+                        remainder = remainder.Substring(2).Trim().ToLower();
+                        if (remainder.StartsWith(Control.CLEAR) && ((i + Control.CLEAR.Length) < len))
+                        {
+                            i += Control.CLEAR.Length;
+                            remainder = remainder.Substring(Control.CLEAR.Length).Trim();
+                            if (remainder.StartsWith('!'))
+                            {
+                                result.verb = Control.CLEAR;
+                                tokens = new string[] { text.Substring(offset, semicolon - offset).Trim().ToLower() };
+                            }
+                        }
+                    }
                     break;
                 }
             }
-            if (tokens != null && tokens[0] != null && tokens[1] != null && tokens[0].Length > 0 && tokens[1].Length > 0)
+            if (tokens != null && tokens[0] != null && tokens[0].Length > 0 && ((result.verb == Control.CLEAR) || (result.verb != Control.SET && tokens[1] != null && tokens[1].Length > 0)))
             {
                 string normalized;
                 if (HMISession.IsControl(tokens[0], out normalized))
@@ -112,12 +142,15 @@ namespace QuelleHMI.Verbs
         //
         public static bool Test(string text)
         {
-            if (text == null || text.Trim().Length == 0)
+            if (text != null && text.Trim().Length > 0)
             {
-                return false;
+                var pair = Control.GetTokenPair(text);
+                if (pair.token != null && pair.error == null)
+                {
+                    return (pair.verb == Control.CLEAR && pair.token.Length == 1) || (pair.verb == Control.SET && pair.token.Length == 2 && pair.token[1].Length > 0);
+                }
             }
-            var pair = Set.GetTokenPair(text);
-            return (pair.token != null && pair.token.Length == 2 && pair.error == null);
+            return false;
         }
     }
 }

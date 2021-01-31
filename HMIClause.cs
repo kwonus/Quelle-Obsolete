@@ -12,6 +12,7 @@ namespace QuelleHMI
         protected List<string> errors { get => this.statement.command.errors; }
         protected List<string> warnings { get => this.statement.command.warnings; }
         public HMIClauseType type { get; protected set; }
+        public abstract string syntax { get; }
 
         public (bool ok, string[] errors, string[] warnings) Status
         {
@@ -52,7 +53,6 @@ namespace QuelleHMI
                 switch(tokens[0].ToLower())
                 {
                     case Verbs.Print.VERB:  return new Verbs.Print(statement, order, text);
-                    case Verbs.Clear.VERB:  return new Verbs.Clear(statement, order, text);
                     case Verbs.Define.VERB: return new Verbs.Define(statement, order, text);
                     case Verbs.Show.VERB:   return new Verbs.Show(statement, order, text);
                     case Verbs.Help.VERB:   return new Verbs.Help(statement, text);
@@ -65,9 +65,9 @@ namespace QuelleHMI
             }
             //  Only CONTROL::SET can be implicitly recognized
             //
-            if (Verbs.Set.Test(text))
+            if (Verbs.Control.Test(text))
             {
-                return new Verbs.Set(statement, order, text);
+                return new Verbs.Control(statement, order, text);
             }
             //  No other segments can be implicitly recognized, it defaults to SEARCH
             //

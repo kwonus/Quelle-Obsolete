@@ -6,6 +6,8 @@ namespace QuelleHMI.Verbs
 {
     public class Help : HMIClause
     {
+        public const string SYNTAX = "SYSTEM";
+        public override string syntax { get => SYNTAX; }
         public const string VERB = "@help";
 
         public Help(HMIStatement statement, string segment)

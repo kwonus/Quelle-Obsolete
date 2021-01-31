@@ -6,6 +6,8 @@ namespace QuelleHMI.Verbs
 {
     public class Print: HMIClause
     {
+        public const string SYNTAX = "DISPLAY";
+        public override string syntax { get => SYNTAX; }
         public const string VERB = "@print";
 
         public Print(HMIStatement statement, UInt32 segmentOrder, string segment)

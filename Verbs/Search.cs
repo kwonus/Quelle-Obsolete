@@ -6,6 +6,8 @@ namespace QuelleHMI.Verbs
 {
     public class Search : HMIClause
     {
+        public const string SYNTAX = "SEARCH";
+        public override string syntax { get => SYNTAX; }
         public const string VERB = "find";
         private Boolean quoted;
 

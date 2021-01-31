@@ -6,6 +6,8 @@ namespace QuelleHMI.Verbs
 {
     public class Exit : HMIClause
     {
+        public const string SYNTAX = "SYSTEM";
+        public override string syntax { get => SYNTAX; }
         public const string VERB = "@exit";
 
         public Exit(HMIStatement statement, string segment)
