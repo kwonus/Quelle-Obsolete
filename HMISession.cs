@@ -70,17 +70,19 @@ namespace QuelleHMI
             }
         }
 
-        private static Dictionary<string, ControlInfo> StandardConfig_DISPLAY = new Dictionary<string, ControlInfo>()
+        public static Dictionary<string, ControlInfo> StandardConfig_DISPLAY = new Dictionary<string, ControlInfo>()
         {
             { "heading", new ControlInfo() },
             { "record",  new ControlInfo() },
             { "format",  new ControlInfo(new string[] { "text", "html", "json", "xml" }) }
         };
-        private static Dictionary<string, ControlInfo> StandardConfig_SEARCH = new Dictionary<string, ControlInfo>()
+        public static Dictionary<string, ControlInfo> StandardConfig_SEARCH = new Dictionary<string, ControlInfo>()
         {
-            { "span",    new ControlInfo(0, 0, 1000) }
+            { "domain",  new ControlInfo() },
+            { "span",    new ControlInfo(0, 0, 1000) },
+            { "strict",  new ControlInfo(0, 0, 1) }
         };
-        private static Dictionary<string, ControlInfo> StandardConfig_QUELLE = new Dictionary<string, ControlInfo>()
+        public static Dictionary<string, ControlInfo> StandardConfig_QUELLE = new Dictionary<string, ControlInfo>()
         {
             { "host",    new ControlInfo() },
             { "debug",   new ControlInfo(0, 0, 1, hidden:true) },

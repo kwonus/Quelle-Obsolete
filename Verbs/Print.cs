@@ -1,4 +1,5 @@
-﻿using System;
+﻿using QuelleHMI.Fragments;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -38,7 +39,7 @@ namespace QuelleHMI.Verbs
                 if (frag.token != null)
                 {
                     sequence++;
-                    HMIFragment current = new HMIFragment(this, frag.token, sequence, !(frag.token.StartsWith("[") && frag.token.EndsWith("]")));
+                    HMIFragment current = new HMISearchFragment(this, sequence, frag.token);
                     this.fragments.Add(sequence, current);
                 }
                 if (frag.offset >= len)

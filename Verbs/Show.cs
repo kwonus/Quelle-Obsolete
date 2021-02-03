@@ -19,11 +19,13 @@ namespace QuelleHMI.Verbs
         }
         protected override bool Parse()
         {
-            throw new NotImplementedException();
+            return true;
+ //         throw new NotImplementedException();
         }
         public override bool Execute()
         {
-            throw new NotImplementedException();
+            return true;
+//          throw new NotImplementedException();
         }
         private (string token, int offset, string error) GetNextShowToken(string text, int offset = 0)
         {
