@@ -40,6 +40,28 @@ namespace QuelleHMI.Controls
                 this.map["debug"] = value == 1 ? "1" : "0";
             }
         }
+        public int indentation
+        {
+            // 0 means tab ... zero is default
+            get
+            {
+                var info = HMISession.StandardConfig_QUELLE["indentation"];
+                string value = this.map.ContainsKey("indentation") ? this.map["indentation"] : null;
+                if (value == null)
+                    value = info.Default;
+
+                int val = int.Parse(value);
+
+                if (info.MinMax != null && (val < info.MinMax[0] || val > info.MinMax[1]))
+                    val = int.Parse(info.Default);
+
+                return val;
+            }
+            set
+            {
+                this.map["indentation"] = value.ToString();
+            }
+        }
         public string data
         {
             get

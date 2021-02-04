@@ -86,7 +86,8 @@ namespace QuelleHMI
         {
             { "host",    new ControlInfo() },
             { "debug",   new ControlInfo(0, 0, 1, hidden:true) },
-            { "data",    new ControlInfo(new string[] { "binary", "json", "xml", "pb" }, hidden:true) }
+            { "data",    new ControlInfo(new string[] { "binary", "json", "xml", "pb" }, hidden:true) },
+            { "indentation",   new ControlInfo(0, 0, 32, hidden:true) },
         };
         private static Dictionary<string, ICollection<string>> AllControls = new Dictionary<string, ICollection<string>>()
         {

@@ -14,7 +14,7 @@ namespace QuelleHMI
         public HMIClauseType type { get; protected set; }
         public abstract string syntax { get; }
 
-        public (bool ok, string[] errors, string[] warnings) Status
+        protected (bool ok, string[] errors, string[] warnings) Status
         {
             get
             {

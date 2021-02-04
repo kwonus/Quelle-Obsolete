@@ -26,7 +26,7 @@ Any application can implement the Quelle specification without royalty. We provi
 
 The Quelle specification defines a declarative syntax for specifying search criteria using the *find* verb. Quelle also defines additional verbs to round out its syntax as a simple straightforward means to interact with custom applications where searching text is the fundamental problem at hand. As mentioned earlier, AV Text Ministries provides a reference implementation. This implementation is written in C# and runs on most operating systems (e.g. Windows, Mac, Linux, iOS, Android, etc).  As source code is provided, it can be seamlessly extended by application programmers.
 
-Quelle Syntax comprises a standard set of ten (10) verbs. Each verb corresponds to a basic operation:
+Quelle Syntax comprises a standard set of eleven (11) verbs. Each verb corresponds to a basic operation:
 
 - find *(inferred)*
 - set *(inferred)*
@@ -36,12 +36,13 @@ Quelle Syntax comprises a standard set of ten (10) verbs. Each verb corresponds 
 - define
 - help
 - backup
+- generate
 - restore
 - exit
 
 The verbs listed above are for the English flavor of Quelle. As Quelle is an open and extensible standard, verbs for other languages can be defined without altering the overall syntax structure of the HMI. The remainder of this document describes Version 1.0 of the Quelle-HMI specification.  
 
-In Quelle terminology, a statement is made up of clauses. Each clause has a single verb. While there are ten verbs, there are only six distinct types of clauses:
+In Quelle terminology, a statement is made up of clauses. Each clause has a single verb. While there are eleven verbs, there are only six distinct types of clauses:
 
 1. SEARCH clause
    - find *(inferred)*
@@ -58,6 +59,7 @@ In Quelle terminology, a statement is made up of clauses. Each clause has a sing
    - help
    - backup
    - restore
+   - generate
    - exit
 
 If we ignore the SYSTEM clauses for the moment, we can focus on the primary operational clauses in Quelle. These verbs are identified in Table 3-1 below. Each verb has a minimum and maximum number of parameters.
@@ -425,9 +427,6 @@ The control names are applicable to ***set***, ***clear***, and ***@show*** verb
 | display.heading      | heading    | heading of results           | string     | normal     |
 | display.record       | record     | annotation of results        | string     | normal     |
 | display.format       | format     | display format of results    | Table 7-1  | normal     |
-| quelle.host          | host       | URL of driver                | string     | normal     |
-| quelle.debug         | debug      | on or off                    | true/false | *hidden*   |
-| quelle.data          | data       | quelle data format           | *reserved* | *hidden*   |
 
 **TABLE 7-3 -- Control Names for use with CONTROL and STATUS clauses**
 
@@ -500,10 +499,6 @@ As we saw earlier, to print only the first three results
 
 *@print* [1,2,3]
 
-Alternatively, this also works:
-
-*@print* [1] [2] [3]
-
 and this:
 
 *@print* [1:3]
@@ -536,12 +531,13 @@ The syntax above, while biased towards Quelle-AVX search results is standard Que
 
 ### IX. System Commands
 
-| Verb         | Clause Type | Clause Restriction | Required Arguments |
-| ------------ | ----------- | ------------------ | ------------------ |
-| **@help**    | SYSTEM      | Simple Statement   | 0 or 1             |
-| **@backup**  | SYSTEM      | Simple Statement   | 0 or 1             |
-| **@restore** | SYSTEM      | Simple Statement   | 0 to 2             |
-| **@exit**    | SYSTEM      | Simple Statement   | 0                  |
+| Verb          | Clause Type | Clause Restriction | Required Arguments |
+| ------------- | ----------- | ------------------ | ------------------ |
+| **@help**     | SYSTEM      | Simple Statement   | 0 or 1             |
+| **@backup**   | SYSTEM      | Simple Statement   | 0 or 1             |
+| **@restore**  | SYSTEM      | Simple Statement   | 0 to 2             |
+| **@generate** | SYSTEM      | Simple Statement   | 2                  |
+| **@exit**     | SYSTEM      | Simple Statement   | 0                  |
 
 **PROGRAM HELP**
 
@@ -581,7 +577,32 @@ Type this to terminate the Quelle interpreter:
 
 *@exit*
 
-### X. Wrap-up
+**@generate** system command assists programmers and developers
+
+indentation=tab
+
+indentation=spaces:8
+
+*@generate* java HMIStatement
+
+The generate command will generate the internal Quelle class in the language specified. Indentation will be controlled as specified by a separate CONTROL statement.  Quelle's communication with a web-search provider [aka host] uses an HTTPS POST request and JSON serialization of C# classes that contain the parsed Quelle clauses.  generateing these classes accelerates the development of deserializers for the language of the search host.  In each invocation the class/structure is code-generated into the language specified.  Languages supported are:
+
+- python
+- java
+- go
+- c
+- csharp
+
+### X. System Controls
+
+| Fully Specified Name | Short Name  | Meaning                                                     | Values                                 | Visibility |
+| -------------------- | ----------- | ----------------------------------------------------------- | -------------------------------------- | ---------- |
+| quelle.host          | host        | URL of driver                                               | string                                 | normal     |
+| quelle.debug         | debug       | on or off                                                   | true/false                             | *hidden*   |
+| quelle.data          | data        | quelle data format                                          | *reserved*                             | *hidden*   |
+| quelle.indentation   | indentation | specifies tabs or spaces on when invoking @generate command | tab, spaces:2, spaces:3, spaces:4, ... | *hidden*   |
+
+### XI. Wrap-up
 
 In all cases, any number of spaces can be used between operators and terms. 
 

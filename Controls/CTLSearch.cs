@@ -38,7 +38,7 @@ namespace QuelleHMI.Controls
             }
             set
             {
-                this.map["debug"] = value == 1 ? "1" : "0";
+                this.map["span"] = value.ToString();
             }
         }
         public int strict
