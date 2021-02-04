@@ -48,7 +48,7 @@ namespace QuelleHMI
 			var type = info.FieldType;
 			if (type.IsEnum)
 				return "int";
-			if (type.Name.ToLower().StartsWith("dictionary"))
+			if (type.Name.StartsWith("dictionary", StringComparison.InvariantCultureIgnoreCase))
 			{
 				switch (name)
 				{
@@ -57,9 +57,9 @@ namespace QuelleHMI
 					default: return "HashMap<String, String>";
 				}
 			}
-			if (name.StartsWith("uint"))
+			if (type.Name.StartsWith("uint", StringComparison.InvariantCultureIgnoreCase))
 				return "uint";
-			if (name.StartsWith("int"))
+			if (type.Name.StartsWith("int", StringComparison.InvariantCultureIgnoreCase))
 				return "int";
 
 			return type.Name;
@@ -70,8 +70,8 @@ namespace QuelleHMI
 			var type = info.PropertyType;
 			if (type.IsEnum)
 				return "int";
-			if (type.Name.ToLower().StartsWith("dictionary"))
-            {
+			if (type.Name.StartsWith("dictionary", StringComparison.InvariantCultureIgnoreCase))
+			{
 				switch (name)
                 {
 					case "segmentation": return "HashMap<uint, HMIClause>";
@@ -79,10 +79,11 @@ namespace QuelleHMI
 					default:			 return "HashMap<String, String>";
 				}
 			}
-			if (name.StartsWith("uint"))
+			if (type.Name.StartsWith("uint", StringComparison.InvariantCultureIgnoreCase))
 				return "uint";
-			if (name.StartsWith("int"))
+			if (type.Name.StartsWith("int", StringComparison.InvariantCultureIgnoreCase))
 				return "int";
+
 
 			return type.Name;
         }
@@ -111,7 +112,7 @@ namespace QuelleHMI
 			foreach (var f in fields)
 			{
 				if (accessible.ContainsKey(f.Name))
-					accessible[f.Name] = f.FieldType.Name;
+					accessible[f.Name] = GetTypeName(f);
 			}
 			foreach (var p in properties)
 			{

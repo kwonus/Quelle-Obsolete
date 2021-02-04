@@ -56,13 +56,13 @@ namespace QuelleHMI.XGeneration
 
 				string qname = QClass(type);
 				string classname = QClass(type) != null ? qname : "UNKNOWN";
-				file += ("\n\tclass " + classname);
+				file += ("\n\tpublic class " + classname);
 				if (parent != null)
 				{
 					file += ": ";
 					file += parent;
 				}
-				file += "\n\t{";
+				file += "\n\t{\n";
 				foreach (string p in accessible.Keys)
 				{
 					string t = accessible[p];

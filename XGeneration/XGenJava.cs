@@ -60,7 +60,7 @@ namespace QuelleHMI.XGeneration
 					file += " extends ";
 					file += parent;
 				}
-				file += "\n\t{";
+				file += " {\n";
 				foreach (string p in accessible.Keys)
 				{
 					string t = accessible[p];
