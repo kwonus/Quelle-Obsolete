@@ -33,6 +33,7 @@ Quelle Syntax comprises a standard set of eleven (11) verbs. Each verb correspon
 - clear *(inferred)*
 - show
 - print
+- save
 - define
 - help
 - backup
@@ -51,10 +52,10 @@ In Quelle terminology, a statement is made up of clauses. Each clause has a sing
    - clear *(inferred)*
 3. STATUS clause
    - show
-4. DISPLAY clause
-   - print
-5. LABEL clause
+4. LABEL clause
    - define
+5. DISPLAY clause
+   - print
 6. SYSTEM commands
    - help
    - backup
@@ -62,9 +63,9 @@ In Quelle terminology, a statement is made up of clauses. Each clause has a sing
    - generate
    - exit
 
-If we ignore the SYSTEM clauses for the moment, we can focus on the primary operational clauses in Quelle. These verbs are identified in Table 3-1 below. Each verb has a minimum and maximum number of parameters.
+If we ignore the SYSTEM clauses for the moment, we can focus on the primary operational clauses in Quelle. These verbs are identified in Table 3-1 below. A similar table for SYSTEM commands can be found in Section IX, near the end of this document.
 
-A similar table for SYSTEM commands can be found in Section IX, near the end of this document.
+Searching and displaying results are the primary purpose of Quelle.  Learning the six verbs identified in Table 3-1 is all that is necessary for using Quelle. Each verb has a minimum and maximum number of parameters.  Each pf these six verbs are describe in the following sections.
 
 | Verb        | Action Type | Clause Type | Clause Restriction | Required Parameters                           | Required Operators | Optional Operators |
 | ----------- | :---------: | ----------- | ------------------ | --------------------------------------------- | :----------------: | :----------------: |
@@ -419,14 +420,15 @@ set format = md  set format = text`>> implies >>` set format = text
 
 The control names are applicable to ***set***, ***clear***, and ***@show*** verbs. The control name has a fully specified name and also a short name. Either form of the control name is permitted in all Quelle statements.
 
-| Fully Specified Name | Short Name | Meaning                      | Values     | Visibility |
-| -------------------- | ---------- | ---------------------------- | ---------- | ---------- |
-| search.span          | span       | proximity                    | 0 to 1000  | normal     |
-| search.domain        | domain     | the domain of the search     | string     | normal     |
-| search.exact         | exact      | exact match vs liberal/fuzzy | true/false | normal     |
-| display.heading      | heading    | heading of results           | string     | normal     |
-| display.record       | record     | annotation of results        | string     | normal     |
-| display.format       | format     | display format of results    | Table 7-1  | normal     |
+| Fully Specified Name | Short Name | Meaning                              | Values     | Visibility |
+| -------------------- | ---------- | ------------------------------------ | ---------- | ---------- |
+| search.span          | span       | proximity                            | 0 to 1000  | normal     |
+| search.domain        | domain     | the domain of the search             | string     | normal     |
+| search.exact         | exact      | exact match vs liberal/fuzzy         | true/false | normal     |
+| display.heading      | heading    | heading of results                   | string     | normal     |
+| display.record       | record     | annotation of results                | string     | normal     |
+| display.format       | format     | display format of results            | Table 7-1  | normal     |
+| display.output       | output     | ability to redirect output to a file | filename   | normal     |
 
 **TABLE 7-3 -- Control Names for use with CONTROL and STATUS clauses**
 
@@ -536,7 +538,7 @@ The syntax above, while biased towards Quelle-AVX search results is standard Que
 | **@help**     | SYSTEM      | Simple Statement   | 0 or 1             |
 | **@backup**   | SYSTEM      | Simple Statement   | 0 or 1             |
 | **@restore**  | SYSTEM      | Simple Statement   | 0 to 2             |
-| **@generate** | SYSTEM      | Simple Statement   | 2                  |
+| **@generate** | SYSTEM      | Simple Statement   | 2 or 4             |
 | **@exit**     | SYSTEM      | Simple Statement   | 0                  |
 
 **PROGRAM HELP**
@@ -577,13 +579,15 @@ Type this to terminate the Quelle interpreter:
 
 *@exit*
 
-**@generate** system command assists programmers and developers
+**@generate** system command assists <u>programmers and developers</u>
 
 indentation=tab
 
 indentation=spaces:8
 
-*@generate* java HMIStatement
+There are two required parameters for the @generate command: the programming-language and the name of the class.  Consult the source-code on GitHub for classnames.  Or just code-generate CloudSearch first and find dependent imports in that code-generated class, to determine additional code-generation requirements.
+
+*@generate* Java CloudSearch
 
 The generate command will generate the internal Quelle class in the language specified. Indentation will be controlled as specified by a separate CONTROL statement.  Quelle's communication with a web-search provider [aka host] uses an HTTPS POST request and JSON serialization of C# classes that contain the parsed Quelle clauses.  Generating these classes accelerates the development of deserializers for the language of the search host.  In each invocation, the class/structure is code-generated into the language specified.  Languages supported are:
 
@@ -593,6 +597,18 @@ The generate command will generate the internal Quelle class in the language spe
 - C#
 
 Python support code-generation is unnecessary, because the pythonic pattern is to use a dictionary for derealization as this is normally methodology for working with JSON payloads. 
+
+The additional two parameters are optional, and are also very specific.  If the third parameter is provided, it must be the greater-than sign ( > ).  And the final and fourth parameter must be a valid path+filename specification. To expand on the previous example, we can save output to a file with this command:
+
+*@generate* Java CloudSearch  >  C:\\MyFolder\\src\\CloudSearch.java
+
+The folder must exist, and the file in that folder must not exist.  If those two conditionas are met, the CloudSearch.java will contain the generated code.
+
+**The FILE Clause**
+
+*@save* myfile.txt
+
+Normally, the Quelle interpreter displays text to the console window.  At times, it might be useful to save that output to a file instead.  For instance, if we wanted to save the code-generation for the java example shown earlier, we can add 
 
 ### X. System Controls
 
