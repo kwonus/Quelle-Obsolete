@@ -604,12 +604,6 @@ The additional two parameters are optional, and are also very specific.  If the 
 
 The folder must exist, and the file in that folder must not exist.  If those two conditionas are met, the CloudSearch.java will contain the generated code.
 
-**The FILE Clause**
-
-*@save* myfile.txt
-
-Normally, the Quelle interpreter displays text to the console window.  At times, it might be useful to save that output to a file instead.  For instance, if we wanted to save the code-generation for the java example shown earlier, we can add 
-
 ### X. System Controls
 
 | Fully Specified Name | Short Name  | Meaning                                                     | Values                                 | Visibility |
