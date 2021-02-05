@@ -17,11 +17,11 @@ namespace QuelleHMI.XGeneration
 		}
 		protected override string QImport(String module)
 		{
-			if (module != null && module.Length > 0 && module.ToLower().StartsWith("hmi") == true)
+			if (this.Include(module))
 			{
 				string line;
 
-				line = "#include \"" + module + "\";";
+				line = "#include \"" + (module.EndsWith("[]") ? module.Substring(0, module.Length - 2) : module) + ".h\"";
 				return line + "\n";
 			}
 			return "";
@@ -35,7 +35,10 @@ namespace QuelleHMI.XGeneration
 			if (type.StartsWith("HashMap"))
 				type = "map" + type.Substring("HashMap".Length).Replace("String", "char[]");
 			else if (type == "String")
-				type = "char[]";
+				type = "char*";
+			else if (type.EndsWith("[]"))
+				type = type.Substring(0, type.Length - 2) + "*";
+
 
 			string variable = "\t" + type + "\t" + name + ";\n";
 			return variable;

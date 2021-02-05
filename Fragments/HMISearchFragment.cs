@@ -15,7 +15,7 @@ namespace QuelleHMI.Fragments
 				segment.Notify("error", "Major design/implementation error: aborting!");
 				return;
 			}
-			this.ordered = order > 0 ? (Boolean?)null : false;
+			this.ordered = order > 0 ? true: false;
 
 			string token = fragment != null ? fragment.Trim() : "";
 			if (token.StartsWith("..."))
@@ -54,7 +54,7 @@ namespace QuelleHMI.Fragments
 					segment.Notify("error", "Fragment processing is aborted.");
 					return;
 				}
-				if (this.ordered != null && this.ordered.HasValue == false)
+				if (!this.ordered)
 				{
 					this.ordered = true;
 					segment.Notify("warning", "There is no meaning to enclosing a single token in square braces (square braces are being ignored).");
@@ -88,15 +88,15 @@ namespace QuelleHMI.Fragments
 		}
 		private Boolean isOrdereNext()
 		{
-			if (this.ordered == null)
+			if (this.ordered)
 				return (this.previous != null) ? this.previous.isOrdereNext() : true;
-			return this.ordered.Value || this.unorderCancelled;
+			return this.ordered || this.unorderCancelled;
 		}
 		public Boolean isOrderedThis()
 		{
-			if (this.ordered == null)
+			if (this.ordered)
 				return (this.previous != null) ? this.previous.isOrdereNext() : true;
-			return this.ordered.Value;
+			return this.ordered;
 		}
 		private Boolean hasElipses()
 		{

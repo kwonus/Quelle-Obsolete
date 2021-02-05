@@ -4,7 +4,7 @@ using System.Text;
 
 namespace QuelleHMI.Controls
 {
-    class CTLSearch: QuelleControlConfig
+    public class CTLSearch: QuelleControlConfig
     {
         public string domain
         {

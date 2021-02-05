@@ -4,7 +4,7 @@ using System.Text;
 
 namespace QuelleHMI.Controls
 {
-    class CTLDisplay : QuelleControlConfig
+    public class CTLDisplay : QuelleControlConfig
     {
         public string heading
         {

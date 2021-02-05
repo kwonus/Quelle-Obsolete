@@ -10,7 +10,7 @@ namespace QuelleHMI
 		protected HMIClause segment;
 
 		public UInt32 order { get; protected set; }
-		public Boolean? ordered { get; protected set; }
+		public Boolean ordered { get; protected set; }
 		public Boolean unorderCancelled { get; protected set; } = false;
 
 		public string token { get; protected set; }

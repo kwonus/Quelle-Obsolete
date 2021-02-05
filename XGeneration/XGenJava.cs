@@ -17,11 +17,11 @@ namespace QuelleHMI.XGeneration
 		}
 		protected override string QImport(String module)
 		{
-			if (module != null && module.Length > 0 && module.ToLower().StartsWith("hmi") == true)
+			if (this.Include(module))
 			{
 				string line;
 
-				line = "import " + module + ";";
+				line = "import Quelle." + (module.EndsWith("[]") ? module.Substring(0, module.Length - 2) : module) + "\"";
 				return line + "\n";
 			}
 			return "";
@@ -32,7 +32,7 @@ namespace QuelleHMI.XGeneration
 		}
 		protected override string getterAndSetter(string name, string type)
 		{
-			string variable = "\t\tpublic " + type + "\t" + name + ";\n";
+			string variable = "\tpublic " + type + "\t" + name + ";\n";
 			return variable;
 		}
 		protected override string export(Type type)
@@ -52,9 +52,12 @@ namespace QuelleHMI.XGeneration
 				if (parent != null)
 					file += QImport(parent);
 
+				string package = "\npackage Quelle;";
+				file += package;
+
 				string qname = QClass(type);
 				string classname = QClass(type) != null ? qname : "UNKNOWN";
-				file += ("\n\tclass " + classname);
+				file += ("\n\nclass " + classname);
 				if (parent != null)
 				{
 					file += " extends ";
@@ -66,7 +69,7 @@ namespace QuelleHMI.XGeneration
 					string t = accessible[p];
 					file += getterAndSetter(p, t);
 				}
-				file += "\n\t}";
+				file += "\n}";
 			}
 			catch (Exception e)
 			{

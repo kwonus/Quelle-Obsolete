@@ -4,7 +4,7 @@ using System.Text;
 
 namespace QuelleHMI.Controls
 {
-    class CTLQuelle: QuelleControlConfig
+    public class CTLQuelle: QuelleControlConfig
     {
         public string host
         {

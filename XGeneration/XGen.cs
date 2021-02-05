@@ -37,10 +37,19 @@ namespace QuelleHMI
 
 					case "java":	return new XGeneration.XGenJava();
 
-					case "python":	return new XGeneration.XGenPython();
+					case "python":	return new XGeneration.XGenPython();	// Python code-gen is pretty narly looking, so not advertised.  Better to use dictionary types in json and ignore this
 				}
 			}
 			return null;
+		}
+		protected bool Include(string module)
+        {
+			if (module == null || module.Length < 1)
+				return false;
+
+			return module.StartsWith("HMI", StringComparison.InvariantCultureIgnoreCase)
+				|| module.StartsWith("CTL", StringComparison.InvariantCultureIgnoreCase)
+				|| module.StartsWith("CloudSearch", StringComparison.InvariantCultureIgnoreCase);
 		}
 		protected virtual string GetTypeName(System.Reflection.FieldInfo info)
 		{
@@ -92,7 +101,9 @@ namespace QuelleHMI
 			Type item;
 			string test = "." + className.ToLower();
 
-			if (typeof(HMIStatement).ToString().ToLower().EndsWith(test))
+			if (typeof(CloudSearch).ToString().ToLower().EndsWith(test))
+				item = typeof(CloudSearch);
+			else if (typeof(HMIStatement).ToString().ToLower().EndsWith(test))
 				item = typeof(HMIStatement);
 			else if (typeof(HMIClause).ToString().ToLower().EndsWith(test))
 				item = typeof(HMIClause);
@@ -134,7 +145,7 @@ namespace QuelleHMI
 		protected string QClass(Type c)
 		{
 			string ctype = c != null ? c.ToString() : "";
-			string[] tparts = ctype.Split("\\.");
+			string[] tparts = ctype.Split(new char[] { '.' });
 			ctype = tparts[tparts.Length - 1];
 			return ctype.Length > 0 ? ctype : null;
 		}

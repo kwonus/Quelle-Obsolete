@@ -20,11 +20,11 @@ namespace QuelleHMI.XGeneration
 		}
 		protected override string QImport(String module)
 		{
-			if (module != null && module.Length > 0 && module.ToLower().StartsWith("hmi") == true)
+			if (this.Include(module))
 			{
 				string line;
 
-				line = "import " + module;
+				line = "import " + (module.EndsWith("[]") ? module.Substring(0, module.Length - 2) : module);
 				return line + "\n";
 			}
 			return "";
