@@ -604,6 +604,10 @@ The additional two parameters are optional, and are also very specific.  If the 
 
 The folder must exist, and the file in that folder must not exist.  If those two conditionas are met, the CloudSearch.java will contain the generated code.
 
+If the user does not care if the file already exists, the existance check can be bypassed using this command:
+
+*@generate* Java CloudSearch  > !  C:\\MyFolder\\src\\CloudSearch.java
+
 ### X. System Controls
 
 | Fully Specified Name | Short Name  | Meaning                                                     | Values                                 | Visibility |
