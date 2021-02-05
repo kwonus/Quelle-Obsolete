@@ -26,7 +26,7 @@ Any application can implement the Quelle specification without royalty. We provi
 
 The Quelle specification defines a declarative syntax for specifying search criteria using the *find* verb. Quelle also defines additional verbs to round out its syntax as a simple straightforward means to interact with custom applications where searching text is the fundamental problem at hand. As mentioned earlier, AV Text Ministries provides a reference implementation. This implementation is written in C# and runs on most operating systems (e.g. Windows, Mac, Linux, iOS, Android, etc).  As source code is provided, it can be seamlessly extended by application programmers.
 
-Quelle Syntax comprises a standard set of eleven (11) verbs. Each verb corresponds to a basic operation:
+Quelle Syntax comprises a standard set nine (9). Each verb corresponds to a basic operation:
 
 - find *(inferred)*
 - set *(inferred)*
@@ -36,14 +36,12 @@ Quelle Syntax comprises a standard set of eleven (11) verbs. Each verb correspon
 - save
 - define
 - help
-- backup
 - generate
-- restore
 - exit
 
 The verbs listed above are for the English flavor of Quelle. As Quelle is an open and extensible standard, verbs for other languages can be defined without altering the overall syntax structure of the HMI. The remainder of this document describes Version 1.0 of the Quelle-HMI specification.  
 
-In Quelle terminology, a statement is made up of clauses. Each clause has a single verb. While there are eleven verbs, there are only six distinct types of clauses:
+In Quelle terminology, a statement is made up of clauses. Each clause has a single verb. While there are nine verbs, there are only six distinct types of clauses:
 
 1. SEARCH clause
    - find *(inferred)*
@@ -58,8 +56,6 @@ In Quelle terminology, a statement is made up of clauses. Each clause has a sing
    - print
 6. SYSTEM commands
    - help
-   - backup
-   - restore
    - generate
    - exit
 
@@ -536,8 +532,6 @@ The syntax above, while biased towards Quelle-AVX search results is standard Que
 | Verb          | Clause Type | Clause Restriction | Required Arguments |
 | ------------- | ----------- | ------------------ | ------------------ |
 | **@help**     | SYSTEM      | Simple Statement   | 0 or 1             |
-| **@backup**   | SYSTEM      | Simple Statement   | 0 or 1             |
-| **@restore**  | SYSTEM      | Simple Statement   | 0 to 2             |
 | **@generate** | SYSTEM      | Simple Statement   | 2 or 4             |
 | **@exit**     | SYSTEM      | Simple Statement   | 0                  |
 
@@ -547,31 +541,15 @@ The syntax above, while biased towards Quelle-AVX search results is standard Que
 
 This will provide a help message in a Quelle interpreter.
 
-**BACKING YOUR ENVIRONMENT**
+Or for specific topics:
 
-*@backup*
+*@help* find
 
-You can also name your backup
+*@help* set
 
-*@backup* MyFavoriteSettings
+@help print
 
-**RESTORING YOUR ENVIRONMENT**
-
-This will restore the most recent backup
-
-*@restore*
-
-This will restore the most recent backup named MyFavoriteSettings (backups never overwrite; they always have a time-stamp)
-
-*@restore* MyFavoriteSettings
-
-This will restore the most recent automatic backup (backups are made automatically when the user issues certain destructive commands)
-
-*@restore* automatic
-
-This will itemize all backups
-
-*@restore* list
+etc ...
 
 **EXITING QUELLE**
 
@@ -579,7 +557,9 @@ Type this to terminate the Quelle interpreter:
 
 *@exit*
 
-**@generate** system command assists <u>programmers and developers</u>
+**CODE GENERATION**
+
+*@generate** system command assists <u>programmers and developers</u>
 
 indentation=tab
 
@@ -598,15 +578,15 @@ The generate command will generate the internal Quelle class in the language spe
 
 Python support code-generation is unnecessary, because the pythonic pattern is to use a dictionary for derealization as this is normally methodology for working with JSON payloads. 
 
-The additional two parameters are optional, and are also very specific.  If the third parameter is provided, it must be the greater-than sign ( > ).  And the final and fourth parameter must be a valid path+filename specification. To expand on the previous example, we can save output to a file with this command:
+The additional two parameters are optional, and are also very specific.  If the third parameter is provided, it must be ( > ) or ( >! ).  And the final and fourth parameter must be a valid path+filename specification. To expand on the previous example, we can save output to a file with this command:
 
 *@generate* Java CloudSearch  >  C:\\MyFolder\\src\\CloudSearch.java
 
-The folder must exist, and the file in that folder must not exist.  If those two conditionas are met, the CloudSearch.java will contain the generated code.
+The folder must exist, and the file in that folder must not exist.  If those two conditions are met, the CloudSearch.java will contain the generated code.
 
 If the user does not care if the file already exists, the existance check can be bypassed using this command:
 
-*@generate* Java CloudSearch  > !  C:\\MyFolder\\src\\CloudSearch.java
+*@generate* Java CloudSearch  >!  C:\\MyFolder\\src\\CloudSearch.java
 
 ### X. System Controls
 
