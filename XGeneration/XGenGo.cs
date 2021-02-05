@@ -45,6 +45,10 @@ namespace QuelleHMI.XGeneration
 		protected override string export(Type type)
 		{
 			string file = "";
+
+			string package = "package " + type.Name + "\n\n";
+			file += package;
+
 			try
 			{
 				String parent = null; // QClass(c.BaseType);
