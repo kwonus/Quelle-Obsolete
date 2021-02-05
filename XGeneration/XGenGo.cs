@@ -21,8 +21,8 @@ namespace QuelleHMI.XGeneration
 			{
 				string line;
 
-				line = "import \"Quelle." + (module.EndsWith("[]") ? module.Substring(0, module.Length-2) : module) + "\"";
-				return line + "\n";
+				line = "\n\t\"Quelle." + (module.EndsWith("[]") ? module.Substring(0, module.Length-2) : module) + "\"";
+				return line;
 			}
 			return "";
 		}
@@ -49,15 +49,32 @@ namespace QuelleHMI.XGeneration
 			{
 				String parent = null; // QClass(c.BaseType);
 
-				foreach (string k in accessible.Keys)
+				var test = "";
+				if (parent == null)
 				{
-					string t = accessible[k];
-					if (t == null)
-						continue;
-					file += QImport(t);
+					foreach (string k in accessible.Keys)
+					{
+						string t = accessible[k];
+						if (t == null)
+							continue;
+						test += QImport(t);
+					}
 				}
-				if (parent != null)
-					file += QImport(parent);
+				if (parent != null || test.Length > 0)
+				{
+					file += "import(";
+
+					foreach (string k in accessible.Keys)
+					{
+						string t = accessible[k];
+						if (t == null)
+							continue;
+						file += QImport(t);
+					}
+					if (parent != null)
+						file += QImport(parent);
+					file += "\n)\n";
+				}
 
 				string qname = QClass(type);
 				string classname = QClass(type) != null ? qname : "UNKNOWN";
