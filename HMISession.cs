@@ -74,7 +74,8 @@ namespace QuelleHMI
         {
             { "heading", new ControlInfo() },
             { "record",  new ControlInfo() },
-            { "format",  new ControlInfo(new string[] { "text", "html", "json", "xml" }) }
+            { "format",  new ControlInfo(new string[] { "text", "html", "json", "xml" }) },
+            { "output",  new ControlInfo() }
         };
         public static Dictionary<string, ControlInfo> StandardConfig_SEARCH = new Dictionary<string, ControlInfo>()
         {
