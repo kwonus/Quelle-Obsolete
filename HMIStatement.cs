@@ -254,7 +254,9 @@ namespace QuelleHMI
         }
         public bool Execute()
         {
-            if (command.errors.Count == 0)
+            bool ok = (command.errors.Count == 0);
+
+            if (ok)
             {
                 if (!this.Normalize())
                     return false;
@@ -277,51 +279,51 @@ namespace QuelleHMI
                     }
                     return true;
                 }
-
+                ok = false;
                 if (normalized.simple)
                 {
-                    normalized.explicitClause.Execute();
+                    ok = normalized.explicitClause.Execute();
                 }
                 else
                 {
                     if (normalized.setters != null)
                         foreach (var clause in normalized.setters)
                         {
-                            clause.Execute();
-                            if (this.errors.Count > 0)
-                                return false;
+                            ok = clause.Execute();
+                            if (!ok)
+                                break;
                         }
-                    if (normalized.removals != null)
+                    if (ok && (normalized.removals != null))
                         foreach (var clause in normalized.removals)
                         {
-                            clause.Execute();
-                            if (this.errors.Count > 0)
-                                return false;
+                            ok = clause.Execute();
+                            if (!ok)
+                                break;
                         }
-                    if (normalized.searches != null)
+                    if (ok && (normalized.searches != null))
                     {
                         foreach (var clause in normalized.searches)
                         {
-                            clause.Execute();
-                            if (this.errors.Count > 0)
-                                return false;
+                            ok = clause.Execute();
+                            if (!ok)
+                                break;
                         }
-                        if (!this.command.Search())
-                            return false;
+                        ok = ok && this.command.Search();
                     }
-                    if (normalized.explicitClause != null)
+                    if (ok)
                     {
-                        normalized.explicitClause.Execute();
-                        if (this.errors.Count > 0)
-                            return false;
-                    }
-                    else if (normalized.searches != null)
-                    {
-                        ;   // default search summarization out goes here
+                        if (normalized.explicitClause != null)  // DO WE STILL NEED THIS?  OR CAN WE JUST DO DEFINE/PRINT LAST?
+                        {
+                            ok = normalized.explicitClause.Execute();
+                        }
+                        else if (normalized.searches != null)
+                        {
+                            ;   // default search summarization out goes here
+                        }
                     }
                 }
             }
-            return true;
+            return ok;
         }
     }
 }

@@ -29,8 +29,9 @@ namespace QuelleHMI.Verbs
             if (this.segment == null)
                 return false;
 
-            var expanded = this.segment.ToLower().Replace("!", " ! ").Replace(">", " > ");
-            var tokens = expanded.Split(HMIClause.Whitespace, expanded.Contains('!') ? 6 : 5, StringSplitOptions.RemoveEmptyEntries);
+            var expanded = this.statement.statement.ToLower().Replace("!", " ! ").Replace(">", " > ");
+            var max = expanded.Contains('!') ? 6 : 5;
+            var tokens = expanded.Split(HMIClause.Whitespace, max, StringSplitOptions.RemoveEmptyEntries);
 
             if (tokens[0] == "@generate")
             {
