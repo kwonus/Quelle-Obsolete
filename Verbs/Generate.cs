@@ -21,7 +21,6 @@ namespace QuelleHMI.Verbs
         public Generate(HMIStatement statement,string segment)
         : base(statement, 1, HMIPolarity.UNDEFINED, segment, HMIClauseType.SIMPLE)
         {
-            this.maximumScope = HMIScope.System;
             this.verb = VERB;
         }
         protected override bool Parse()

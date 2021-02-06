@@ -4,19 +4,31 @@ using System.Text;
 using System.IO;
 using static QuelleHMI.HMISession;
 using System.Linq;
+using QuelleHMI.Controls;
 
 namespace QuelleHMI
 {
     public class HMIConfigurationDefault : HMISession, IQuelleConfig
     {
-        public string seachConf { get => Path.Combine(appdir, HMISession.SEARCH + ".conf"); }
-        public string displayConf { get => Path.Combine(appdir, HMISession.DISPLAY + ".conf"); }
-        public string programConf { get => Path.Combine(appdir, HMISession.QUELLE + ".conf"); }
+        private Dictionary<string, QuelleControlConfig> configs;
+        public QuelleControlConfig seachConf   { get => configs[HMISession.SEARCH]; }
+        public QuelleControlConfig displayConf { get => configs[HMISession.SEARCH]; }
+        public QuelleControlConfig programConf { get => configs[HMISession.QUELLE]; }
+        public QuelleControlConfig macroDef    { get => configs["MACROS"]; }
 
         private string appdir;
         public HMIConfigurationDefault()
         {
             this.appdir = HMISession.QuelleHome;
+            this.configs = new Dictionary<string, QuelleControlConfig>();
+            var sconf = Path.Combine(appdir, HMISession.SEARCH + ".conf");
+            var dconf = Path.Combine(appdir, HMISession.DISPLAY + ".conf");
+            var qconf = Path.Combine(appdir, HMISession.QUELLE + ".conf");
+            var macros = Path.Combine(appdir, "MACROS.conf");
+            configs.Add(HMISession.SEARCH, new CTLSearch(sconf));
+            configs.Add(HMISession.DISPLAY, new CTLSearch(dconf));
+            configs.Add(HMISession.QUELLE, new CTLSearch(qconf));
+            configs.Add("MACROS", new CTLSearch(qconf));
         }
         public class HMIResultInt : IQuelleResultInt
         {
@@ -76,22 +88,12 @@ namespace QuelleHMI
             }
             return (key.section, key.setting, null);
         }
-        private HMIScope ValidateScope(string section, HMIScope scope)
-        {
-            return scope;
-        }
-        public IQuelleResultString Read(string setting, HMIScope scope)
+        public IQuelleResultString Read(string setting)
         {
             (string section, string setting, IQuelleResultString error) key = GetPair(setting);
             if (key.error != null)
                 return key.error;
 
-            switch (ValidateScope(key.section, scope))
-            {
-                case HMIScope.Statement:  
-                case HMIScope.System:   break;
-                default:                return new HMIResultString(error: "Driver design error", warning: "Unknown setting scope provided by driver");
-            }
             string result = null;
             string warning = null;
 
@@ -135,24 +137,18 @@ namespace QuelleHMI
                 ? new HMIResultString(result: result, warning: warning)
                 : new HMIResultString(warning: warning).AddWarning("Unable to read setting (Maybe it has not been set");
         }
-        public IQuelleResultInt ReadInt(string setting, HMIScope scope)
+        public IQuelleResultInt ReadInt(string setting)
         {
-            IQuelleResultString result = this.Read(setting, scope);
+            IQuelleResultString result = this.Read(setting);
             return new HMIResultInt(result);
         }
 
-        public IQuelleResult Remove(string setting, HMIScope scope)
+        public IQuelleResult Remove(string setting)
         {
             (string section, string setting, IQuelleResultString error) key = GetPair(setting);
             if (key.error != null)
                 return key.error;
 
-            switch (ValidateScope(key.section, scope))
-            {
-                case HMIScope.Statement:
-                case HMIScope.System:   break;
-                default:                return new HMIResultString(error: "Driver design error", warning: "Unknown setting scope provided by driver");
-            }
             string result = null;
             string warning = null;
 
@@ -184,18 +180,12 @@ namespace QuelleHMI
                 : new HMIResultString(warning: warning).AddWarning("Unable to read setting (Maybe it has not been set");
         }
 
-        public IQuelleResult Write(string setting, HMIScope scope, string value)
+        public IQuelleResult Write(string setting, string value)
         {
             (string section, string setting, IQuelleResultString error) key = GetPair(setting);
             if (key.error != null)
                 return key.error;
 
-            switch (ValidateScope(key.section, scope))
-            {
-                case HMIScope.Statement:
-                case HMIScope.System:   break;
-                default:                return new HMIResultString(error: "Driver design error", warning: "Unknown setting scope provided by driver");
-            }
             var normalizedValue = value.Trim().ToLower();
             if (string.IsNullOrWhiteSpace(value))
                 new HMIResult(error: "A value must be specified when defining control variables; use a removal command instead if you want to meove the value");
@@ -208,9 +198,9 @@ namespace QuelleHMI
 
             return new HMIResult(success: true);
         }
-        public IQuelleResult Write(string setting, HMIScope scope, Int64 value)
+        public IQuelleResult Write(string setting, Int64 value)
         {
-            return Write(setting, scope, value.ToString());
+            return Write(setting, value.ToString());
         }
     }
 }

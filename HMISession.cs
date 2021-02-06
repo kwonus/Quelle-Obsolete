@@ -292,52 +292,5 @@ namespace QuelleHMI
                 return Path.Combine(_root, "Quelle");  // always combine so that _root is immutable
             }
         }
-        private /*deprecated*/  static bool __WriteGlobalSetting(string keypath, string value)
-        {
-            string path = __RemovelobalSetting(keypath);
-
-            if (File.Exists(path))
-                return false;
-
-            // Create a file to write to.
-            using (StreamWriter sw = File.CreateText(path))
-            {
-                sw.Write(value);
-            }
-            return File.Exists(path);
-        }
-        private /*deprecated*/  static bool __WriteGlobalSetting(string keypath, Int64 value)
-        {
-            string path = keypath;// GetSectionSpec(keypath);
-            __RemovelobalSetting(path);
-
-            if (File.Exists(path))
-                return false;
-
-            // Create a file to write to.
-            using (StreamWriter sw = File.CreateText(path))
-            {
-                sw.Write(value.ToString());
-            }
-            return File.Exists(path);
-        }
-        private /*deprecated*/  static string __ReadGlobalSetting(string keypath)
-        {
-            string path = keypath;// GetSectionSpec(keypath);
-            if (File.Exists(path))
-                using (StreamReader sr = File.OpenText(path))
-                {
-                    return sr.ReadLine();
-                }
-            return null;
-        }
-        private /*deprecated*/  static string __RemovelobalSetting(string keypath)
-        {
-            string path = keypath;// GetSectionSpec(keypath);
-            if (File.Exists(path))
-                File.Delete(path);
-
-            return !File.Exists(path) ? path : null;    // null return is an eror; path is returned for chaining on success.
-        }
     }
 }

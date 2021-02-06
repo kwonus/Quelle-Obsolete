@@ -16,7 +16,6 @@ namespace QuelleHMI.Verbs
         public Control(HMIStatement statement, UInt32 segmentOrder, string segment)
     : base(statement, segmentOrder, HMIPolarity.UNDEFINED, segment, HMIClauseType.IMPLICIT)
         {
-            this.maximumScope = HMIScope.System;
             if (this.verb == null)
                 this.verb = this.syntax;
         }
@@ -40,7 +39,7 @@ namespace QuelleHMI.Verbs
         {
             if (this.errors.Count == 0)
             {
-                var result = HMICommand.Driver.Write("quelle.macro." + this.controlName, this.statement.scope, this.controlValue);
+                var result = HMICommand.Driver.Write("quelle.macro." + this.controlName, this.controlValue);
                 if (result.errors != null)
                 {
                     foreach (var error in result.errors)

@@ -83,14 +83,12 @@ namespace QuelleHMI
         public UInt32 sequence { get; private set; }  // Sequence number of segment
         public string segment { get; protected set; }
         public HMIPolarity polarity { get; private set; }
-        public HMIScope maximumScope { get; protected set; }
 
         public Dictionary<UInt64, HMIFragment> fragments { get; private set; }
         public readonly static string[] Whitespace = new string[] { " ", "\t" };
 
         protected HMIClause(HMIStatement statement, UInt32 segmentOrder, HMIPolarity polarity, string segment, HMIClauseType clauseType)
         {
-            this.maximumScope = HMIScope.Undefined;
             this.statement = statement;
             this.type = clauseType;
 

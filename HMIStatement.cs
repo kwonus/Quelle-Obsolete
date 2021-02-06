@@ -25,7 +25,6 @@ namespace QuelleHMI
         protected List<string> warnings { get => this.command.warnings; }
 
         public string statement { get; private set; }
-        public HMIScope scope { get; private set; }
         public Dictionary<UInt32, HMIClause> segmentation { get; private set; }
 
         protected (bool simple, HMIClause explicitClause, HMIClause[] setters, HMIClause[] removals, HMIClause[] searches) normalized;
@@ -183,19 +182,6 @@ namespace QuelleHMI
                     }
                 }
             }
-
-            HMIScope? scope = null;
-            foreach (var phrase in this.segmentation.Values)
-            {
-                if (phrase.maximumScope != HMIScope.Undefined)
-                {
-                    if (!scope.HasValue)
-                        scope = phrase.maximumScope;
-                    else if ((int)phrase.maximumScope < (int)scope.Value)
-                        scope = phrase.maximumScope;
-                }
-            }
-            this.scope = scope.HasValue ? scope.Value : HMIScope.Undefined;
         }
 
         private void Append(ref HMIClause[] array, HMIClause item)
@@ -261,10 +247,10 @@ namespace QuelleHMI
                 if (!this.Normalize())
                     return false;
 
-                if (command.HasMacro() != HMIScope.Undefined)
+                if (command.HasMacro())
                 {
                     var macroDef = command.GetMacroDefinition();
-                    var result = HMICommand.Driver.Write("quelle.macro." + macroDef.macroName, macroDef.macroScope, command.statement.statement);
+                    var result = HMICommand.Driver.Write("quelle.macro." + macroDef.macroName, command.statement.statement);
                     if (result.errors != null)
                     {
                         foreach (var error in result.errors)

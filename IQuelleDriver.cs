@@ -1,4 +1,5 @@
-﻿using System;
+﻿using QuelleHMI.Controls;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -9,6 +10,31 @@ namespace QuelleHMI
         bool success { get; }
         string[] errors { get; }
         string[] warnings { get;  }
+    }
+    public interface IQuelleCloudSearchRequest
+    {
+        HMIClause[] clauses { get;  }
+        CTLSearch controls { get; }
+        uint count { get; }
+
+    }
+    public interface IQuelleCloudFetchRequest
+    {
+        Guid session { get; }
+        uint cursor { get; }
+        uint count { get; }
+    }
+    public interface IQuelleCloudFetchhResult : IQuelleResult
+    {
+        uint cursor { get; }
+        uint remainder { get; }
+    }
+    public interface IQuelleCloudSearchResult : IQuelleCloudFetchhResult
+    {
+        string summary { get; }
+        Guid session { get; }
+        Dictionary<UInt16, string> records { get; }     // The UInt16 is a key to be used with the session to retrieve a specific result
+                                                        // the string is th abstract for the record    }
     }
     public interface IQuelleResultObject : IQuelleResult
     {
@@ -30,24 +56,25 @@ namespace QuelleHMI
 
     public interface IQuelleConfig
     {
-        IQuelleResultString        Read(string setting, HMIScope scope);                     // Show *
-        IQuelleResultInt           ReadInt(string setting, HMIScope scope);                  // Show
+        IQuelleResultString        Read(string setting);                     // Show *
+        IQuelleResultInt           ReadInt(string setting);                  // Show
 
-        IQuelleResult              Remove(string setting, HMIScope scope);                  // Remove *
+        IQuelleResult              Remove(string setting);                  // Remove *
 
-        IQuelleResult              Write(string setting, HMIScope scope, string value);     // Config *
-        IQuelleResult              Write(string setting, HMIScope scope, Int64 value);      // Config
+        IQuelleResult              Write(string setting, string value);     // Config *
+        IQuelleResult              Write(string setting, Int64 value);      // Config
     }
     public interface IQuelleHelp
     {
         string Help();
         string Help(string topic);
-
     }
     public interface IQuelleDriver : IQuelleConfig, IQuelleHelp
     {
-        IQuelleResultObject    Search(HMIStatement statement);
-        IQuelleResultObject    Display(HMIStatement statement, string specification);                        
-    }
+        IQuelleCloudSearchResult Search(HMIStatement statement);
 
+        IQuelleCloudFetchhResult Fetch(Guid session, uint cursor, uint count);
+
+        IQuelleResultString Get(Guid session, UInt16 key);
+    }
 }

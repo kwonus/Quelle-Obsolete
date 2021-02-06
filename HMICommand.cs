@@ -46,12 +46,12 @@ namespace QuelleHMI
 			}
         }
 
-		public HMIScope HasMacro()
+		public bool HasMacro()
 		{
 			if (this.explicitClause != null && this.explicitClause.verb == Verbs.Define.VERB)
-				return ((Verbs.Define)this.explicitClause).macroScope;
+				return true;
 
-			return HMIScope.Undefined;
+			return false;
 		}
 		public Verbs.Define GetMacroDefinition()
 		{

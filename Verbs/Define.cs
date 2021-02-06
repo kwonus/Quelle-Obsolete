@@ -11,13 +11,11 @@ namespace QuelleHMI.Verbs
         public const string VERB = "@define";
         public string macroName { get; private set; }
         public string macroValue { get => this.statement.statement; }
-        public HMIScope macroScope { get; private set; }
 
 
         public Define(HMIStatement statement, UInt32 segmentOrder, string segment)
     : base(statement, segmentOrder, HMIPolarity.UNDEFINED, segment, HMIClauseType.EXPLICIT_DEPENDENT)
         {
-            this.maximumScope = HMIScope.System;
             this.verb = VERB;
         }
         protected override bool Parse()
@@ -28,7 +26,7 @@ namespace QuelleHMI.Verbs
         {
             if (this.errors.Count == 0)
             {
-                var result = HMICommand.Driver.Write("quelle.macro." + this.macroName, this.macroScope, this.macroValue);
+                var result = HMICommand.Driver.Write("quelle.macro." + this.macroName, this.macroValue);
                 if (result.errors != null)
                 {
                     foreach (var error in result.errors)

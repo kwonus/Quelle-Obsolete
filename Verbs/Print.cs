@@ -14,7 +14,6 @@ namespace QuelleHMI.Verbs
         public Print(HMIStatement statement, UInt32 segmentOrder, string segment)
             : base(statement, segmentOrder, HMIPolarity.UNDEFINED, segment, HMIClauseType.EXPLICIT_INDEPENDENT)
         {
-            this.maximumScope = HMIScope.Statement;
             this.verb = VERB;
 
         }

@@ -13,9 +13,7 @@ namespace QuelleHMI.Verbs
         public Show(HMIStatement statement, UInt32 segmentOrder, string segment)
     : base(statement, segmentOrder, HMIPolarity.UNDEFINED, segment, HMIClauseType.SIMPLE)
         {
-            this.maximumScope = HMIScope.System;
             this.verb = VERB;
-
         }
         protected override bool Parse()
         {
