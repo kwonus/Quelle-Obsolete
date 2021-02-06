@@ -142,5 +142,9 @@ namespace QuelleHMI.Verbs
             }
             return result;
         }
+        public override void Help()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

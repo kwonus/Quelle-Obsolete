@@ -38,9 +38,16 @@ namespace QuelleHMI
         IQuelleResult              Write(string setting, HMIScope scope, string value);     // Config *
         IQuelleResult              Write(string setting, HMIScope scope, Int64 value);      // Config
     }
-    public interface IQuelleDriver : IQuelleConfig
+    public interface IQuelleHelp
+    {
+        string Help();
+        string Help(string topic);
+
+    }
+    public interface IQuelleDriver : IQuelleConfig, IQuelleHelp
     {
         IQuelleResultObject    Search(HMIStatement statement);
         IQuelleResultObject    Display(HMIStatement statement, string specification);                        
     }
+
 }

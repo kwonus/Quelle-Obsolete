@@ -9,6 +9,8 @@ namespace QuelleHMI
     {
         abstract protected bool Parse();
         abstract public bool Execute();
+        abstract public void Help();
+
         protected List<string> errors { get => this.statement.command.errors; }
         protected List<string> warnings { get => this.statement.command.warnings; }
         public HMIClauseType type { get; protected set; }
@@ -52,13 +54,10 @@ namespace QuelleHMI
                 var tokens = text.Split(Whitespace, StringSplitOptions.RemoveEmptyEntries);
                 switch(tokens[0].ToLower())
                 {
-                    case Verbs.Print.VERB:  return new Verbs.Print(statement, order, text);
-                    case Verbs.Define.VERB: return new Verbs.Define(statement, order, text);
-                    case Verbs.Show.VERB:   return new Verbs.Show(statement, order, text);
-                    case Verbs.Help.VERB:   return new Verbs.Help(statement, text);
-                    case Verbs.Backup.VERB: return new Verbs.Backup(statement, text);
-                    case Verbs.Restore.VERB:return new Verbs.Restore(statement, text);
-                    case Verbs.Exit.VERB:   return new Verbs.Exit(statement, text);
+                    case Verbs.Print.VERB:    return new Verbs.Print(statement, order, text);
+                    case Verbs.Define.VERB:   return new Verbs.Define(statement, order, text);
+                    case Verbs.Show.VERB:     return new Verbs.Show(statement, order, text);
+                    case Verbs.Generate.VERB: return new Verbs.Generate(statement, text);
                 }
                 statement.Notify("error", "Unknown verb provided: " + text[0]);
                 return null;

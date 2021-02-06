@@ -46,5 +46,9 @@ namespace QuelleHMI.Verbs
             }
             return (this.errors.Count == 0);
         }
+        public override void Help()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
