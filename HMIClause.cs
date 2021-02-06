@@ -9,8 +9,7 @@ namespace QuelleHMI
     {
         abstract protected bool Parse();
         abstract public bool Execute();
-        abstract public void Help();
-
+ 
         protected List<string> errors { get => this.statement.command.errors; }
         protected List<string> warnings { get => this.statement.command.warnings; }
         public HMIClauseType type { get; protected set; }

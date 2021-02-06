@@ -152,9 +152,9 @@ namespace QuelleHMI.Verbs
             }
             return false;
         }
-        public override void Help()
+        public static string Help(string verb)  // SET or CLEAR
         {
-            throw new NotImplementedException();
+            return "";
         }
     }
 }
