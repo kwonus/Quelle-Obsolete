@@ -26,7 +26,7 @@ Any application can implement the Quelle specification without royalty. We provi
 
 The Quelle specification defines a declarative syntax for specifying search criteria using the *find* verb. Quelle also defines additional verbs to round out its syntax as a simple straightforward means to interact with custom applications where searching text is the fundamental problem at hand. As mentioned earlier, AV Text Ministries provides a reference implementation. This implementation is written in C# and runs on most operating systems (e.g. Windows, Mac, Linux, iOS, Android, etc).  As source code is provided, it can be seamlessly extended by application programmers.
 
-Quelle Syntax comprises a standard set nine (9). Each verb corresponds to a basic operation:
+Quelle Syntax comprises a standard set of ten (10) verbs. Each verb corresponds to a basic operation:
 
 - find *(inferred)*
 - set *(inferred)*
@@ -41,7 +41,7 @@ Quelle Syntax comprises a standard set nine (9). Each verb corresponds to a basi
 
 The verbs listed above are for the English flavor of Quelle. As Quelle is an open and extensible standard, verbs for other languages can be defined without altering the overall syntax structure of the HMI. The remainder of this document describes Version 1.0 of the Quelle-HMI specification.  
 
-In Quelle terminology, a statement is made up of clauses. Each clause has a single verb. While there are nine verbs, there are only six distinct types of clauses:
+In Quelle terminology, a statement is made up of clauses. Each clause has a single verb. While there are ten verbs, there are only six distinct types of clauses:
 
 1. SEARCH clause
    - find *(inferred)*
@@ -61,7 +61,7 @@ In Quelle terminology, a statement is made up of clauses. Each clause has a sing
 
 If we ignore the SYSTEM clauses for the moment, we can focus on the primary operational clauses in Quelle. These verbs are identified in Table 3-1 below. A similar table for SYSTEM commands can be found in Section IX, near the end of this document.
 
-Searching and displaying results are the primary purpose of Quelle.  Learning the six verbs identified in Table 3-1 is all that is necessary for using Quelle. Each verb has a minimum and maximum number of parameters.  Each pf these six verbs are describe in the following sections.
+Searching and displaying results are the primary purpose of Quelle.  Learning the six verbs identified in Table 3-1 is all that is necessary for using Quelle. Each verb has a minimum and maximum number of parameters.  Each of these six verbs are described in the following sections.
 
 | Verb        | Action Type | Clause Type | Clause Restriction | Required Parameters                           | Required Operators | Optional Operators |
 | ----------- | :---------: | ----------- | ------------------ | --------------------------------------------- | :----------------: | :----------------: |
