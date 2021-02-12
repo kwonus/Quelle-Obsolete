@@ -67,9 +67,11 @@ namespace QuelleHMI
 
 			return null;
 		}
+		public static HMIConfigurationDefault configuration = new HMIConfigurationDefault();
 		public bool Search()
         {
-			return false;	// This will call into cloud driver
+			var cloud = new CloudSearch(this.statement, HMICommand.configuration.seachConf);
+			return true;	// This will call into cloud driver
         }
 	}
 }

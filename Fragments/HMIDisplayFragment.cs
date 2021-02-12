@@ -14,7 +14,6 @@ namespace QuelleHMI.Fragments
 				segment.Notify("error", "Major design/implementation error: aborting!");
 				return;
 			}
-			this.ordered = true;
 		}
 	}
 }

@@ -265,7 +265,6 @@ namespace QuelleHMI
                     }
                     return true;
                 }
-                ok = false;
                 if (normalized.simple)
                 {
                     ok = normalized.explicitClause.Execute();

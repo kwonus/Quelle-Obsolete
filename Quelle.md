@@ -1,11 +1,5 @@
 # Quelle HMI v1.0 Specification
 
-**NOTE:** At times, the Quelle specification can be a week or two ahead of the C# implementation. This is a side-effect of a lean TDD-style development process. The normal sequence is:
-
-1. Update specification
-2. Update Unit-Tests
-3. Update C# reference implementation
-
 ### I. Background
 
 Most modern search engines, provide a mechanism for searching via a text input box where the user is expected to type search terms. While primitive, this interface was pioneered by major web-search providers and represented an evolution from the far more complex interfaces that came earlier. When you search for multiple terms, however, there seems to be only one basic paradigm: “find every term”. At AV Text Ministries, we believe that the vast world of search is rife for a search-syntax that moves us past only basic search expressions. To this end, we are proposing a Human-Machine-Interface (HMI) that can be invoked within a simple text input box. The syntax fully supports basic Boolean operations such as AND, OR, and NOT. While great care has been taken to support the construction of complex queries, greater care has been taken to maintain a clear and concise syntax.
@@ -569,12 +563,14 @@ There are two required parameters for the @generate command: the programming-lan
 
 *@generate* Java CloudSearch
 
-The generate command will generate the internal Quelle class in the language specified. Indentation will be controlled as specified by a separate CONTROL statement.  Quelle's communication with a web-search provider [aka host] uses an HTTPS POST request and JSON serialization of C# classes that contain the parsed Quelle clauses.  Generating these classes accelerates the development of deserializers for the language of the search host.  In each invocation, the class/structure is code-generated into the language specified.  Languages supported are:
+The generate command will generate the internal Quelle class in the language specified. Indentation will be controlled as specified by a separate CONTROL statement.  Quelle's communication with a web-search provider [aka host] uses an HTTPS POST request and JSON serialization of C# classes that contain the parsed Quelle clauses.  Generating these classes accelerates the development of deserializers for the language of the search host.  In each invocation, the class/structure is code-generated into the language specified.  Languages & IDL supported are:
 
 - Java
 - Go
 - C
 - C#
+- Rust
+- Protobuf (Protocol Buffers IDL)
 
 Python support code-generation is unnecessary, because the pythonic pattern is to use a dictionary for derealization as this is normally methodology for working with JSON payloads. 
 

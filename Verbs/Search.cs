@@ -25,7 +25,8 @@ namespace QuelleHMI.Verbs
         }
         public override bool Execute()
         {
-            throw new NotImplementedException();
+            // throw new NotImplementedException();
+            return true;
         }
 
         public Search(HMIStatement statement, UInt32 segmentOrder, HMIPolarity polarity, string segment)
@@ -262,7 +263,7 @@ namespace QuelleHMI.Verbs
                 if (frag.token != null)
                 {
                     sequence++;
-                    HMIFragment current = new HMISearchFragment(this, sequence, frag.token);
+                    HMIFragment current = new HMISearchFragment(this, frag.token, sequence);
                     this.fragments.Add(sequence, current);
                 }
                 if (frag.offset >= len)
@@ -310,7 +311,7 @@ namespace QuelleHMI.Verbs
                 {
                     uint order = frag.ordered ? sequence : 0;
                     sequence++;
-                    HMIFragment current = new HMISearchFragment(this, order, frag.token);
+                    HMIFragment current = new HMISearchFragment(this, frag.token, order);
                     this.fragments.Add(sequence, current);
                 }
                 if (frag.offset >= len)

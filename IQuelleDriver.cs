@@ -13,7 +13,7 @@ namespace QuelleHMI
     }
     public interface IQuelleCloudSearchRequest
     {
-        HMIClause[] clauses { get;  }
+        Verbs.Search[] clauses { get;  }
         CTLSearch controls { get; }
         uint count { get; }
 

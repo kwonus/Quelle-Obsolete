@@ -10,7 +10,8 @@ namespace QuelleHMI.Controls
         {
             this.conf = file;
             this.map = new Dictionary<string, string>();
-            this.Read(this.conf);            
+            if (File.Exists(file))
+                this.Read(this.conf);            
         }
         private string conf;
         protected Dictionary<String, String> map;

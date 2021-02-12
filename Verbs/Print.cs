@@ -38,7 +38,7 @@ namespace QuelleHMI.Verbs
                 if (frag.token != null)
                 {
                     sequence++;
-                    HMIFragment current = new HMISearchFragment(this, sequence, frag.token);
+                    HMIFragment current = new HMISearchFragment(this, frag.token, sequence);
                     this.fragments.Add(sequence, current);
                 }
                 if (frag.offset >= len)

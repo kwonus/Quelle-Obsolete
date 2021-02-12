@@ -28,6 +28,8 @@ namespace QuelleHMI
 					case "golang":
 					case "go":		return new XGeneration.XGenGo();
 
+					case "rust":	return new XGeneration.XGenRust();
+
 					case "c":
 					case "c++":
 					case "cpp":		return new XGeneration.XGenC();
@@ -37,7 +39,11 @@ namespace QuelleHMI
 
 					case "java":	return new XGeneration.XGenJava();
 
-					case "python":	return new XGeneration.XGenPython();	// Python code-gen is pretty narly looking, so not advertised.  Better to use dictionary types in json and ignore this
+					case "python":	return new XGeneration.XGenPython();    // Python code-gen is pretty narly looking, so not advertised.  Better to use dictionary types in json and ignore this
+
+					case "protobufs":
+					case "protobuf":
+					case "pb":	    return new XGeneration.XGenProtobuf();
 				}
 			}
 			return null;
@@ -88,10 +94,11 @@ namespace QuelleHMI
 					default:			 return "HashMap<String, String>";
 				}
 			}
+			bool array = type.Name.EndsWith("[]");
 			if (type.Name.StartsWith("uint", StringComparison.InvariantCultureIgnoreCase))
-				return "uint";
+				return array ? "uint[]" : "uint";
 			if (type.Name.StartsWith("int", StringComparison.InvariantCultureIgnoreCase))
-				return "int";
+				return array ? "int[]" : "int";
 
 
 			return type.Name;
@@ -109,6 +116,16 @@ namespace QuelleHMI
 				item = typeof(HMIClause);
 			else if (typeof(HMIFragment).ToString().ToLower().EndsWith(test))
 				item = typeof(HMIFragment);
+			else if (typeof(Fragments.HMISearchFragment).ToString().ToLower().EndsWith(test))
+				item = typeof(Fragments.HMISearchFragment);
+			else if (typeof(Verbs.Search).ToString().ToLower().EndsWith(test))
+				item = typeof(Verbs.Search);
+			else if (typeof(Tokens.TokenFeature).ToString().ToLower().EndsWith(test))
+				item = typeof(Tokens.TokenFeature);
+			else if (typeof(Tokens.TokenMatch).ToString().ToLower().EndsWith(test))
+				item = typeof(Tokens.TokenMatch);
+			else if (typeof(Tokens.TokenVector).ToString().ToLower().EndsWith(test))
+				item = typeof(Tokens.TokenVector);
 			else if (typeof(CTLSearch).ToString().ToLower().EndsWith(test))
 				item = typeof(CTLSearch);
 			else if (typeof(CTLDisplay).ToString().ToLower().EndsWith(test))

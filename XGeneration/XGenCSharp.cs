@@ -21,7 +21,7 @@ namespace QuelleHMI.XGeneration
 			{
 				string line;
 
-				line = "using Quelle." + (module.EndsWith("[]") ? module.Substring(0, module.Length - 2) : module) + "\"";
+				line = "using Quelle." + (module.EndsWith("[]") ? module.Substring(0, module.Length - 2) : module) + ";";
 				return line + "\n";
 			}
 			return "";

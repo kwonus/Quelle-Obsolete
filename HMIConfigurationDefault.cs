@@ -11,10 +11,10 @@ namespace QuelleHMI
     public class HMIConfigurationDefault : HMISession, IQuelleConfig
     {
         private Dictionary<string, QuelleControlConfig> configs;
-        public QuelleControlConfig seachConf   { get => configs[HMISession.SEARCH]; }
-        public QuelleControlConfig displayConf { get => configs[HMISession.SEARCH]; }
-        public QuelleControlConfig programConf { get => configs[HMISession.QUELLE]; }
-        public QuelleControlConfig macroDef    { get => configs["MACROS"]; }
+        public CTLSearch seachConf   { get => (CTLSearch) configs[HMISession.SEARCH]; }
+        public CTLDisplay displayConf { get => (CTLDisplay) configs[HMISession.DISPLAY]; }
+        public CTLQuelle programConf { get => (CTLQuelle) configs[HMISession.QUELLE]; }
+        public MacroDef macroDef    { get => (MacroDef) configs["MACROS"]; }
 
         private string appdir;
         public HMIConfigurationDefault()
@@ -26,9 +26,9 @@ namespace QuelleHMI
             var qconf = Path.Combine(appdir, HMISession.QUELLE + ".conf");
             var macros = Path.Combine(appdir, "MACROS.conf");
             configs.Add(HMISession.SEARCH, new CTLSearch(sconf));
-            configs.Add(HMISession.DISPLAY, new CTLSearch(dconf));
-            configs.Add(HMISession.QUELLE, new CTLSearch(qconf));
-            configs.Add("MACROS", new CTLSearch(qconf));
+            configs.Add(HMISession.DISPLAY, new CTLDisplay(dconf));
+            configs.Add(HMISession.QUELLE, new CTLQuelle(qconf));
+            configs.Add("MACROS", new MacroDef(qconf));
         }
         public class HMIResultInt : IQuelleResultInt
         {
