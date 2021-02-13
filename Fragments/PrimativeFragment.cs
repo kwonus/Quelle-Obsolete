@@ -4,10 +4,10 @@ using System.Text;
 
 namespace QuelleHMI.Fragments
 {
-    public class HMIDisplayFragment: HMIFragment
-	{
-		public HMIDisplayFragment(HMIClause segment, UInt32 order, UInt32 fragmentSeq, string fragment)
-						: base(segment, fragment, fragmentSeq)
+    public class PrimativeFragment: Fragment
+    {
+		public PrimativeFragment(HMIClause segment, string fragment, uint sequence)
+			: base(segment, fragment, sequence)
 		{
 			if (this.segment == null)
 			{

@@ -12,7 +12,23 @@ namespace QuelleHMI
  
         protected List<string> errors { get => this.statement.command.errors; }
         protected List<string> warnings { get => this.statement.command.warnings; }
-        public HMIClauseType type { get; protected set; }
+        protected HMIClauseType type;
+        public bool isSimple()
+        {
+            return type == HMIClauseType.SIMPLE;
+        }
+        public bool isImplicit()
+        {
+            return type == HMIClauseType.IMPLICIT;
+        }
+        public bool isExplicit()
+        {
+            return type == HMIClauseType.EXPLICIT_DEPENDENT || type == HMIClauseType.EXPLICIT_INDEPENDENT;
+        }
+        public bool isDefined()
+        {
+            return type != HMIClauseType.UNDEFINED;
+        }
         public abstract string syntax { get; }
 
         protected (bool ok, string[] errors, string[] warnings) Status
@@ -79,12 +95,10 @@ namespace QuelleHMI
             if (this.statement != null)
                 this.statement.Notify(mode, message);
         }
-        public UInt32 order { get; private set;  }
-        public UInt32 sequence { get; private set; }  // Sequence number of segment
+        protected UInt32 sequence { get; private set; }  // Sequence number of segment
         public string segment { get; protected set; }
         public HMIPolarity polarity { get; private set; }
 
-        public Dictionary<UInt64, HMIFragment> fragments { get; private set; }
         public readonly static string[] Whitespace = new string[] { " ", "\t" };
 
         protected HMIClause(HMIStatement statement, UInt32 segmentOrder, HMIPolarity polarity, string segment, HMIClauseType clauseType)
@@ -101,7 +115,6 @@ namespace QuelleHMI
                 return;
             }
             this.segment = normalized;
-            this.fragments = new Dictionary<UInt64, HMIFragment>();
             this.sequence = segmentOrder; 
             this.polarity = polarity;
 

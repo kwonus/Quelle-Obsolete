@@ -52,7 +52,7 @@ namespace QuelleHMI.XGeneration
 			else if (type == "uint")
 				type = "u32";
 			if (array)
-				type = "[" + type + "]";
+				type = "&[" + type + "]";
 
 			string variable = "\t" + name + ": " + type + ",\n";
 			return variable;

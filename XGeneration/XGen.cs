@@ -53,9 +53,7 @@ namespace QuelleHMI
 			if (module == null || module.Length < 1)
 				return false;
 
-			return module.StartsWith("HMI", StringComparison.InvariantCultureIgnoreCase)
-				|| module.StartsWith("CTL", StringComparison.InvariantCultureIgnoreCase)
-				|| module.StartsWith("CloudSearch", StringComparison.InvariantCultureIgnoreCase);
+			return this.GetType(module) != null;
 		}
 		protected virtual string GetTypeName(System.Reflection.FieldInfo info)
 		{
@@ -103,10 +101,13 @@ namespace QuelleHMI
 
 			return type.Name;
         }
-		public string export(string className, int indents = 0)
-		{
+		protected Type GetType(string className)
+        {
+			var test = "." + className.ToLower();
+			if (test.EndsWith("[]"))
+				test = test.Substring(0, test.Length - 2);
+
 			Type item;
-			string test = "." + className.ToLower();
 
 			if (typeof(CloudSearch).ToString().ToLower().EndsWith(test))
 				item = typeof(CloudSearch);
@@ -114,10 +115,10 @@ namespace QuelleHMI
 				item = typeof(HMIStatement);
 			else if (typeof(HMIClause).ToString().ToLower().EndsWith(test))
 				item = typeof(HMIClause);
-			else if (typeof(HMIFragment).ToString().ToLower().EndsWith(test))
-				item = typeof(HMIFragment);
-			else if (typeof(Fragments.HMISearchFragment).ToString().ToLower().EndsWith(test))
-				item = typeof(Fragments.HMISearchFragment);
+			else if (typeof(Fragment).ToString().ToLower().EndsWith(test))
+				item = typeof(Fragment);
+			else if (typeof(Fragments.SearchFragment).ToString().ToLower().EndsWith(test))
+				item = typeof(Fragments.SearchFragment);
 			else if (typeof(Verbs.Search).ToString().ToLower().EndsWith(test))
 				item = typeof(Verbs.Search);
 			else if (typeof(Tokens.TokenFeature).ToString().ToLower().EndsWith(test))
@@ -133,6 +134,14 @@ namespace QuelleHMI
 			else if (typeof(CTLQuelle).ToString().ToLower().EndsWith(test))
 				item = typeof(CTLQuelle);
 			else
+				item = null;
+
+			return item;
+		}
+		public string export(string className, int indents = 0)
+		{
+			Type item = GetType(className);
+			if (item == null)
 				return "Unknown serialization class";
 
 			var properties = item.GetProperties();

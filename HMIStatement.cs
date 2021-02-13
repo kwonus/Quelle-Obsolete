@@ -213,12 +213,12 @@ namespace QuelleHMI
             var clauses = (from key in this.segmentation.Keys orderby key select this.segmentation[key]);
             foreach (var clause in clauses)
             {
-                this.normalized.simple = this.normalized.simple || (clause.type == HMIClauseType.SIMPLE);
+                this.normalized.simple = this.normalized.simple || clause.isSimple();
 
-                if (clause.type == HMIClauseType.UNDEFINED)
+                if (!clause.isDefined())
                     this.Notify("error", "The type of clause could not be identified");
 
-                if (clause.type != HMIClauseType.IMPLICIT)
+                if (!clause.isImplicit())
                     this.normalized.explicitClause = clause;
 
                 else if (clause.verb == Verbs.Search.VERB)

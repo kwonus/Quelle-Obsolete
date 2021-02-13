@@ -10,6 +10,7 @@ namespace QuelleHMI.Verbs
         public const string SYNTAX = "DISPLAY";
         public override string syntax { get => SYNTAX; }
         public const string VERB = "@print";
+        public Dictionary<UInt64, PrimativeFragment> fragments { get; private set; }
 
         public Print(HMIStatement statement, UInt32 segmentOrder, string segment)
             : base(statement, segmentOrder, HMIPolarity.UNDEFINED, segment, HMIClauseType.EXPLICIT_INDEPENDENT)
@@ -38,7 +39,7 @@ namespace QuelleHMI.Verbs
                 if (frag.token != null)
                 {
                     sequence++;
-                    HMIFragment current = new HMISearchFragment(this, frag.token, sequence);
+                    var current = new PrimativeFragment(this, frag.token, sequence);
                     this.fragments.Add(sequence, current);
                 }
                 if (frag.offset >= len)

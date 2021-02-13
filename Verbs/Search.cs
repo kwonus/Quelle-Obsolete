@@ -1,7 +1,7 @@
 ﻿using QuelleHMI.Fragments;
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 
 namespace QuelleHMI.Verbs
 {
@@ -10,6 +10,16 @@ namespace QuelleHMI.Verbs
         public const string SYNTAX = "SEARCH";
         public override string syntax { get => SYNTAX; }
         public const string VERB = "find";
+        protected Dictionary<UInt64, SearchFragment> searchFragments;
+        public SearchFragment[] fragments
+        {
+            get
+            {
+                var list = (from key in this.searchFragments.Keys orderby key select this.searchFragments[key]);
+                return list.ToArray();
+            }
+        }
+
         private Boolean quoted;
 
         protected override bool Parse()
@@ -263,8 +273,8 @@ namespace QuelleHMI.Verbs
                 if (frag.token != null)
                 {
                     sequence++;
-                    HMIFragment current = new HMISearchFragment(this, frag.token, sequence);
-                    this.fragments.Add(sequence, current);
+                    var current = new SearchFragment(this, frag.token, sequence);
+                    this.searchFragments.Add(sequence, current);
                 }
                 if (frag.offset >= len)
                     break;
@@ -311,8 +321,8 @@ namespace QuelleHMI.Verbs
                 {
                     uint order = frag.ordered ? sequence : 0;
                     sequence++;
-                    HMIFragment current = new HMISearchFragment(this, frag.token, order);
-                    this.fragments.Add(sequence, current);
+                    var current = new SearchFragment(this, frag.token, order);
+                    this.searchFragments.Add(sequence, current);
                 }
                 if (frag.offset >= len)
                     break;
