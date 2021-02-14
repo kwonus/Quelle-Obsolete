@@ -172,7 +172,7 @@ namespace QuelleHMI.XGeneration
 				foreach (var action in this.actions)
                 {
 					file += ("\trpc " + action + "(Quelle" + action + XGen.InterfaceSuffixes[0] + ") ");
-					file += ("returns Quelle" + action + XGen.InterfaceSuffixes[1] + ";\n");
+					file += ("returns (Quelle" + action + XGen.InterfaceSuffixes[1] + ") {};\n");
 				}
 				file += "}\n";
 				file += this.messages;

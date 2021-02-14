@@ -117,14 +117,8 @@ namespace QuelleHMI
                 }
                 else if (c == '@')
                 {
-                    // allow semicolon before @
-                    var token = this.statement.Substring(last, i - last).Trim();
-                    if (token.Length > 0)
-                    {
-                        polarity.Add(order++, token);
-                        polarity = positives;
-                        last = i;
-                    }
+                    positives.Add(order++, this.statement.Substring(last));
+                    break;
                 }
                 else
                 {

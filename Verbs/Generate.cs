@@ -9,7 +9,8 @@ namespace QuelleHMI.Verbs
     {
         public const string SYNTAX = "SYSTEM";
         public override string syntax { get => SYNTAX; }
-        public const string VERB = "@generate";
+        public const string GENERATE = "@generate";
+        public const string REGENERATE = "@generate!";
 
         private string className;
         private XGen language;
@@ -18,46 +19,41 @@ namespace QuelleHMI.Verbs
         private bool overwrite;
         private int arguments;
 
-        public Generate(HMIStatement statement,string segment)
+        public Generate(HMIStatement statement,string segment, string verb)
         : base(statement, 1, HMIPolarity.UNDEFINED, segment, HMIClauseType.SIMPLE)
         {
-            this.verb = VERB;
+            this.verb = verb;
         }
         protected override bool Parse()
         {
             if (this.segment == null)
                 return false;
 
-            var expanded = this.statement.statement.ToLower().Replace("!", " ! ").Replace(">", " > ");
+            var expanded = this.statement.statement.ToLower().Replace(">", " > ");
             var max = expanded.Contains('!') ? 6 : 5;
             var tokens = expanded.Split(HMIClause.Whitespace, max, StringSplitOptions.RemoveEmptyEntries);
 
-            if (tokens[0] == "@generate")
+            if (tokens[0] == Generate.GENERATE || tokens[0] == Generate.REGENERATE)
             {
+                this.verb = tokens[0];
                 this.arguments = (tokens.Length == 3)
                                ?  3
                                : (tokens.Length == 5) && (tokens[3] == ">")
                                ?  5
-                               : (tokens.Length == 6) && ( (tokens[3] == "!" && tokens[4] == ">") || (tokens[3] == ">" && tokens[4] == "!") )
-                               ?  6
                                :  0;
 
-                if (this.arguments > 0)
+                if (this.arguments >= 3)
                 {
                     this.language = XGen.Factory(tokens[1]);
                     this.className = tokens[2];
                 }
                 if (this.language != null)
                 {
-                    switch (this.arguments)
+                    if (this.arguments == 5)
                     {
-                        case 5: this.output = tokens[4];
-                                this.overwrite = false;
-                                break;
-                        case 6: this.output = tokens[5];
-                                this.overwrite = true;
-                                break;
-                    }
+                        this.output = tokens[4];
+                        this.overwrite = this.verb.Equals(Generate.REGENERATE, StringComparison.InvariantCultureIgnoreCase);
+                     }
                     return true;
                 }
                 this.Notify("error", "The language provided (" + tokens[1] + ") was not recognized.");

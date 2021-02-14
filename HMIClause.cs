@@ -72,7 +72,9 @@ namespace QuelleHMI
                     case Verbs.Print.VERB:    return new Verbs.Print(statement, order, text);
                     case Verbs.Define.VERB:   return new Verbs.Define(statement, order, text);
                     case Verbs.Show.VERB:     return new Verbs.Show(statement, order, text);
-                    case Verbs.Generate.VERB: return new Verbs.Generate(statement, text);
+
+                    case Verbs.Generate.GENERATE:   return new Verbs.Generate(statement, text, Verbs.Generate.GENERATE);
+                    case Verbs.Generate.REGENERATE: return new Verbs.Generate(statement, text, Verbs.Generate.REGENERATE);
                 }
                 statement.Notify("error", "Unknown verb provided: " + text[0]);
                 return null;

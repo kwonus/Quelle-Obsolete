@@ -553,7 +553,7 @@ Type this to terminate the Quelle interpreter:
 
 **CODE GENERATION**
 
-*@generate** system command assists <u>programmers and developers</u>
+*@generate* system command assists <u>programmers and developers</u>
 
 indentation=tab
 
