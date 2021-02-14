@@ -13,7 +13,7 @@ namespace QuelleHMI
         {
             this.host = new Uri(host);
         }
-        public IQuelleCloudSearchResult Post(CloudSearch payload)
+        public IQuelleSearchResult Post(CloudSearch payload)
         {
             var rest = new HttpClient();
             return null;

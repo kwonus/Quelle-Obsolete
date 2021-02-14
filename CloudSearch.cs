@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace QuelleHMI
 {
-    public class CloudSearch: IQuelleCloudSearchRequest
+    public class CloudSearch: IQuelleSearchRequest
     {
         public IQuelleSearchClause[] clauses { get; private set; }
         public IQuelleSearchControls controls { get; private set; }

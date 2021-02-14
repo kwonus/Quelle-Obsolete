@@ -12,20 +12,20 @@ namespace QuelleHMI
         string[] errors { get; }
         string[] warnings { get; }
     }
-    public interface IQuelleCloudSearchRequest
+    public interface IQuelleSearchRequest
     {
         IQuelleSearchClause[] clauses { get;  }
         IQuelleSearchControls controls { get; }
         UInt64 count { get; }
 
     }
-    public interface IQuelleCloudFetchRequest
+    public interface IQuelleFetchRequest
     {
         Guid session { get; }
         UInt64 cursor { get; }
         UInt64 count { get; }
     }
-    public interface IQuelleCloudFetchResult : IQuelleResult
+    public interface IQuelleFetchResult : IQuelleResult
     {
         UInt64 cursor { get; }
         UInt64 remainder { get; }
@@ -33,28 +33,28 @@ namespace QuelleHMI
         Dictionary<UInt64, string> records { get; }     // The UInt16 is a key to be used with the session to retrieve a specific result
                                                         // the string is th abstract for the record
     }
-    public interface IQuelleCloudSearchResult : IQuelleCloudFetchResult
+    public interface IQuelleSearchResult : IQuelleFetchResult
     {
         string summary { get; }
-        IQuelleCloudSearchRequest enrichedRequest { get; }
+        IQuelleSearchRequest enrichedRequest { get; }
     }
-    public interface IQuelleCloudStatusRequest
+    public interface IQuelleStatusRequest
     {
         
     }
-    public interface IQuelleCloudStatusResult : IQuelleResult
+    public interface IQuelleStatusResult : IQuelleResult
     {
     }
-    public interface IQuelleCloudPageRequest
+    public interface IQuellePageRequest
     {
         Guid session { get; }
         string format { get; }
         UInt64 page { get; }
     }
-    public interface IQuelleCloudPageResult : IQuelleResult
+    public interface IQuellePageResult : IQuelleResult
     {
         string result { get; }
-        IQuelleCloudPageRequest request { get; }
+        IQuellePageRequest request { get; }
     }
     public interface IQuelleResultObject : IQuelleResult
     {
@@ -91,9 +91,9 @@ namespace QuelleHMI
     }
     public interface IQuelleDriver : IQuelleConfig, IQuelleHelp
     {
-        IQuelleCloudSearchResult Search(HMIStatement statement);
+        IQuelleSearchResult Search(HMIStatement statement);
 
-        IQuelleCloudFetchResult Fetch(Guid session, uint cursor, uint count);
+        IQuelleFetchResult Fetch(Guid session, uint cursor, uint count);
 
         IQuelleResultString Get(Guid session, UInt16 key);
     }

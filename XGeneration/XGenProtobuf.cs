@@ -121,7 +121,7 @@ namespace QuelleHMI.XGeneration
 			else if (type.Equals("bool", StringComparison.InvariantCultureIgnoreCase) || type.Equals("boolean", StringComparison.InvariantCultureIgnoreCase))
 				type = "bool";
 			else if (guid)
-				type = "byte";
+				type = "string";
 			else if (type.Equals("int", StringComparison.InvariantCultureIgnoreCase))
 				type = "int64";
 			else if (type.Equals("uint", StringComparison.InvariantCultureIgnoreCase))
@@ -151,7 +151,7 @@ namespace QuelleHMI.XGeneration
 					}
             }
 
-			return (array || guid ? "repeated " : "")  + type;  // NOTE:  We do not support an array of guids
+			return (array ? "repeated " : "")  + type;
 		}
 		protected override string getterAndSetter(string name, string type)
 		{
@@ -171,8 +171,8 @@ namespace QuelleHMI.XGeneration
 
 				foreach (var action in this.actions)
                 {
-					file += ("\trpc " + action + "(Quelle" + action + XGen.InterfaceSuffixes[0] + ") ");
-					file += ("returns (Quelle" + action + XGen.InterfaceSuffixes[1] + ") {};\n");
+					file += ("\trpc " + action + "(" + XGen.InterfacePrefix.Substring(1) + action + XGen.InterfaceSuffixes[0] + ") ");
+					file += ("returns (" + XGen.InterfacePrefix.Substring(1) + action + XGen.InterfaceSuffixes[1] + ") {};\n");
 				}
 				file += "}\n";
 				file += this.messages;

@@ -9,13 +9,13 @@ namespace QuelleHMI
 {
     public abstract class XGen
     {
-		public const string InterfacePrefix = "IQuelleCloud";
+		public const string InterfacePrefix = "IQuelle";
 		public static readonly string[] InterfaceSuffixes = { "Request" , "Result" };
 
 		public static Type[] Interfaces = new Type[] {
-			typeof(IQuelleCloudSearchRequest), typeof(IQuelleCloudSearchResult),
-			typeof(IQuelleCloudFetchRequest), typeof(IQuelleCloudFetchResult),
-			typeof(IQuelleCloudPageRequest), typeof(IQuelleCloudPageResult),
+			typeof(IQuelleSearchRequest), typeof(IQuelleSearchResult),
+			typeof(IQuelleFetchRequest), typeof(IQuelleFetchResult),
+			typeof(IQuellePageRequest), typeof(IQuellePageResult),
 
 			typeof(IQuelleSearchControls), typeof(IQuelleSearchClause),
 			typeof(IQuelleSearchFragment),
@@ -153,7 +153,7 @@ namespace QuelleHMI
 		}
 		public string export(string className, int indents = 0)
 		{
-			Type item = (className != null && className != "*") ? GetType(className) : typeof(IQuelleCloudSearchRequest);
+			Type item = (className != null && className != "*") ? GetType(className) : typeof(IQuelleSearchRequest);
 			if (item == null)
 				return "Unknown serialization class";
 
