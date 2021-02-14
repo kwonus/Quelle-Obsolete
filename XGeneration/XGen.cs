@@ -88,14 +88,7 @@ namespace QuelleHMI
 			if (type.IsEnum)
 				return "int";
 			if (type.Name.StartsWith("dictionary", StringComparison.InvariantCultureIgnoreCase))
-			{
-				switch (name)
-				{
-					case "segmentation": return "HashMap<uint, HMIClause>";
-					case "fragments": return "HashMap<uint, HMIFragment>";
-					default: return "HashMap<String, String>";
-				}
-			}
+				return "HashMap<uint, HMIClause>";
 			if (type.Name.StartsWith("uint", StringComparison.InvariantCultureIgnoreCase))
 				return "uint";
 			if (type.Name.StartsWith("int", StringComparison.InvariantCultureIgnoreCase))
@@ -110,14 +103,8 @@ namespace QuelleHMI
 			if (type.IsEnum)
 				return "int";
 			if (type.Name.StartsWith("dictionary", StringComparison.InvariantCultureIgnoreCase))
-			{
-				switch (name)
-                {
-					case "segmentation": return "HashMap<uint, HMIClause>";
-					case "fragments":    return "HashMap<uint, HMIFragment>";
-					default:			 return "HashMap<String, String>";
-				}
-			}
+				return "HashMap<uint, String>";
+
 			bool array = type.Name.EndsWith("[]");
 			if (type.Name.StartsWith("uint", StringComparison.InvariantCultureIgnoreCase))
 				return array ? "uint[]" : "uint";

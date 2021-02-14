@@ -155,7 +155,7 @@ namespace QuelleHMI.XGeneration
 		}
 		protected override string getterAndSetter(string name, string type)
 		{
-			string variable = "\t" + this.AdaptType(type) + " = " + (++index).ToString() + ";\n";
+			string variable = "\t" + this.AdaptType(type) + " " + name + " = " + (++index).ToString() + ";\n";
 			return variable;
 		}
 		protected override string export(Type type)

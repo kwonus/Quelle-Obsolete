@@ -37,7 +37,7 @@ namespace QuelleHMI.XGeneration
 			if (type.StartsWith("HashMap<"))
 				type = "map[" + type.Substring("HashMap<".Length).Replace(',', ']').Replace(">", "");
 			else if (type.EndsWith("[]"))
-				type = "[]" + type.Substring(0, type.Length - 2);
+				type = "[]" + type.Substring(0, type.Length - 2).Trim();
 
 			string variable = "\t" + name + " " + type + "\n";
 			return variable;
