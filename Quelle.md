@@ -570,9 +570,12 @@ The generate command will generate the internal Quelle class in the language spe
 - C
 - C#
 - Rust
-- Protobuf (Protocol Buffers IDL)
+- Protobuf
+- gRPC
 
 Python support code-generation is unnecessary, because the pythonic pattern is to use a dictionary for derealization as this is normally methodology for working with JSON payloads. 
+
+In the case of gRPC, the third parameter must be "*" as it always generates all messages, in addition to the Quelle cloud-service definitions.
 
 The additional two parameters are optional, and are also very specific.  If the third parameter is provided, it must be ( > ) or ( >! ).  And the final and fourth parameter must be a valid path+filename specification. To expand on the previous example, we can save output to a file with this command:
 
@@ -583,6 +586,10 @@ The folder must exist, and the file in that folder must not exist.  If those two
 If the user does not care if the file already exists, the existance check can be bypassed using this command:
 
 *@generate* Java CloudSearch  >!  C:\\MyFolder\\src\\CloudSearch.java
+
+Finally, to generate IDL for all cloud-interface types, issue this command:
+
+*@generate* gRPC * >  C:\\MyFolder\\src\\QuelleCloudSearchProvider.proto
 
 ### X. System Controls
 

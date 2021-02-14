@@ -4,9 +4,14 @@ using System.Text;
 
 namespace QuelleHMI.Tokens
 {
-    public class TokenMatch
+    public interface IQuelleTokenMatch
+    {
+        string condition { get; }
+        IQuelleTokenFeature[] anyFeature { get; }
+    }
+    public class TokenMatch: IQuelleTokenMatch
     {
         public string condition { get; }
-        public TokenFeature[] anyFeature { get; }
+        public IQuelleTokenFeature[] anyFeature { get; }
     }
 }

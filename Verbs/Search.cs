@@ -5,13 +5,21 @@ using System.Linq;
 
 namespace QuelleHMI.Verbs
 {
-    public class Search : HMIClause
+    public interface IQuelleSearchClause
+    {
+        string syntax { get; }
+        IQuelleSearchFragment[] fragments { get; }
+        string segment { get; }
+        HMIClause.HMIPolarity polarity { get; }
+
+    }
+    public class Search : HMIClause, IQuelleSearchClause
     {
         public const string SYNTAX = "SEARCH";
         public override string syntax { get => SYNTAX; }
         public const string VERB = "find";
         protected Dictionary<UInt64, SearchFragment> searchFragments;
-        public SearchFragment[] fragments
+        public IQuelleSearchFragment[] fragments
         {
             get
             {

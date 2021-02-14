@@ -4,7 +4,11 @@ using System.Text;
 
 namespace QuelleHMI.Tokens
 {
-    public class TokenFeature
+    public interface IQuelleTokenFeature
+    {
+        string feature { get; }
+    }
+    public class TokenFeature: IQuelleTokenFeature
     {
         public string feature { get; }
     }

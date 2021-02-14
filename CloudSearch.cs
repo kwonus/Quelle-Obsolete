@@ -1,4 +1,5 @@
 ﻿using QuelleHMI.Controls;
+using QuelleHMI.Verbs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,9 +8,9 @@ namespace QuelleHMI
 {
     public class CloudSearch: IQuelleCloudSearchRequest
     {
-        public Verbs.Search[] clauses { get; private set; }
-        public CTLSearch controls { get; private set; }
-        public uint count { get; private set; }
+        public IQuelleSearchClause[] clauses { get; private set; }
+        public IQuelleSearchControls controls { get; private set; }
+        public UInt64 count { get; private set; }
 
         public CloudSearch(HMIStatement statement, CTLSearch searchControls)
         {

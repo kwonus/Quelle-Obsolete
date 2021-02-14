@@ -6,8 +6,14 @@ using System.Text;
 
 namespace QuelleHMI.Fragments
 {
-    public class SearchFragment: Fragment
+	public interface IQuelleSearchFragment
     {
+		uint[] positionAspects { get; }
+		IQuelleTokenVector[] anyOf { get; }
+		string text { get; }
+	}
+    public class SearchFragment: Fragment, IQuelleSearchFragment
+	{
 		protected UInt32 absolute;
 		protected bool elipses;
 		protected bool bracketStart;
@@ -168,7 +174,7 @@ namespace QuelleHMI.Fragments
 			}
 		}
 		*/
-		public TokenVector[] anyOf
+		public IQuelleTokenVector[] anyOf
         {
             get
             {

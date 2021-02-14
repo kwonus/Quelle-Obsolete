@@ -1,4 +1,5 @@
 ﻿using QuelleHMI.Controls;
+using QuelleHMI.Verbs;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,32 +10,51 @@ namespace QuelleHMI
     {
         bool success { get; }
         string[] errors { get; }
-        string[] warnings { get;  }
+        string[] warnings { get; }
     }
     public interface IQuelleCloudSearchRequest
     {
-        Verbs.Search[] clauses { get;  }
-        CTLSearch controls { get; }
-        uint count { get; }
+        IQuelleSearchClause[] clauses { get;  }
+        IQuelleSearchControls controls { get; }
+        UInt64 count { get; }
 
     }
     public interface IQuelleCloudFetchRequest
     {
         Guid session { get; }
-        uint cursor { get; }
-        uint count { get; }
+        UInt64 cursor { get; }
+        UInt64 count { get; }
     }
-    public interface IQuelleCloudFetchhResult : IQuelleResult
+    public interface IQuelleCloudFetchResult : IQuelleResult
     {
-        uint cursor { get; }
-        uint remainder { get; }
+        UInt64 cursor { get; }
+        UInt64 remainder { get; }
+        Guid session { get; }
+        Dictionary<UInt64, string> records { get; }     // The UInt16 is a key to be used with the session to retrieve a specific result
+                                                        // the string is th abstract for the record
     }
-    public interface IQuelleCloudSearchResult : IQuelleCloudFetchhResult
+    public interface IQuelleCloudSearchResult : IQuelleCloudFetchResult
     {
         string summary { get; }
+        IQuelleCloudSearchRequest enrichedRequest { get; }
+    }
+    public interface IQuelleCloudStatusRequest
+    {
+        
+    }
+    public interface IQuelleCloudStatusResult : IQuelleResult
+    {
+    }
+    public interface IQuelleCloudPageRequest
+    {
         Guid session { get; }
-        Dictionary<UInt16, string> records { get; }     // The UInt16 is a key to be used with the session to retrieve a specific result
-                                                        // the string is th abstract for the record    }
+        string format { get; }
+        UInt64 page { get; }
+    }
+    public interface IQuelleCloudPageResult : IQuelleResult
+    {
+        string result { get; }
+        IQuelleCloudPageRequest request { get; }
     }
     public interface IQuelleResultObject : IQuelleResult
     {
@@ -73,7 +93,7 @@ namespace QuelleHMI
     {
         IQuelleCloudSearchResult Search(HMIStatement statement);
 
-        IQuelleCloudFetchhResult Fetch(Guid session, uint cursor, uint count);
+        IQuelleCloudFetchResult Fetch(Guid session, uint cursor, uint count);
 
         IQuelleResultString Get(Guid session, UInt16 key);
     }

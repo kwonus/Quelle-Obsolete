@@ -6,10 +6,11 @@ namespace QuelleHMI.XGeneration
 {
     class XGenCSharp : XGen
 	{
+		private bool scoping;
 		//	C# code-generator:
 		public XGenCSharp()
 		{
-			;
+			scoping = true;
 		}
 		protected override string additionalImports()
 		{
@@ -36,7 +37,11 @@ namespace QuelleHMI.XGeneration
 
 			if (type.StartsWith("HashMap"))
 				type = "Dictionary" + type.Substring("HashMap".Length);
-			string variable = "\t\tpublic " + type + "\t" + name + ";\n";
+
+			string variable = this.scoping
+				? "\t\tpublic " + type + "\t" + name + " { get; }\n"
+				: "\t\t" + type + "\t" + name + " { get; }\n";
+
 			return variable;
 		}
 		protected override string export(Type type)
@@ -61,7 +66,14 @@ namespace QuelleHMI.XGeneration
 
 				string qname = QClass(type);
 				string classname = QClass(type) != null ? qname : "UNKNOWN";
-				file += ("\tpublic class " + classname);
+
+				this.scoping = !qname.StartsWith(XGen.InterfacePrefix);
+
+				if (scoping)
+					file += ("\tpublic class " + classname);
+				else
+					file += ("\tpublic interface " + classname);
+
 				if (parent != null)
 				{
 					file += ": ";
