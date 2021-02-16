@@ -583,9 +583,9 @@ The additional two parameters are optional, and are also very specific.  If the 
 
 The folder must exist, and the file in that folder must not exist.  If those two conditions are met, the CloudSearch.java will contain the generated code.
 
-If the user does not care if the file already exists, the existance check can be bypassed using this command:
+If the user does not care if the file already exists, the existence check can be bypassed by adding exclamation ( ! ) to the command:
 
-*@generate* Java CloudSearch  >!  C:\\MyFolder\\src\\CloudSearch.java
+*@generate!* Java CloudSearch  >  C:\\MyFolder\\src\\CloudSearch.java
 
 Finally, to generate IDL for all cloud-interface types, issue this command:
 
