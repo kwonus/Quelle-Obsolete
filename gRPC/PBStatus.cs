@@ -16,6 +16,7 @@ namespace QuelleHMI
     [DataContract]
     public class PBStatusResult: PBQuelleResult, IQuelleStatusResult
     {
+        [DataMember(Order = 1)]
         public Guid[] sessions { get; set; }
 
         public PBStatusResult(IQuelleStatusResult iresult): base((IQuelleResult)iresult)

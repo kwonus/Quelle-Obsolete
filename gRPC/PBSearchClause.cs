@@ -17,10 +17,7 @@ namespace QuelleHMI
         public string syntax { get; set; }
         public IQuelleSearchFragment[] fragments
         {
-            get
-            {
-                return this.pbfragments;
-            }
+            get => this.pbfragments;
         }
         [DataMember(Order = 2)]
         public PBSearchFragment[] pbfragments { get; set; }

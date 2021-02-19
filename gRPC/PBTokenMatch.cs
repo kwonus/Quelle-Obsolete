@@ -17,10 +17,7 @@ namespace QuelleHMI
         public string condition { get; set; }
         public IQuelleTokenFeature[] anyFeature
         {
-            get
-            {
-                return this.pbAnyFeature;
-            }
+            get => this.pbAnyFeature;
         }
         [DataMember(Order = 2)]
         public PBTokenFeature[] pbAnyFeature { get; set; }

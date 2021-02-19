@@ -13,11 +13,13 @@ namespace QuelleHMI
     [DataContract]
     public class PBTokenVector : IQuelleTokenVector
     {
+        [DataMember(Order = 1)]
         public string specification { get; set;  }
         public IQuelleTokenMatch[] matchAll
         {
             get => this.pbMatchAll;
         }
+        [DataMember(Order = 2)]
         public PBTokenMatch[] pbMatchAll { get; set; }
 
         public PBTokenVector(IQuelleTokenVector ivector)

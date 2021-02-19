@@ -18,10 +18,7 @@ namespace QuelleHMI
         public uint[] positionAspects { get; set; }
         public IQuelleTokenVector[] anyOf
         {
-            get
-            {
-                return this.pbanyOf;
-            }
+            get => this.pbanyOf;
         }
         [DataMember(Order = 2)]
         public PBTokenVector[] pbanyOf { get; set;  }
