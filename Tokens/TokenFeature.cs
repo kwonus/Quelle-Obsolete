@@ -8,8 +8,4 @@ namespace QuelleHMI.Tokens
     {
         string feature { get; }
     }
-    public class TokenFeature: IQuelleTokenFeature
-    {
-        public string feature { get; }
-    }
 }

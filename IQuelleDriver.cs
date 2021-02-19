@@ -44,6 +44,7 @@ namespace QuelleHMI
     }
     public interface IQuelleStatusResult : IQuelleResult
     {
+        public Guid[] sessions { get; }
     }
     public interface IQuellePageRequest
     {
@@ -91,9 +92,9 @@ namespace QuelleHMI
     }
     public interface IQuelleDriver : IQuelleConfig, IQuelleHelp
     {
-        IQuelleSearchResult Search(HMIStatement statement);
+        //IQuelleSearchResult Search(HMIStatement statement);
 
-        IQuelleFetchResult Fetch(Guid session, uint cursor, uint count);
+        //IQuelleFetchResult Fetch(Guid session, uint cursor, uint count);
 
         IQuelleResultString Get(Guid session, UInt16 key);
     }

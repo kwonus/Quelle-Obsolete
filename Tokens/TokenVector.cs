@@ -6,12 +6,7 @@ namespace QuelleHMI.Tokens
 {
     public interface IQuelleTokenVector
     {
-        public string specification { get; }
+        string specification { get; }
         IQuelleTokenMatch[] matchAll { get; }
-    }
-    public class TokenVector: IQuelleTokenVector
-    {
-        public string specification { get; }
-        public IQuelleTokenMatch[] matchAll { get; }
     }
 }
