@@ -18,7 +18,15 @@ namespace QuelleHMI
         public UInt64 cursor { get; set; }
         [DataMember(Order = 3)]
         public UInt64 count { get; set; }
+
+        public PBFetchRequest(IQuelleFetchRequest irequest)
+        {
+            this.session = irequest.session;
+            this.cursor = irequest.cursor;
+            this.count = irequest.count;
+        }
     }
+
     [DataContract]
     public class PBFetchResult : PBQuelleResult, IQuelleFetchResult
     {

@@ -12,6 +12,10 @@ namespace QuelleHMI
     [DataContract]
     public class PBStatusRequest : IQuelleStatusRequest
     {
+        public PBStatusRequest(IQuelleStatusRequest irequest)
+        {
+            ;
+        }
     }
     [DataContract]
     public class PBStatusResult: PBQuelleResult, IQuelleStatusResult

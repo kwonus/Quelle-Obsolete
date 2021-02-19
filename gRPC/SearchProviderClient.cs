@@ -35,14 +35,22 @@ namespace QuelleHMI
         }
         public IQuelleSearchResult Search(IQuelleSearchRequest request)
         {
+            PBSearchRequest pbrequest = new PBSearchRequest(request);
             return null;
         }
         public IQuelleFetchResult Fetch(IQuelleFetchRequest request)
         {
+            PBFetchRequest pbrequest = new PBFetchRequest(request);
             return null;
         }
         public IQuellePageResult Page(IQuellePageRequest request)
         {
+            PBPageRequest pbrequest = new PBPageRequest(request);
+            return null;
+        }
+        public IQuelleStatusResult Page(IQuelleStatusRequest request)
+        {
+            PBStatusRequest pbrequest = new PBStatusRequest(request);
             return null;
         }
     }
