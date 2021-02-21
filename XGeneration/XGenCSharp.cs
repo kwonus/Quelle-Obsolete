@@ -21,6 +21,7 @@ namespace QuelleHMI.XGeneration
 			var module = type.Name;
 			if (this.Include(module))
 			{
+				module = QClassForImport(type);
 				string line;
 
 				line = "using Quelle." + (type.IsArray ? module.Substring(0, module.Length - 2) : module) + ";";

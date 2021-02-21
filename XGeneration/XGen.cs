@@ -199,7 +199,7 @@ namespace QuelleHMI
 				}
 			}
 			else
-            {
+			{
 				ctype = tparts[tparts.Length - 1];
 			}
 			if (ctype.Length < 1)
@@ -215,6 +215,11 @@ namespace QuelleHMI
 				return ctype;
 
 			return arrayPrefix.Value ? "[]" + ctype : ctype + "[]";
+		}
+	
+		protected string QClassForImport(Type c)
+		{
+			return QClass(c, "", null);
 		}
 	}
 }

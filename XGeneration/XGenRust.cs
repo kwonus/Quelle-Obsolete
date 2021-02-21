@@ -10,12 +10,8 @@ namespace QuelleHMI.XGeneration
 		public XGenRust()
 		{
 			this.types.Add(typeof(string), "str");
-			this.types.Add(typeof(String), "str");
 			this.types.Add(typeof(bool), "bool");
-			this.types.Add(typeof(Boolean), "bool");
 			this.types.Add(typeof(Guid), "str");
-			this.types.Add(typeof(int), "i64");
-			this.types.Add(typeof(uint), "u64");
 			this.types.Add(typeof(Int16), "i16");
 			this.types.Add(typeof(UInt16), "u16");
 			this.types.Add(typeof(Int32), "i32");
@@ -33,6 +29,7 @@ namespace QuelleHMI.XGeneration
 
 			if (this.Include(module))
 			{
+				module = QClassForImport(type);
 				string line;
 
 				line = "use Quelle." + module + ";";
@@ -48,22 +45,11 @@ namespace QuelleHMI.XGeneration
 		{
 			var stype = QClass(type, "HashMap<{0}, {1}>");
 
-			foreach (var i in XGen.Interfaces)
-			{
-				if (i.Name == type.Name)
-				{
-					stype = type.Name.Substring(1);   // remove I prefix
-				}
-			}
-
 			return type.IsArray ? "Vec<" + stype + ">" : stype;
 		}
 		protected override string getterAndSetter(string name, Type type)
 		{
 			var stype = AdaptType(type);
-
-			if (type.IsArray)
-				stype = "Vec<" + type.Name + ">";
 
 			string variable = "\t" + name + ": " + stype + ",\n";
 			return variable;

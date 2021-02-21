@@ -57,7 +57,7 @@ namespace QuelleHMI.XGeneration
 		{
 			string file = "";
 
-			string package = "package " + type.Name + "\n\n";
+			string package = "package " + QClassForImport(type)	+ "\n\n";
 			file += package;
 
 			try

@@ -29,6 +29,7 @@ namespace QuelleHMI.XGeneration
 
 			if (this.Include(module))
 			{
+				module = QClassForImport(type);
 				string line;
 
 				line = "import Quelle." + module + ";";
@@ -42,7 +43,9 @@ namespace QuelleHMI.XGeneration
 		}
 		protected override string getterAndSetter(string name, Type type)
 		{
-			string variable = "\tpublic " + type + "\t" + name + ";\n";
+			string stype = this.QClass(type, "HashMap<{0}, {1}>");
+
+			string variable = "\tpublic " + stype + "\t" + name + ";\n";
 			return variable;
 		}
 		protected override string export(Type type)

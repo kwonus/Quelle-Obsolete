@@ -145,8 +145,8 @@ namespace QuelleHMI.XGeneration
 
 				foreach (var action in this.actions)
                 {
-					file += ("\trpc " + action + "(" + XGen.InterfacePrefix.Substring(1) + action + XGen.InterfaceSuffixes[0] + ") ");
-					file += ("returns (" + XGen.InterfacePrefix.Substring(1) + action + XGen.InterfaceSuffixes[1] + ") {};\n");
+					file += ("\trpc " + action + "(" + action + XGen.InterfaceSuffixes[0] + ") ");
+					file += ("returns (" + action + XGen.InterfaceSuffixes[1] + ") {};\n");
 				}
 				file += "}\n";
 				file += this.messages;

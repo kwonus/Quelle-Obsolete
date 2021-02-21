@@ -29,6 +29,7 @@ namespace QuelleHMI.XGeneration
 
 			if (this.Include(module))
 			{
+				module = QClassForImport(type);
 				string line;
 
 				line = "#include \"" + (module.EndsWith("[]") ? module.Substring(0, module.Length - 2) : module) + ".h\"";
