@@ -9,14 +9,24 @@ namespace QuelleHMI.XGeneration
 		//	C code-generator:
 		public XGenC()
 		{
-			;
+			this.types.Add(typeof(string), "char[]");
+			this.types.Add(typeof(bool), "bool");
+			this.types.Add(typeof(Guid), "char[]");
+			this.types.Add(typeof(Int16), "int16");
+			this.types.Add(typeof(UInt16), "uint16");
+			this.types.Add(typeof(Int32), "int32");
+			this.types.Add(typeof(UInt32), "uint32");
+			this.types.Add(typeof(Int64), "int64");
+			this.types.Add(typeof(UInt64), "uint64");
 		}
 		protected override string additionalImports()
 		{
 			return "";
 		}
-		protected override string QImport(String module)
+		protected override string QImport(Type type)
 		{
+			string module = type.Name;
+
 			if (this.Include(module))
 			{
 				string line;
@@ -30,14 +40,12 @@ namespace QuelleHMI.XGeneration
 		{
 			return "";
 		}
-		protected override string getterAndSetter(string name, string type)
+		protected override string getterAndSetter(string name, Type type)
 		{
-			if (type.StartsWith("HashMap"))
-				type = "map" + type.Substring("HashMap".Length).Replace("String", "char[]");
-			else if (type == "String")
-				type = "char*";
-			else if (type.EndsWith("[]"))
-				type = type.Substring(0, type.Length - 2) + "*";
+			string stype = this.QClass(type, "map<{0}], {1}>", null);
+
+			if (type.IsArray)
+				stype = type.Name + "*";
 
 
 			string variable = "\t" + type + "\t" + name + ";\n";
@@ -48,31 +56,20 @@ namespace QuelleHMI.XGeneration
 			string file = "";
 			try
 			{
-				String parent = null; // QClass(c.BaseType);
-
 				foreach (string k in accessible.Keys)
 				{
-					string t = accessible[k];
+					Type t = accessible[k];
 					if (t == null)
 						continue;
 					file += QImport(t);
 				}
-				if (parent != null)
-					file += QImport(parent);
-
-				string qname = QClass(type);
-				string classname = QClass(type) != null ? qname : "UNKNOWN";
+				string qname = this.QClass(type, "map<{0}], {1}>", null);
+				string classname = qname != null ? qname : "UNKNOWN";
 				file += ("\nstruct " + classname);
-				if (parent != null)
-				{
-					file += " /* structure inheritance in C ... I don't think so /";
-					file += parent;
-					file += "/ */";
-				}
 				file += "\n{\n";
 				foreach (string p in accessible.Keys)
 				{
-					string t = accessible[p];
+					Type t = accessible[p];
 					file += getterAndSetter(p, t);
 				}
 				file += "\n}";

@@ -1,4 +1,5 @@
 ﻿using Grpc.Net.Client;
+using ProtoBuf.Grpc.Client;
 using QuelleHMI.Controls;
 using QuelleHMI.Verbs;
 using System;
@@ -20,37 +21,51 @@ namespace QuelleHMI
         ValueTask<PBFetchResult> FetchAsync(PBFetchRequest request);
         ValueTask<PBPageResult> PageAsync(PBPageRequest request);
     }
-    class SearchProviderClient
+    public class SearchProviderClient
     {
         private GrpcChannel channel;
         ISearchProvider searchprovider;
 
         public SearchProviderClient()
         {
-            (int c, int r)[] foo = new (int c, int r)[3];
+            this.channel = GrpcChannel.ForAddress("http://localhost:50051");
 
-            this.channel = GrpcChannel.ForAddress("http://localhost:10042");
-
- //         this.searchprovider = this.channel.CreateGrpcService<ISearchProvider>();
+            //this.searchprovider = this.channel.CreateGrpcService<ISearchProvider>();
         }
-        public IQuelleSearchResult Search(IQuelleSearchRequest request)
+        public IQuelleSearchResult Search(IQuelleSearchRequest req)
         {
-            PBSearchRequest pbrequest = new PBSearchRequest(request);
+            PBSearchRequest pbrequest = new PBSearchRequest(req);
+            var request = this.searchprovider.SearchAsync(pbrequest);
+            request.AsTask().Wait();
+            if (request.IsCompletedSuccessfully)
+                return request.Result;
             return null;
         }
-        public IQuelleFetchResult Fetch(IQuelleFetchRequest request)
+        public IQuelleFetchResult Fetch(IQuelleFetchRequest req)
         {
-            PBFetchRequest pbrequest = new PBFetchRequest(request);
+            PBFetchRequest pbrequest = new PBFetchRequest(req);
+            var request = this.searchprovider.FetchAsync(pbrequest);
+            request.AsTask().Wait();
+            if (request.IsCompletedSuccessfully)
+                return request.Result;
             return null;
         }
-        public IQuellePageResult Page(IQuellePageRequest request)
+        public IQuellePageResult Page(IQuellePageRequest req)
         {
-            PBPageRequest pbrequest = new PBPageRequest(request);
+            PBPageRequest pbrequest = new PBPageRequest(req);
+            var request = this.searchprovider.PageAsync(pbrequest);
+            request.AsTask().Wait();
+            if (request.IsCompletedSuccessfully)
+                return request.Result;
             return null;
         }
-        public IQuelleStatusResult Page(IQuelleStatusRequest request)
+        public IQuelleStatusResult Status(IQuelleStatusRequest req)
         {
-            PBStatusRequest pbrequest = new PBStatusRequest(request);
+            PBStatusRequest pbrequest = new PBStatusRequest(req);
+            var request = this.searchprovider.StatusAsync(pbrequest);
+            request.AsTask().Wait();
+            if (request.IsCompletedSuccessfully)
+                return request.Result;
             return null;
         }
     }

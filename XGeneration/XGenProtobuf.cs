@@ -16,6 +16,16 @@ namespace QuelleHMI.XGeneration
 			this.messages = null;
 			this.actions = new List<string>();
 			this.enumerations = new Dictionary<Type, string>();
+
+			this.types.Add(typeof(string), "string");
+			this.types.Add(typeof(bool), "bool");
+			this.types.Add(typeof(Guid), "string");
+			this.types.Add(typeof(Int16), "int16");
+			this.types.Add(typeof(UInt16), "uint16");
+			this.types.Add(typeof(Int32), "int32");
+			this.types.Add(typeof(UInt32), "uint32");
+			this.types.Add(typeof(Int64), "int64");
+			this.types.Add(typeof(UInt64), "uint64");
 		}
 		protected override string additionalImports()
 		{
@@ -33,7 +43,7 @@ namespace QuelleHMI.XGeneration
 
 				foreach (var type in XGen.Enumerations)
 				{
-					string expansion = "\tenum " + this.AdaptType(type.Name) + " {\n";
+					string expansion = "\tenum " + this.AdaptType(type) + " {\n";
 					Array values = type.GetEnumValues();
 					Type arrayType = type.GetEnumUnderlyingType();
 					foreach (var val in values)
@@ -60,21 +70,22 @@ namespace QuelleHMI.XGeneration
 						action = action.Substring(0, len);
 						this.actions.Add(action);
 					}
-					name = this.AdaptType(name);
+					name = this.AdaptType(type);
 					if (name.StartsWith(XGen.InterfacePrefix))
-						name = name.Substring(1);
+						name = name.Substring(XGen.InterfacePrefix.Length);
 					else if (name.StartsWith("HMI"))
 						name = name.Substring(3);
 
 					this.messages += ("message " + name + " {\n");
 					uint idx = 0;
 
-					var properties = type.GetProperties();
-					foreach (var p in properties)
-					{
-						var member = p.Name;
-						var memberType = p.PropertyType;
-						var memeberTypeName = this.AdaptType(memberType.Name);
+					this.accessible.Clear();
+					this.addAccessibleMembers(type);
+
+					foreach (var member in this.accessible.Keys)
+                    {
+						var memberType = this.accessible[member];
+						var memeberTypeName = this.AdaptType(memberType);
 
 						if (this.enumerations.ContainsKey(memberType))
 							this.messages += this.enumerations[memberType];
@@ -92,13 +103,15 @@ namespace QuelleHMI.XGeneration
 			return this.messages;
 		}
 
-		protected override string QImport(string module)
+		protected override string QImport(Type type)
 		{
+			string module = type.Name;
+
 			if (this.Include(module))
 			{
 				string line;
 
-				line = "import \"" + (module.EndsWith("[]") ? module.Substring(0, module.Length - 2) : module) + ".proto\";";
+				line = "import \"" + module + ".proto\";";
 				return line + "\n";
 			}
 			return "";
@@ -108,52 +121,13 @@ namespace QuelleHMI.XGeneration
 			return "";
 		}
 
-		private string AdaptType(string type)
+		private string AdaptType(Type type)
 		{
-			var array = type.EndsWith("[]");
-			if (array)
-				type = AdaptType(type.Substring(0, type.Length - 2));
+			var stype = this.QClass(type, "map<{0}, {1}>", null);
 
-			var guid = type.Equals("guid", StringComparison.InvariantCultureIgnoreCase) || type.Equals("uuid", StringComparison.InvariantCultureIgnoreCase);
-
-			if (type.Equals("string", StringComparison.InvariantCultureIgnoreCase))
-				type = "string";
-			else if (type.Equals("bool", StringComparison.InvariantCultureIgnoreCase) || type.Equals("boolean", StringComparison.InvariantCultureIgnoreCase))
-				type = "bool";
-			else if (guid)
-				type = "string";
-			else if (type.Equals("int", StringComparison.InvariantCultureIgnoreCase))
-				type = "int64";
-			else if (type.Equals("uint", StringComparison.InvariantCultureIgnoreCase))
-				type = "uint64";
-			else if (type.StartsWith("uint", StringComparison.InvariantCultureIgnoreCase))
-				type = "ui" + type.Substring(2);
-			else if (type.StartsWith("int", StringComparison.InvariantCultureIgnoreCase))
-				type = "i" + type.Substring(1);
-			else if (type.StartsWith("HMI"))
-				type = type.Substring("HMI".Length);
-			else if (type.StartsWith("Dictionary", StringComparison.InvariantCultureIgnoreCase))
-				type = "map<uint64, string>";
-			
-			else if (type.StartsWith("HashMap<"))
-			{
-				var t1 = type.Substring("HashMap<".Length);
-				var comma = t1.IndexOf(",");
-				var t2 = this.AdaptType(t1.Substring(comma + 1).Replace(">", "").Trim());
-				t1 = this.AdaptType(t1.Substring(0, comma).Trim());
-				type = "map<" + t1 + ", " + t2 + ">";
-			}
-			else foreach (var i in XGen.Interfaces)
-            {
-					if (i.Name == type)
-					{
-						type = type.Substring(1);   // remove I prefix
-					}
-            }
-
-			return (array ? "repeated " : "")  + type;
+			return (type.IsArray ? "repeated " : "")  + stype;
 		}
-		protected override string getterAndSetter(string name, string type)
+		protected override string getterAndSetter(string name, Type type)
 		{
 			string variable = "\t" + this.AdaptType(type) + " " + name + " = " + (++index).ToString() + ";\n";
 			return variable;
@@ -188,14 +162,14 @@ namespace QuelleHMI.XGeneration
 					{
 						foreach (string k in accessible.Keys)
 						{
-							string t = accessible[k];
+							Type t = accessible[k];
 							if (t == null)
 								continue;
 							file += QImport(t);
 						}
 					}
-					string qname = QClass(type);
-					string classname = QClass(type) != null ? qname : "UNKNOWN";
+					string qname = this.QClass(type, "map<{0}, {1}>", null);
+					string classname = qname != null ? qname : "UNKNOWN";
 					file += "\nmessage " + classname + " {\n";
 
 					if (parent != null)
@@ -206,7 +180,7 @@ namespace QuelleHMI.XGeneration
 					}
 					foreach (string p in accessible.Keys)
 					{
-						string t = accessible[p];
+						Type t = accessible[p];
 						file += getterAndSetter(p, t);
 					}
 					file += "}";

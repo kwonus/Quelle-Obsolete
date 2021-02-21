@@ -16,13 +16,14 @@ namespace QuelleHMI.XGeneration
 		{
 			return "";
 		}
-		protected override string QImport(String module)
+		protected override string QImport(Type type)
 		{
+			var module = type.Name;
 			if (this.Include(module))
 			{
 				string line;
 
-				line = "using Quelle." + (module.EndsWith("[]") ? module.Substring(0, module.Length - 2) : module) + ";";
+				line = "using Quelle." + (type.IsArray ? module.Substring(0, module.Length - 2) : module) + ";";
 				return line + "\n";
 			}
 			return "";
@@ -31,16 +32,13 @@ namespace QuelleHMI.XGeneration
 		{
 			return "";
 		}
-		protected override string getterAndSetter(string name, string type)
+		protected override string getterAndSetter(string name, Type type)
 		{
-			type = type.Replace("String", "string").Replace("Boolean", "bool");
-
-			if (type.StartsWith("HashMap"))
-				type = "Dictionary" + type.Substring("HashMap".Length);
+			string stype = this.QClass(type, "Dictionary<{0}, {1}>");
 
 			string variable = this.scoping
-				? "\t\tpublic " + type + "\t" + name + " { get; }\n"
-				: "\t\t" + type + "\t" + name + " { get; }\n";
+				? "\t\tpublic " + stype + "\t" + name + " { get; }\n"
+				: "\t\t" + stype + "\t" + name + " { get; }\n";
 
 			return variable;
 		}
@@ -49,23 +47,18 @@ namespace QuelleHMI.XGeneration
 			string file = "";
 			try
 			{
-				String parent = null; // QClass(c.BaseType);
-
 				foreach (string k in accessible.Keys)
 				{
-					string t = accessible[k];
+					Type t = accessible[k];
 					if (t == null)
 						continue;
 					file += QImport(t);
 				}
-				if (parent != null)
-					file += QImport(parent);
-
 				string package = "\nnamespace Quelle\n{\n";
 				file += package;
 
-				string qname = QClass(type);
-				string classname = QClass(type) != null ? qname : "UNKNOWN";
+				string qname = QClass(type, "Dictionary<{0}, {1}>");
+				string classname = qname != null ? qname : "UNKNOWN";
 
 				this.scoping = !qname.StartsWith(XGen.InterfacePrefix);
 
@@ -74,15 +67,10 @@ namespace QuelleHMI.XGeneration
 				else
 					file += ("\tpublic interface " + classname);
 
-				if (parent != null)
-				{
-					file += ": ";
-					file += parent;
-				}
 				file += "\n\t{\n";
 				foreach (string p in accessible.Keys)
 				{
-					string t = accessible[p];
+					Type t = accessible[p];
 					file += getterAndSetter(p, t);
 				}
 				file += "\n\t}\n}\n";

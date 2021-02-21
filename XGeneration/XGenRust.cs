@@ -9,19 +9,33 @@ namespace QuelleHMI.XGeneration
 		//	GoLang code-generator:
 		public XGenRust()
 		{
-			;
+			this.types.Add(typeof(string), "str");
+			this.types.Add(typeof(String), "str");
+			this.types.Add(typeof(bool), "bool");
+			this.types.Add(typeof(Boolean), "bool");
+			this.types.Add(typeof(Guid), "str");
+			this.types.Add(typeof(int), "i64");
+			this.types.Add(typeof(uint), "u64");
+			this.types.Add(typeof(Int16), "i16");
+			this.types.Add(typeof(UInt16), "u16");
+			this.types.Add(typeof(Int32), "i32");
+			this.types.Add(typeof(UInt32), "u32");
+			this.types.Add(typeof(Int64), "i64");
+			this.types.Add(typeof(UInt64), "u64");
 		}
 		protected override string additionalImports()
 		{
 			return "";
 		}
-		protected override string QImport(string module)
+		protected override string QImport(Type type)
 		{
+			string module = type.Name;
+
 			if (this.Include(module))
 			{
 				string line;
 
-				line = "use Quelle." + (module.EndsWith("[]") ? module.Substring(0, module.Length - 2) : module) + ";";
+				line = "use Quelle." + module + ";";
 				return line + "\n";
 			}
 			return "";
@@ -30,31 +44,28 @@ namespace QuelleHMI.XGeneration
 		{
 			return "";
 		}
-		protected override string getterAndSetter(string name, string type)
+		private string AdaptType(Type type)
 		{
-			type = type.Replace("String", "string").Replace("Boolean", "bool");
-			var array = false;
+			var stype = QClass(type, "HashMap<{0}, {1}>");
 
-			if (type.StartsWith("HashMap<"))
+			foreach (var i in XGen.Interfaces)
 			{
-				var t1 = type.Substring("HashMap<".Length);
-				var comma = t1.IndexOf(",");
-				var t2 = t1.Substring(comma + 1).Replace(">", "");
-				t1 = t1.Substring(0, comma);
-				type = "HashMap";
+				if (i.Name == type.Name)
+				{
+					stype = type.Name.Substring(1);   // remove I prefix
+				}
 			}
-			else if (type.EndsWith("[]"))
-				array = true;
-				type = type.Substring(0, type.Length - 2);
 
-			if (type == "int")
-				type = "i32";
-			else if (type == "uint")
-				type = "u32";
-			if (array)
-				type = "&[" + type + "]";
+			return type.IsArray ? "Vec<" + stype + ">" : stype;
+		}
+		protected override string getterAndSetter(string name, Type type)
+		{
+			var stype = AdaptType(type);
 
-			string variable = "\t" + name + ": " + type + ",\n";
+			if (type.IsArray)
+				stype = "Vec<" + type.Name + ">";
+
+			string variable = "\t" + name + ": " + stype + ",\n";
 			return variable;
 		}
 		protected override string export(Type type)
@@ -62,32 +73,21 @@ namespace QuelleHMI.XGeneration
 			string file = "";
 			try
 			{
-				String parent = null; // QClass(c.BaseType);
-
-				if (parent == null)
+				foreach (string k in accessible.Keys)
 				{
-					foreach (string k in accessible.Keys)
-					{
-						string t = accessible[k];
-						if (t == null)
-							continue;
-						file += (QImport(t));
-					}
+					Type t = accessible[k];
+					if (t == null)
+						continue;
+					file += (QImport(t));
 				}
 
-				string qname = QClass(type);
-				string classname = QClass(type) != null ? qname : "UNKNOWN";
+				string qname = QClass(type, "map<{0}, {1}>");
+				string classname = qname != null ? qname : "UNKNOWN";
 				file += "\nstruct " + classname + " {\n";
 
-				if (parent != null)
-				{
-					file += " /* structure inheritance in Rust ... not in this library /";
-					file += parent;
-					file += "/ */";
-				}
 				foreach (string p in accessible.Keys)
 				{
-					string t = accessible[p];
+					Type t = accessible[p];
 					file += getterAndSetter(p, t);
 				}
 				file += "}";

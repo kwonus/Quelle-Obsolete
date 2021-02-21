@@ -18,6 +18,7 @@ namespace QuelleHMI
 		public List<string> errors { get; private set; }
 		public List<string> warnings { get; private set; }
 		public static IQuelleDriver Driver { get; protected set; } = null;
+		public static SearchProviderClient SearchProvider { get; protected set; } = null;
 
 		public void Notify(string level, string message)
         {
@@ -33,7 +34,8 @@ namespace QuelleHMI
 		public static void Intitialize(IQuelleDriver driver)
         {
 			HMICommand.Driver = driver;
-        }
+			HMICommand.SearchProvider = new SearchProviderClient();
+		}
 		public HMICommand(String command)
         {
 			this.command = command.Trim();
@@ -70,7 +72,8 @@ namespace QuelleHMI
 		public static HMIConfigurationDefault configuration = new HMIConfigurationDefault();
 		public bool Search()
         {
-			var cloud = new CloudSearch(this.statement, HMICommand.configuration.seachConf);
+			var cloud = new CloudSearchRequest(this.statement, HMICommand.configuration.seachConf);
+			var result = HMICommand.SearchProvider.Search(cloud);
 			return true;	// This will call into cloud driver
         }
 	}

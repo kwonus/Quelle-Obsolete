@@ -9,19 +9,29 @@ namespace QuelleHMI.XGeneration
 		//	Java code-generator:
 		public XGenJava()
 		{
-			;
+			this.types.Add(typeof(string), "String");
+			this.types.Add(typeof(bool), "boolean");
+			this.types.Add(typeof(Guid), "Guid");
+			this.types.Add(typeof(Int16), "int16");
+			this.types.Add(typeof(UInt16), "uint16");
+			this.types.Add(typeof(Int32), "int32");
+			this.types.Add(typeof(UInt32), "uint32");
+			this.types.Add(typeof(Int64), "int64");
+			this.types.Add(typeof(UInt64), "uint64");
 		}
 		protected override string additionalImports()
 		{
 			return "";
 		}
-		protected override string QImport(String module)
+		protected override string QImport(Type type)
 		{
+			string module = type.Name;
+
 			if (this.Include(module))
 			{
 				string line;
 
-				line = "import Quelle." + (module.EndsWith("[]") ? module.Substring(0, module.Length - 2) : module) + ";";
+				line = "import Quelle." + module + ";";
 				return line + "\n";
 			}
 			return "";
@@ -30,7 +40,7 @@ namespace QuelleHMI.XGeneration
 		{
 			return "";
 		}
-		protected override string getterAndSetter(string name, string type)
+		protected override string getterAndSetter(string name, Type type)
 		{
 			string variable = "\tpublic " + type + "\t" + name + ";\n";
 			return variable;
@@ -40,33 +50,23 @@ namespace QuelleHMI.XGeneration
 			string file = "";
 			try
 			{
-				String parent = null; // QClass(c.BaseType);
-
 				foreach (string k in accessible.Keys)
 				{
-					string t = accessible[k];
+					Type t = accessible[k];
 					if (t == null)
 						continue;
 					file += QImport(t);
 				}
-				if (parent != null)
-					file += QImport(parent);
-
 				string package = "\npackage Quelle;";
 				file += package;
 
-				string qname = QClass(type);
-				string classname = QClass(type) != null ? qname : "UNKNOWN";
+				string qname = QClass(type, "HashMap<{0}, {1}>");
+				string classname = qname != null ? qname : "UNKNOWN";
 				file += ("\n\nclass " + classname);
-				if (parent != null)
-				{
-					file += " extends ";
-					file += parent;
-				}
 				file += " {\n";
 				foreach (string p in accessible.Keys)
 				{
-					string t = accessible[p];
+					Type t = accessible[p];
 					file += getterAndSetter(p, t);
 				}
 				file += "\n}";

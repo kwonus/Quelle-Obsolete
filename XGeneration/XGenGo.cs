@@ -9,14 +9,24 @@ namespace QuelleHMI.XGeneration
 		//	GoLang code-generator:
 		public XGenGo()
 		{
-			;
+			this.types.Add(typeof(string), "string");
+			this.types.Add(typeof(bool), "bool");
+			this.types.Add(typeof(Guid), "string");
+			this.types.Add(typeof(Int16), "int16");
+			this.types.Add(typeof(UInt16), "uint16");
+			this.types.Add(typeof(Int32), "int32");
+			this.types.Add(typeof(UInt32), "uint32");
+			this.types.Add(typeof(Int64), "int64");
+			this.types.Add(typeof(UInt64), "uint64");
 		}
 		protected override string additionalImports()
 		{
 			return "";
 		}
-		protected override string QImport(string module)
+		protected override string QImport(Type type)
 		{
+			string module = type.Name; 
+			
 			if (this.Include(module))
 			{
 				string line;
@@ -30,16 +40,17 @@ namespace QuelleHMI.XGeneration
 		{
 			return "";
 		}
-		protected override string getterAndSetter(string name, string type)
+		protected override string getterAndSetter(string name, Type type)
 		{
-			type = type.Replace("String", "string").Replace("Boolean", "bool");
+			string module = type.Name;
 
-			if (type.StartsWith("HashMap<"))
-				type = "map[" + type.Substring("HashMap<".Length).Replace(',', ']').Replace(">", "");
-			else if (type.EndsWith("[]"))
-				type = "[]" + type.Substring(0, type.Length - 2).Trim();
+			module = this.QClass(type, "map[{0}] {1}");
+			module = module.Replace("String", "string").Replace("Boolean", "bool");
 
-			string variable = "\t" + name + " " + type + "\n";
+			if (type.IsArray)
+				module = "[]" + module;
+
+			string variable = "\t" + name + " " + module + "\n";
 			return variable;
 		}
 		protected override string export(Type type)
@@ -51,48 +62,23 @@ namespace QuelleHMI.XGeneration
 
 			try
 			{
-				String parent = null; // QClass(c.BaseType);
-
 				var test = "";
-				if (parent == null)
-				{
-					foreach (string k in accessible.Keys)
-					{
-						string t = accessible[k];
-						if (t == null)
-							continue;
-						test += QImport(t);
-					}
-				}
-				if (parent != null || test.Length > 0)
-				{
-					file += "import(";
 
-					foreach (string k in accessible.Keys)
-					{
-						string t = accessible[k];
-						if (t == null)
-							continue;
-						file += QImport(t);
-					}
-					if (parent != null)
-						file += QImport(parent);
-					file += "\n)\n";
+				foreach (string k in accessible.Keys)
+				{
+					Type t = accessible[k];
+					if (t == null)
+						continue;
+					test += QImport(t);
 				}
 
-				string qname = QClass(type);
-				string classname = QClass(type) != null ? qname : "UNKNOWN";
+				string qname = this.QClass(type, "map[{0}] {1}");
+				string classname =qname != null ? qname : "UNKNOWN";
 				file += "\ntype " + classname + " struct {\n";
 
-				if (parent != null)
-				{
-					file += " /* structure inheritance in GoLang ... I don't think so /";
-					file += parent;
-					file += "/ */";
-				}
 				foreach (string p in accessible.Keys)
 				{
-					string t = accessible[p];
+					Type t = accessible[p];
 					file += getterAndSetter(p, t);
 				}
 				file += "}";

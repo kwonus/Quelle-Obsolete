@@ -6,13 +6,13 @@ using System.Linq;
 
 namespace QuelleHMI
 {
-    public class CloudSearch: IQuelleSearchRequest
+    public class CloudSearchRequest: IQuelleSearchRequest
     {
         public IQuelleSearchClause[] clauses { get; private set; }
         public IQuelleSearchControls controls { get; private set; }
         public UInt64 count { get; private set; }
 
-        public CloudSearch(HMIStatement statement, CTLSearch searchControls)
+        public CloudSearchRequest(HMIStatement statement, CTLSearch searchControls)
         {
             this.controls = searchControls;
 
