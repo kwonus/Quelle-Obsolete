@@ -1,4 +1,5 @@
-﻿using QuelleHMI.Controls;
+﻿using ProtoBuf;
+using QuelleHMI.Controls;
 using QuelleHMI.Verbs;
 using System;
 using System.Collections.Generic;
@@ -9,14 +10,14 @@ using System.Threading.Tasks;
 
 namespace QuelleHMI
 {
-    [DataContract]
+    [ProtoContract]
     public class PBFetchRequest : IQuelleFetchRequest
     {
-        [DataMember(Order = 1)]
+        [ProtoMember(1)]
         public Guid session { get; set; }
-        [DataMember(Order = 2)]
+        [ProtoMember(2)]
         public UInt64 cursor { get; set; }
-        [DataMember(Order = 3)]
+        [ProtoMember(3)]
         public UInt64 count { get; set; }
 
         public PBFetchRequest(IQuelleFetchRequest irequest)
@@ -27,16 +28,18 @@ namespace QuelleHMI
         }
     }
 
-    [DataContract]
+    [ProtoContract]
     public class PBFetchResult : PBQuelleResult, IQuelleFetchResult
     {
-        [DataMember(Order = 4)]
+        public PBFetchResult(): base() { /*for protobuf*/ }
+
+        [ProtoMember(4)]
         public UInt64 cursor { get; set; }
-        [DataMember(Order = 5)]
+        [ProtoMember(5)]
         public UInt64 remainder { get; set; }
-        [DataMember(Order = 6)]
+        [ProtoMember(6)]
         public Guid session { get; set; }
-        [DataMember(Order = 7)]
+        [ProtoMember(7)]
         public Dictionary<UInt64, string> records { get; set; }
 
         public PBFetchResult(IQuelleFetchResult iresult) : base ((IQuelleResult) iresult)

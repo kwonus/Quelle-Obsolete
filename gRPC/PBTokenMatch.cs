@@ -1,4 +1,5 @@
-﻿using QuelleHMI.Controls;
+﻿using ProtoBuf;
+using QuelleHMI.Controls;
 using QuelleHMI.Tokens;
 using QuelleHMI.Verbs;
 using System;
@@ -10,16 +11,26 @@ using System.Threading.Tasks;
 
 namespace QuelleHMI
 {
-    [DataContract]
+    [ProtoContract]
     public class PBTokenMatch : IQuelleTokenMatch
     {
-        [DataMember(Order = 1)]
+        public PBTokenMatch() { /*for protobuf*/ }
+
+        [ProtoMember(1)]
         public string condition { get; set; }
+        [ProtoIgnore]
         public IQuelleTokenFeature[] anyFeature
         {
             get => this.pbAnyFeature;
+            set
+            {
+                this.pbAnyFeature = new PBTokenFeature[value.Length];
+                int i = 0;
+                foreach (var frag in value)
+                    this.pbAnyFeature[i] = new PBTokenFeature(value[i++]);
+            }
         }
-        [DataMember(Order = 2)]
+        [ProtoMember(2)]
         public PBTokenFeature[] pbAnyFeature { get; set; }
 
         public PBTokenMatch(IQuelleTokenMatch imatch)

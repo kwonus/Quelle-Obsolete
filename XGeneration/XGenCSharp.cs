@@ -59,7 +59,7 @@ namespace QuelleHMI.XGeneration
 				file += package;
 
 				string qname = QClass(type, "Dictionary<{0}, {1}>");
-				string classname = qname != null ? qname : "UNKNOWN";
+				string classname = qname ?? "UNKNOWN";
 
 				this.scoping = !qname.StartsWith(XGen.InterfacePrefix);
 

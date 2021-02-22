@@ -1,4 +1,5 @@
-﻿using QuelleHMI.Controls;
+﻿using ProtoBuf;
+using QuelleHMI.Controls;
 using QuelleHMI.Tokens;
 using QuelleHMI.Verbs;
 using System;
@@ -10,10 +11,12 @@ using System.Threading.Tasks;
 
 namespace QuelleHMI
 {
-    [DataContract]
+    [ProtoContract]
     public class PBTokenFeature : IQuelleTokenFeature
     {
-        [DataMember(Order = 1)]
+        public PBTokenFeature() { /*for protobuf*/ }
+
+        [ProtoMember(1)]
         public string feature { get; set; }
 
         public PBTokenFeature(IQuelleTokenFeature ifeature)

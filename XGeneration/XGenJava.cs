@@ -64,7 +64,7 @@ namespace QuelleHMI.XGeneration
 				file += package;
 
 				string qname = QClass(type, "HashMap<{0}, {1}>");
-				string classname = qname != null ? qname : "UNKNOWN";
+				string classname = qname ?? "UNKNOWN";
 				file += ("\n\nclass " + classname);
 				file += " {\n";
 				foreach (string p in accessible.Keys)

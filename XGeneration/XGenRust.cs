@@ -68,7 +68,7 @@ namespace QuelleHMI.XGeneration
 				}
 
 				string qname = QClass(type, "map<{0}, {1}>");
-				string classname = qname != null ? qname : "UNKNOWN";
+				string classname = qname ?? "UNKNOWN";
 				file += "\nstruct " + classname + " {\n";
 
 				foreach (string p in accessible.Keys)

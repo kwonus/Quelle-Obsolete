@@ -1,4 +1,5 @@
-﻿using QuelleHMI.Controls;
+﻿using ProtoBuf;
+using QuelleHMI.Controls;
 using QuelleHMI.Verbs;
 using System;
 using System.Collections.Generic;
@@ -9,14 +10,16 @@ using System.Threading.Tasks;
 
 namespace QuelleHMI
 {
-    [DataContract]
+    [ProtoContract]
     public class PBQuelleResult : IQuelleResult
     {
-        [DataMember(Order = 1)]
+        public PBQuelleResult() { /*for protobuf*/ }
+
+        [ProtoMember(1)]
         public bool success { get; set; }
-        [DataMember(Order = 2)]
+        [ProtoMember(2)]
         public string[] errors { get; set; }
-        [DataMember(Order = 3)]
+        [ProtoMember(3)]
         public string[] warnings { get; set; }
 
         public PBQuelleResult(IQuelleResult iresult)

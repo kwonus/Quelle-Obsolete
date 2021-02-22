@@ -1,4 +1,5 @@
-﻿using QuelleHMI.Controls;
+﻿using ProtoBuf;
+using QuelleHMI.Controls;
 using QuelleHMI.Verbs;
 using System;
 using System.Collections.Generic;
@@ -9,14 +10,16 @@ using System.Threading.Tasks;
 
 namespace QuelleHMI
 {
-    [DataContract]
+    [ProtoContract]
     public class PBSearchControls: IQuelleSearchControls
     {
-        [DataMember(Order = 1)]
+        public PBSearchControls() { /*for protobuf*/ }
+
+        [ProtoMember(1)]
         public string domain { get; set; }
-        [DataMember(Order = 2)]
+        [ProtoMember(2)]
         public int span { get; set; }
-        [DataMember(Order = 3)]
+        [ProtoMember(3)]
         public int strict { get; set; }
 
         public PBSearchControls(IQuelleSearchControls icontrols)

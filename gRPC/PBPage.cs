@@ -1,4 +1,5 @@
-﻿using QuelleHMI.Controls;
+﻿using ProtoBuf;
+using QuelleHMI.Controls;
 using QuelleHMI.Verbs;
 using System;
 using System.Collections.Generic;
@@ -9,14 +10,16 @@ using System.Threading.Tasks;
 
 namespace QuelleHMI
 {
-    [DataContract]
+    [ProtoContract]
     public class PBPageRequest : IQuellePageRequest
     {
-        [DataMember(Order = 1)]
+        public PBPageRequest() { /*for protobuf*/ }
+
+        [ProtoMember(1)]
         public Guid session { get; set; }
-        [DataMember(Order = 2)]
+        [ProtoMember(2)]
         public string format { get; set; }
-        [DataMember(Order = 3)]
+        [ProtoMember(3)]
         public UInt64 page { get; set; }
 
         public PBPageRequest(IQuellePageRequest irequest)
@@ -26,16 +29,20 @@ namespace QuelleHMI
             this.page = irequest.page;
         }
     }
-    [DataContract]
+    [ProtoContract]
     public class PBPageResult : PBQuelleResult, IQuellePageResult
     {
-        [DataMember(Order = 4)]
+        public PBPageResult() { /*for protobuf*/ }
+
+        [ProtoMember(4)]
         public string result { get; set; }
+        [ProtoIgnore]
         public IQuellePageRequest request
         {
             get => this.pbRequest;
+            set => this.pbRequest = new PBPageRequest(value);
         }
-        [DataMember(Order = 5)]
+        [ProtoMember(5)]
         public PBPageRequest pbRequest { get; set; }
 
         public PBPageResult(IQuellePageResult iresult) : base((IQuelleResult)iresult)

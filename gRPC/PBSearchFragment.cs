@@ -1,4 +1,5 @@
-﻿using QuelleHMI.Controls;
+﻿using ProtoBuf;
+using QuelleHMI.Controls;
 using QuelleHMI.Fragments;
 using QuelleHMI.Tokens;
 using QuelleHMI.Verbs;
@@ -11,18 +12,28 @@ using System.Threading.Tasks;
 
 namespace QuelleHMI
 {
-    [DataContract]
+    [ProtoContract]
     public class PBSearchFragment : IQuelleSearchFragment
     {
-        [DataMember(Order = 1)]
+        public PBSearchFragment() { /*for protobuf*/ }
+
+        [ProtoMember(1)]
         public uint[] positionAspects { get; set; }
+        [ProtoIgnore]
         public IQuelleTokenVector[] anyOf
         {
             get => this.pbanyOf;
+            set
+            {
+                this.pbanyOf = new PBTokenVector[value.Length];
+                int i = 0;
+                foreach (var frag in value)
+                    this.pbanyOf[i] = new PBTokenVector(value[i++]);
+            }
         }
-        [DataMember(Order = 2)]
+        [ProtoMember(2)]
         public PBTokenVector[] pbanyOf { get; set;  }
-        [DataMember(Order = 3)]
+        [ProtoMember(3)]
         public string text { get; set; }
 
         public PBSearchFragment (IQuelleSearchFragment ifragment)

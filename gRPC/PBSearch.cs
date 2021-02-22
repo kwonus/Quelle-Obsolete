@@ -1,4 +1,5 @@
-﻿using QuelleHMI.Controls;
+﻿using ProtoBuf;
+using QuelleHMI.Controls;
 using QuelleHMI.Verbs;
 using System;
 using System.Collections.Generic;
@@ -9,23 +10,36 @@ using System.Threading.Tasks;
 
 namespace QuelleHMI
 {
-    [DataContract]
+    [ProtoContract]
     public class PBSearchRequest : IQuelleSearchRequest
     {
+        public PBSearchRequest() { /*for protobuf*/ }
+
+        [ProtoIgnore]
         public IQuelleSearchClause[] clauses
         {
             get => this.pbclauses;
+            set
+            {
+                this.pbclauses = new PBSearchClause[value.Length];
+                int i = 0;
+                foreach (var val in value)
+                    this.pbclauses[i++] = new PBSearchClause(val);
+            }
         }
+        [ProtoIgnore]
         public IQuelleSearchControls controls
         {
             get => this.pbcontrols;
+            set => this.pbcontrols = new PBSearchControls(value);
         }
-        [DataMember(Order = 1)]
+        [ProtoMember(1)]
         public PBSearchClause[] pbclauses { get; set; }
 
-        [DataMember(Order = 2)]
+ //     [ProtoMember(2)]
+        [ProtoIgnore]
         public PBSearchControls pbcontrols;
-        [DataMember(Order = 3)]
+        [ProtoMember(3)]
         public UInt64 count { get; set; }
 
         public PBSearchRequest(IQuelleSearchRequest irequest)
@@ -35,15 +49,19 @@ namespace QuelleHMI
                 this.pbclauses[i] = new PBSearchClause(irequest.clauses[i]);
         }
     }
+    [ProtoContract]
     public class PBSearchResult : PBFetchResult, IQuelleSearchResult
     {
-        [DataMember(Order = 8)]
+        public PBSearchResult() { /*for protobuf*/ }
+
+        [ProtoMember(8)]
         public string summary { get; set; }
         public IQuelleSearchRequest enrichedRequest
         {
             get => this.pbEnrichedRequest;
+            set => this.pbEnrichedRequest = new PBSearchRequest(value);
         }
-        [DataMember(Order = 9)]
+        [ProtoMember(9)]
         public PBSearchRequest pbEnrichedRequest { get; set; }
 
         PBSearchResult(IQuelleSearchResult iresult): base((IQuelleFetchResult) iresult)

@@ -266,9 +266,11 @@ namespace QuelleHMI.Verbs
         }
         private bool ParseUnquotedSearch()
         {
+            this.searchFragments = new Dictionary<UInt64, SearchFragment>();
+
             int len = this.segment.Length;
             string error = null;
-            uint sequence = 1;
+            uint sequence = 0;
 
             for (var frag = GetNextUnquotedSearchToken(this.segment); (frag.error == null) && (frag.offset > 0) && (frag.offset <= len || frag.token != null);
                      frag = GetNextUnquotedSearchToken(this.segment, frag.offset))
@@ -280,7 +282,7 @@ namespace QuelleHMI.Verbs
                 }
                 if (frag.token != null)
                 {
-                    sequence++;
+                    ++sequence;
                     var current = new SearchFragment(this, frag.token, sequence);
                     this.searchFragments.Add(sequence, current);
                 }
@@ -296,6 +298,8 @@ namespace QuelleHMI.Verbs
         }
         private bool ParseQuotedSearch()
         {
+            this.searchFragments = new Dictionary<UInt64, SearchFragment>();
+
             if (!(this.segment.StartsWith('"') && this.segment.EndsWith('"')))
             {
                 return false;

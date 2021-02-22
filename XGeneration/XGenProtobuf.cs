@@ -169,7 +169,7 @@ namespace QuelleHMI.XGeneration
 						}
 					}
 					string qname = this.QClass(type, "map<{0}, {1}>", null);
-					string classname = qname != null ? qname : "UNKNOWN";
+					string classname = qname ?? "UNKNOWN";
 					file += "\nmessage " + classname + " {\n";
 
 					if (parent != null)

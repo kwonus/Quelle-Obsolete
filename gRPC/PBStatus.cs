@@ -1,4 +1,5 @@
-﻿using QuelleHMI.Controls;
+﻿using ProtoBuf;
+using QuelleHMI.Controls;
 using QuelleHMI.Verbs;
 using System;
 using System.Collections.Generic;
@@ -9,18 +10,22 @@ using System.Threading.Tasks;
 
 namespace QuelleHMI
 {
-    [DataContract]
+    [ProtoContract]
     public class PBStatusRequest : IQuelleStatusRequest
     {
+        public PBStatusRequest() { /*for protobuf*/ }
+
         public PBStatusRequest(IQuelleStatusRequest irequest)
         {
             ;
         }
     }
-    [DataContract]
+    [ProtoContract]
     public class PBStatusResult: PBQuelleResult, IQuelleStatusResult
     {
-        [DataMember(Order = 1)]
+        public PBStatusResult() { /*for protobuf*/ }
+
+        [ProtoMember(1)]
         public Guid[] sessions { get; set; }
 
         public PBStatusResult(IQuelleStatusResult iresult): base((IQuelleResult)iresult)
