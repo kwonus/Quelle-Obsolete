@@ -20,32 +20,35 @@ Any application can implement the Quelle specification without royalty. We provi
 
 The Quelle specification defines a declarative syntax for specifying search criteria using the *find* verb. Quelle also defines additional verbs to round out its syntax as a simple straightforward means to interact with custom applications where searching text is the fundamental problem at hand. As mentioned earlier, AV Text Ministries provides a reference implementation. This implementation is written in C# and runs on most operating systems (e.g. Windows, Mac, Linux, iOS, Android, etc).  As source code is provided, it can be seamlessly extended by application programmers.
 
-Quelle Syntax comprises a standard set of ten (10) verbs. Each verb corresponds to a basic operation:
+Quelle Syntax comprises a standard set of eleven (11) verbs. Each verb corresponds to a basic operation:
 
 - find *(inferred)*
 - set *(inferred)*
-- clear *(inferred)*
+- unset *(inferred)*
 - show
 - print
-- save
 - define
+- undefine
+- expand
 - help
 - generate
 - exit
 
 The verbs listed above are for the English flavor of Quelle. As Quelle is an open and extensible standard, verbs for other languages can be defined without altering the overall syntax structure of the HMI. The remainder of this document describes Version 1.0 of the Quelle-HMI specification.  
 
-In Quelle terminology, a statement is made up of clauses. Each clause has a single verb. While there are ten verbs, there are only six distinct types of clauses:
+In Quelle terminology, a statement is made up of actions. Each action has a single verb. While there are eleven verbs, there are only six distinct types of clauses:
 
 1. SEARCH clause
    - find *(inferred)*
 2. CONTROL clauses
    - set *(inferred)*
-   - clear *(inferred)*
+   - unset *(inferred)*
 3. STATUS clause
    - show
 4. LABEL clause
    - define
+   - undefine
+   - expand
 5. DISPLAY clause
    - print
 6. SYSTEM commands
@@ -53,57 +56,60 @@ In Quelle terminology, a statement is made up of clauses. Each clause has a sing
    - generate
    - exit
 
-If we ignore the SYSTEM clauses for the moment, we can focus on the primary operational clauses in Quelle. These verbs are identified in Table 3-1 below. A similar table for SYSTEM commands can be found in Section IX, near the end of this document.
+If we ignore the SYSTEM actions for the moment, we can focus on Quelle's primary actions. Primary actions are identified in Table 3-1 below. A similar table for SYSTEM actions can be found in Section IX, near the end of this document.
 
 Searching and displaying results are the primary purpose of Quelle.  Learning the six verbs identified in Table 3-1 is all that is necessary for using Quelle. Each verb has a minimum and maximum number of parameters.  Each of these six verbs are described in the following sections.
 
-| Verb        | Action Type | Clause Type | Clause Restriction | Required Parameters                           | Required Operators | Optional Operators |
-| ----------- | :---------: | ----------- | ------------------ | --------------------------------------------- | :----------------: | :----------------: |
-| *find*      |  implicit   | SEARCH      |                    | **1**: *search_specification*                 |                    |  **" " [ ] ( )**   |
-| *set*       |  implicit   | CONTROL     |                    | **2**: *control_name* = *control_value*       |       **=**        |                    |
-| *clear*     |  implicit   | CONTROL     |                    | **1**: *control_name* or *macro_label*        |    **::clear!**    |      **{ }**       |
-| **@show**   |  explicit   | STATUS      | Simple Statement   | **1+**: *control_names* and/or *macro_labels* |                    |      **{ }**       |
-| **@print**  |  explicit   | DISPLAY     | End of Statement   | **0+**: *record_identifiers*                  |                    |      **[ ]**       |
-| **@define** |  explicit   | LABEL       | End of Statement   | **1**: *macro_label*                          |      **{ }**       |                    |
+| Verb          | Action Type | Clause Type | Required Parameters     | Required Operators | Optional Operators |
+| ------------- | :---------: | ----------- | ----------------------- | :----------------: | :----------------: |
+| *find*        |  implicit   | SEARCH      | **1**: *search spec*    |                    |  **" " [ ] ( )**   |
+| *set*         |  implicit   | CONTROL     | **2**: *name* = *value* |       **=**        |                    |
+| *unset*       |  implicit   | CONTROL     | **1**: *control_name*   |       **=@**       |                    |
+| **@show**     |  singleton  | STATUS      | **1+**: *control_names* |                    |                    |
+| **@print**    |  dependent  | DISPLAY     | **0+**: *identifiers*   |                    |      **[ ]**       |
+| **@define**   |  dependent  | LABEL       | **1**: *macro_label*    |      **{ }**       |                    |
+| **@undefine** |  singleton  | LABEL       | **1**: *macro_label*    |      **{ }**       |                    |
+| **@expand**   |  singleton  | LABEL       | **1**: *macro_label*    |      **{ }**       |                    |
 
 **TABLE 3-1 -- Detailed verb descriptions with summarized syntax rules**
 
 Quelle supports three types of statements:
 
-1. Simple statements [constrained to one clause per statement]
-2. Ordinary statements [might only contain a single phrase, but not so constrained]
+1. Singleton statements [constrained to one action per statement]
+2. Ordinary statements [might only contain a single phrase, but not constrained to be a Singleton]
 3. Compound statements [an ordinary statement containing more than one phrase]
 
-There are two types of verbs:
+There are three types of actions
 
 - Implicit
-- Explicit
+- Explicit Singleton
+- Explicit Dependent
 
-Explicit verbs always begin with an **@**.  There can be, at most, one *explicit* action per statement. Contrariwise, any number of *implicit* actions are allowed in a compound statement.  Implicit clauses are to be separated by a semi-colon. A semi-colon is <u>not</u> required to separate an *implicit* clauses from a final *explicit* action.  Similarly, a semi-colon is <u>not</u> required after a *clear* clause, as these clauses already terminate with punctuation (!). However, extraneous semi-colons are permitted, even when not required.
+Explicit verbs always begin with an **@**.  There can be, at most, one *explicit* action per statement. Contrariwise, any number of *implicit* actions are allowed in a compound statement.  Implicit actions are separated by semi-colons. A semi-colon is <u>not</u> required to separate an *implicit* action from a final *explicit* action.  However, extraneous semi-colons are permitted, even when not required.
 
-STATUS and SYSTEM clauses are constrained to be Simple Statements.  Therefore, a simple statement in Quelle has one of these two forms:
+STATUS and SYSTEM actions are constrained to be Singleton Statements.  Therefore, a singleton action in Quelle always has one of these clause types:
 
-- one STATUS clause
-- one SYSTEM clause
+- STATUS
+- SYSTEM
 
-All other clause types can be combined to form compound Quelle statements. Compound statements are made up of two or more clauses. When a compound statement includes an explicit action, the explicit action must be the last clause of the statement.
+All other clause types can be combined to form compound statements. Compound statements are made up of two or more actions. When a compound statement includes an explicit action, it should terminate the statement.
 
-*Implicit* [CONTROL::set and SEARCH::find] clauses require a semi-colon ( ; ). A semi-colon is optional, but not required after CONTROL::clear! clauses.
+*Implicit* [CONTROL::set and SEARCH::find] actions require a semi-colon ( ; ).
 
-Every Quelle clause has a verb, even though it might be "implicit". Consequently, from a linguistic standpoint, all Quelle clauses are verb-phrases issued in the imperative. The syntax for each clause is dependent upon the verb for the clause. The subject of the clause is always "you understood". In other words, you are commanding Quelle what to do. Some verbs have direct objects [aka required parameters] which give Quelle more specific instructions about <u>what</u> to do. In short, the type of clause and the syntax of the phrase is always defined by the verb.
+Every Quelle clause has a verb, even though it might be "implicit". Consequently, from a linguistic standpoint, all Quelle clauses are verb-phrases issued in the imperative. The syntax for each clause is dependent upon the verb for the clause. The subject of the clause is always "you understood". In other words, you are commanding Quelle what to do. Some verbs have direct objects [aka required parameters] which give Quelle more specific instructions about <u>what</u> to do. In short, the type of clause and the syntax of the phrase is always defined by the verb.  Heretofore, action and clause will be used interchangeably as they are mostly synonymous in the context of Quelle.
 
 Even before we describe Quelle syntax generally, let's look at these concepts using examples:
 
 |                                                 | Example                                         |
 | ----------------------------------------------- | :---------------------------------------------- |
-| Simple SYSTEM statement                         | @help                                           |
-| Simple STATUS statement                         | @show span domain                               |
-| Ordinary statement with a single DISPLAY clause | @print [*]                                      |
-| Ordinary statement with a single SEARCH clause  | this is some text expected to be found          |
+| Singleton SYSTEM action                         | @help                                           |
+| Singleton STATUS action                         | @show span domain                               |
+| Ordinary statement with a single DISPLAY action | @print [*]                                      |
+| Ordinary statement with a single SEARCH action  | this is some text expected to be found          |
 | Compound statement: single SEARCH & DISPLAY     | this is some text expected to be found @print   |
 | Compound statement: two SEARCH clauses          | "this quoted text" ; other unquoted text        |
-| Compound statement: two CONTROL clauses         | search.span::clear!   display.heading::clear!   |
-| Compound: CONTROL, SEARCH, & DISPLAY            | span = 7; heading::clear! ; "Moses said" @print |
+| Compound statement: two CONTROL clauses         | search.span=@   display.heading=@               |
+| Compound: CONTROL, SEARCH, & DISPLAY            | span = 7; heading=@ ; "Moses said" @print       |
 | Compound: CONTROL, SEARCH, & LABEL              | display.span=7; "Moses said" @define {my macro} |
 
 **TABLE 3-2 -- Examples of Quelle statement types**
@@ -114,13 +120,13 @@ search.domain = bible
 
 "in the beginning"
 
-Notice that both statements above are ordinary statements.  If we had run these statements in the order listed above, the first match for the search would be in the book of Genesis. But as the source domain of our search is a key element of our search, we should have a way to express both of these in a single command. And this is the rationale behind a compound statement. A compound statement has more than one clause. To combine the previous two clauses into one compound statement, issue this command:
+Notice that both statements above are ordinary statements.  If we had run these statements in the order listed above, the first match for the search would be in the book of Genesis. But as the source domain of our search is a key element of our search, we should have a way to express both of these in a single command. And this is the rationale behind a compound statement. A compound statement has more than one action. To combine the previous two actions into one compound statement, issue this command:
 
 "in the beginning" ; search.domain=bible
 
 In general, we can summarize the forms of statements as follows:
 
-- simple clause
+- singleton clause
 - ordinary clause
 - SEARCH clauses
 - SEARCH clauses @print
@@ -189,27 +195,25 @@ There are two restrictions on macro definitions:
 2. The statement cannot contain explicit actions:
    - Only implicit actions are permitted in a labelled statement.
 
-Finally, there are two additional ways that a labelled statement or can be referenced.  Both the clear and @show verbs accept macro labels as arguments.
+Finally, there are two additional ways that a labelled statement or can be referenced. In last macro definition above where we created {sample2}, the user could see the expansion in Quelle by issuing this command:
 
-In last macro definition above where we created {sample2}, the user could see the expansion in Quelle by issuing this command:
+@expand {sample2}
 
-@show {sample2}
+If the user wanted to remove this definition, the @undefine action is used.  Here is an example:
 
-If the user wanted to clear this definition, the same syntax is used as that which clears controls.  Here is how to remove the definition of the {sample2} macro label:
+@undefine {sample2}
 
-{sample2}::clear!
-
-### V. Quelle SEARCH clauses
+### V. Quelle SEARCH actions
 
 Consider the proximity search where the search target is the bible. Here is an example search using Quelle syntax:
 
 *domain=bible ; beginning created earth*
 
-Quelle syntax can alter the span by also supplying an additional CONTROL clause:
+Quelle syntax can alter the span by also supplying an additional CONTROL action:
 
 *domain=bible span=8 ; beginning created earth*
 
-The statement above has two CONTROL clauses and one SEARCH clause 
+The statement above has two CONTROL actions and one SEARCH action
 
 Now consider a different search:
 
@@ -249,7 +253,7 @@ This statement uses Boolean multiplication and is equivalent to this lengthier s
 
 *you shall not surely die ; thou shall not surely die ; ye shall not surely die*
 
-The example above also reveals how multiple search clauses can be strung together to form a compound search: logically speaking, each clause is OR’ed together; this implies that any of the three matches is acceptable. Using parenthetical terms produces more concise search statements.
+The example above also reveals how multiple search actions can be strung together to form a compound search: logically speaking, each action is OR’ed together; this implies that any of the three matches is acceptable. Using parenthetical terms produces more concise search statements.
 
 ### VI. Quelle SEARCH Definitions
 
@@ -388,27 +392,27 @@ in a beginning, God created heaven and earth
 
 
 
-| **example**                          | **explanation**            |
-| ------------------------------------ | -------------------------- |
-| *quelle*.host = https://avbible.net/ | Assign a control setting   |
-| **@show** *quelle*.host              | Show/Get a control setting |
-| *quelle*.host::clear!                | clear a control setting    |
+| **example**                          | **explanation**               |
+| ------------------------------------ | ----------------------------- |
+| *quelle*.host = https://avbible.net/ | Assign a control setting      |
+| **@show** *quelle*.host              | Show/Get a control setting    |
+| *quelle*.host=@                      | Unset/Clear a control setting |
 
-**TABLE 7-2** -- **set**/**clear/print** command can be used to retrieve Quelle configuration settings
+**TABLE 7-2** -- **set**/**unset/show** action operate on configuration settings
 
 
 
 **CONTROL::REMOVAL directives:**
 
-When *clear* verbs are used alongside *set* verbs, clear verbs are always executed after *set* verbs. 
+When *unset* verbs are used alongside *set* verbs, unset verbs are always executed after *set* verbs. 
 
-@clear span ; span = 7 `>> implies >>` @clear span
+span=@ ; span = 7 `>> implies >>` span=@
 
 Otherwise, when multiple clauses contain the same setting, the last setting in the list is preserved.  Example:
 
 set format = md  set format = text`>> implies >>` set format = text
 
-The control names are applicable to ***set***, ***clear***, and ***@show*** verbs. The control name has a fully specified name and also a short name. Either form of the control name is permitted in all Quelle statements.
+The control names are applicable to ***set***, ***unset***, and ***@show*** verbs. The control name has a fully specified name and also a short name. Either form of the control name is permitted in all Quelle statements.
 
 | Fully Specified Name | Short Name | Meaning                              | Values     | Visibility |
 | -------------------- | ---------- | ------------------------------------ | ---------- | ---------- |
@@ -424,25 +428,25 @@ The control names are applicable to ***set***, ***clear***, and ***@show*** verb
 
 
 
-Control settings can be cleared using implicit wildcards, by using the shared control-prefix:
+Control settings can be unset/cleared using implicit wildcards, by using the shared control-prefix:
 
-search::clear!
+search=@
 
-display::clear!
+display=@
 
-quelle::clear!
+quelle=@
 
 For example, this ordinary implicit wildcard statement:
 
-search::clear!
+search=@
 
-is exactly equivalent to this compound statement:
+It is exactly equivalent to this compound statement:
 
-search.span::clear! search.domain::clear! search.exact::clear!
+search.span=@ ; search.domain=@ ; search.exact=@
 
-and also is exactly equivalent to this compound statement:
+Likewise, it is exactly equivalent to this similar compound statement:
 
-span::clear! ; domain::clear! ; exact::clear!
+span=@ ; domain=@ ; exact=@
 
 ### VIII. Printing Results
 
@@ -523,11 +527,11 @@ The syntax above, while biased towards Quelle-AVX search results is standard Que
 
 ### IX. System Commands
 
-| Verb          | Clause Type | Clause Restriction | Required Arguments |
-| ------------- | ----------- | ------------------ | ------------------ |
-| **@help**     | SYSTEM      | Simple Statement   | 0 or 1             |
-| **@generate** | SYSTEM      | Simple Statement   | 2 or 4             |
-| **@exit**     | SYSTEM      | Simple Statement   | 0                  |
+| Verb          | Action Type | Clause Type | Required Arguments |
+| ------------- | ----------- | ----------- | ------------------ |
+| **@help**     | Singleton   | SYSTEM      | 0 or 1             |
+| **@generate** | Singleton   | SYSTEM      | 2 or 4             |
+| **@exit**     | Singleton   | SYSTEM      | 0                  |
 
 **PROGRAM HELP**
 
@@ -572,8 +576,6 @@ The generate command will generate the internal Quelle class in the language spe
 - Rust
 - Protobuf
 - gRPC
-
-Python support code-generation is unnecessary, because the pythonic pattern is to use a dictionary for derealization as this is normally methodology for working with JSON payloads. 
 
 In the case of gRPC, the third parameter must be "*" as it always generates all messages, in addition to the Quelle cloud-service definitions.
 

@@ -18,10 +18,12 @@ namespace QuelleHMI
     [ServiceContract]
     public interface ISearchProvider
     {
+        [OperationContract(Name = "Quelle.SearchProvider")]
+        PBStatusResult Status(PBStatusRequest request);
         [OperationContract]
-        ValueTask<PBStatusResult> StatusAsync(PBStatusRequest request);
-        [OperationContract]
-        ValueTask<PBSearchResult> SearchAsync(PBSearchRequest request);
+        PBSearchResult Search(PBSearchRequest request);
+//      Task<PBSearchResult> SearchAsync(PBSearchRequest request);
+//      ValueTask<PBSearchResult> SearchAsync(PBSearchRequest request);
         [OperationContract]
         ValueTask<PBFetchResult> FetchAsync(PBFetchRequest request);
         [OperationContract]
@@ -31,16 +33,22 @@ namespace QuelleHMI
     {
         public SearchProviderClient()
         {
+            AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
+
 //          this.channel = GrpcChannel.ForAddress("http://[::1]:50051");
 //          this.searchprovider = this.channel.CreateGrpcService<ISearchProvider>();
         }
         public IQuelleSearchResult Search(IQuelleSearchRequest req)
         {
-            AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
+            //  TEMPORARY ... status does NOT even work !!!
+            //
+ //         var status = this.Status();
+
             using (var channel = GrpcChannel.ForAddress("http://[::1]:50051"))
             {
                 var searchprovider = channel.CreateGrpcService<ISearchProvider>();
                 var pbrequest = new PBSearchRequest(req);
+/*
                 byte[] msgOut;
 
                 using (var stream = new MemoryStream())
@@ -48,11 +56,12 @@ namespace QuelleHMI
                     Serializer.Serialize(stream, pbrequest);
                     msgOut = stream.GetBuffer();
                 }
-
                 var request = searchprovider.SearchAsync(pbrequest);
-                request.AsTask().Wait();
+                request.Wait();
                 if (request.IsCompletedSuccessfully)
                     return request.Result;
+*/
+                var response = searchprovider.Search(pbrequest);
             }
             return null;
         }
@@ -74,13 +83,23 @@ namespace QuelleHMI
                 return request.Result;*/
             return null;
         }
-        public IQuelleStatusResult Status(IQuelleStatusRequest req)
-        {/*
-            PBStatusRequest pbrequest = new PBStatusRequest(req);
-            var request = this.searchprovider.StatusAsync(pbrequest);
-            request.AsTask().Wait();
-            if (request.IsCompletedSuccessfully)
-                return request.Result;*/
+        public IQuelleStatusResult Status()
+        {
+            using (var channel = GrpcChannel.ForAddress("http://[::1]:50051"))
+            {
+                var searchprovider = channel.CreateGrpcService<ISearchProvider>();
+                PBStatusRequest pbrequest = new PBStatusRequest();
+                byte[] msgOut;
+
+                using (var stream = new MemoryStream())
+                {
+                    Serializer.Serialize(stream, pbrequest);
+                    msgOut = stream.GetBuffer();
+                }
+
+                var request = searchprovider.Status(pbrequest);
+                return request;
+            }
             return null;
         }
     }
