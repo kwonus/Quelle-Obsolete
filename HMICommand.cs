@@ -50,14 +50,14 @@ namespace QuelleHMI
 
 		public bool HasMacro()
 		{
-			if (this.explicitClause != null && this.explicitClause.verb == Verbs.Define.VERB)
+			if (this.explicitClause != null && this.explicitClause.verb == Verbs.Define.DEFINE)
 				return true;
 
 			return false;
 		}
 		public Verbs.Define GetMacroDefinition()
 		{
-			if (this.explicitClause != null && this.explicitClause.verb == Verbs.Define.VERB)
+			if (this.explicitClause != null && this.explicitClause.verb == Verbs.Define.DEFINE)
 				return (Verbs.Define)this.explicitClause;
 
 			return null;

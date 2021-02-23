@@ -9,7 +9,7 @@ namespace QuelleHMI.Verbs
         public const string SYNTAX = "CONTROL";
         public override string syntax { get => SYNTAX; }
         public const string SET = "set";
-        public const string CLEAR = "clear";
+        public const string CLEAR = "unset";
         public string controlName { get; private set; }
         public string controlValue { get; private set; }
 
@@ -59,7 +59,7 @@ namespace QuelleHMI.Verbs
         }
         private static (string verb, string[] token, string error) GetTokenPair(string text)
         {
-            // TODO: How to handle ::clear!
+            // TODO: How to handle =@
             int i;
             int offset;
             int len = text.Length;

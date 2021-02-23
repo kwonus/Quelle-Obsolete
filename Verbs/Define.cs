@@ -8,7 +8,8 @@ namespace QuelleHMI.Verbs
     {
         public const string SYNTAX = "LABEL";
         public override string syntax { get => SYNTAX; }
-        public const string VERB = "@define";
+        public const string UNDEFINE = "@unddefine";
+        public const string DEFINE = "@define";
         public string macroName { get; private set; }
         public string macroValue { get => this.statement.statement; }
 
@@ -16,7 +17,8 @@ namespace QuelleHMI.Verbs
         public Define(HMIStatement statement, UInt32 segmentOrder, string segment)
     : base(statement, segmentOrder, HMIPolarity.UNDEFINED, segment, HMIClauseType.EXPLICIT_DEPENDENT)
         {
-            this.verb = VERB;
+            if (this.verb == null)
+                this.verb = this.syntax;
         }
         protected override bool Parse()
         {

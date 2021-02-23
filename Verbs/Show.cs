@@ -8,12 +8,14 @@ namespace QuelleHMI.Verbs
     {
         public const string SYNTAX = "STATUS";
         public override string syntax { get => SYNTAX; }
-        public const string VERB = "@show";
+        public const string SHOW = "@show";
+        public const string EXPAND = "@expand";
 
         public Show(HMIStatement statement, UInt32 segmentOrder, string segment)
     : base(statement, segmentOrder, HMIPolarity.UNDEFINED, segment, HMIClauseType.SIMPLE)
         {
-            this.verb = VERB;
+            if (this.verb == null)
+                this.verb = this.syntax;
         }
         protected override bool Parse()
         {

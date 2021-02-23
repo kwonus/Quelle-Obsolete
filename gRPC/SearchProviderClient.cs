@@ -100,7 +100,6 @@ namespace QuelleHMI
                 var request = searchprovider.Status(pbrequest);
                 return request;
             }
-            return null;
         }
     }
 }
