@@ -71,11 +71,11 @@ namespace QuelleHMI
                 {
                     case Verbs.Print.VERB:          return new Verbs.Print(statement, order, text);
 
-                    case Verbs.Define.DEFINE:
-                    case Verbs.Define.UNDEFINE:     return new Verbs.Define(statement, order, text);
+                    case Verbs.Define.LIST:
+                    case Verbs.Define.SAVE:
+                    case Verbs.Define.DELETE:       return new Verbs.Define(statement, order, text);
 
-                    case Verbs.Show.EXPAND:
-                    case Verbs.Show.SHOW:           return new Verbs.Show(statement, order, text);
+                    case Verbs.Show.VERB:           return new Verbs.Show(statement, order, text);
 
                     case Verbs.Generate.GENERATE:   return new Verbs.Generate(statement, text, Verbs.Generate.GENERATE);
                     case Verbs.Generate.REGENERATE: return new Verbs.Generate(statement, text, Verbs.Generate.REGENERATE);

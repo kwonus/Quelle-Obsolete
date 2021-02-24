@@ -9,7 +9,7 @@ namespace QuelleHMI.Verbs
         public const string SYNTAX = "CONTROL";
         public override string syntax { get => SYNTAX; }
         public const string SET = "set";
-        public const string CLEAR = "unset";
+        public const string CLEAR = "clear";
         public string controlName { get; private set; }
         public string controlValue { get; private set; }
 

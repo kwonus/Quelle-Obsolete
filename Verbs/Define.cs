@@ -8,8 +8,9 @@ namespace QuelleHMI.Verbs
     {
         public const string SYNTAX = "LABEL";
         public override string syntax { get => SYNTAX; }
-        public const string UNDEFINE = "@unddefine";
-        public const string DEFINE = "@define";
+        public const string DELETE = "@delete";
+        public const string SAVE = "@save";
+        public const string LIST = "@list";
         public string macroName { get; private set; }
         public string macroValue { get => this.statement.statement; }
 
@@ -46,7 +47,7 @@ namespace QuelleHMI.Verbs
             }
             return (this.errors.Count == 0);
         }
-        public static string Help()
+        public static string Help(string topic)
         {
             return "";
         }
