@@ -1,4 +1,4 @@
-# Quelle HMI v1.0 Specification
+# Quelle HMI v1.01 Specification
 
 ### I. Background
 
@@ -24,12 +24,12 @@ Quelle Syntax comprises a standard set of eleven (11) verbs. Each verb correspon
 
 - find *(inferred)*
 - set *(inferred)*
-- unset *(inferred)*
+- clear *(inferred)*
 - show
 - print
-- define
-- undefine
-- expand
+- save
+- delete
+- list
 - help
 - generate
 - exit
@@ -42,13 +42,13 @@ In Quelle terminology, a statement is made up of actions. Each action has a sing
    - find *(inferred)*
 2. CONTROL clauses
    - set *(inferred)*
-   - unset *(inferred)*
+   - clear *(inferred)*
 3. STATUS clause
    - show
 4. LABEL clause
-   - define
-   - undefine
-   - expand
+   - save
+   - delete
+   - list
 5. DISPLAY clause
    - print
 6. SYSTEM commands
@@ -60,16 +60,16 @@ If we ignore the SYSTEM actions for the moment, we can focus on Quelle's primary
 
 Searching and displaying results are the primary purpose of Quelle.  Learning the six verbs identified in Table 3-1 is all that is necessary for using Quelle. Each verb has a minimum and maximum number of parameters.  Each of these six verbs are described in the following sections.
 
-| Verb          | Action Type | Clause Type | Required Parameters     | Required Operators | Optional Operators |
-| ------------- | :---------: | ----------- | ----------------------- | :----------------: | :----------------: |
-| *find*        |  implicit   | SEARCH      | **1**: *search spec*    |                    |  **" " [ ] ( )**   |
-| *set*         |  implicit   | CONTROL     | **2**: *name* = *value* |       **=**        |                    |
-| *unset*       |  implicit   | CONTROL     | **1**: *control_name*   |       **=@**       |                    |
-| **@show**     |  singleton  | STATUS      | **1+**: *control_names* |                    |                    |
-| **@print**    |  dependent  | DISPLAY     | **0+**: *identifiers*   |                    |      **[ ]**       |
-| **@define**   |  dependent  | LABEL       | **1**: *macro_label*    |      **{ }**       |                    |
-| **@undefine** |  singleton  | LABEL       | **1**: *macro_label*    |      **{ }**       |                    |
-| **@expand**   |  singleton  | LABEL       | **1**: *macro_label*    |      **{ }**       |                    |
+| Verb        | Action Type | Clause Type | Required Parameters     | Required Operators | Optional Operators |
+| ----------- | :---------: | ----------- | ----------------------- | :----------------: | :----------------: |
+| *find*      |  implicit   | SEARCH      | **1**: *search spec*    |                    |  **" " [ ] ( )**   |
+| *set*       |  implicit   | CONTROL     | **2**: *name* = *value* |       **=**        |                    |
+| *clear*     |  implicit   | CONTROL     | **1**: *control_name*   |       **=@**       |                    |
+| **@show**   |  singleton  | STATUS      | **1+**: *control_names* |                    |                    |
+| **@print**  |  dependent  | DISPLAY     | **0+**: *identifiers*   |                    |      **[ ]**       |
+| **@save**   |  dependent  | LABEL       | **1**: *macro_label*    |      **{ }**       |                    |
+| **@delete** |  singleton  | LABEL       | **1+**: *macro_label*s  |      **{ }**       |                    |
+| **@list**   |  singleton  | LABEL       | **0+**: *macro_labels*  |                    |      **{ }**       |
 
 **TABLE 3-1 -- Detailed verb descriptions with summarized syntax rules**
 
@@ -100,17 +100,17 @@ Every Quelle clause has a verb, even though it might be "implicit". Consequently
 
 Even before we describe Quelle syntax generally, let's look at these concepts using examples:
 
-|                                                 | Example                                         |
-| ----------------------------------------------- | :---------------------------------------------- |
-| Singleton SYSTEM action                         | @help                                           |
-| Singleton STATUS action                         | @show span domain                               |
-| Ordinary statement with a single DISPLAY action | @print [*]                                      |
-| Ordinary statement with a single SEARCH action  | this is some text expected to be found          |
-| Compound statement: single SEARCH & DISPLAY     | this is some text expected to be found @print   |
-| Compound statement: two SEARCH clauses          | "this quoted text" ; other unquoted text        |
-| Compound statement: two CONTROL clauses         | search.span=@   display.heading=@               |
-| Compound: CONTROL, SEARCH, & DISPLAY            | span = 7; heading=@ ; "Moses said" @print       |
-| Compound: CONTROL, SEARCH, & LABEL              | display.span=7; "Moses said" @define {my macro} |
+|                                                 | Example                                       |
+| ----------------------------------------------- | :-------------------------------------------- |
+| Singleton SYSTEM action                         | @help                                         |
+| Singleton STATUS action                         | @show span domain                             |
+| Ordinary statement with a single DISPLAY action | @print [*]                                    |
+| Ordinary statement with a single SEARCH action  | this is some text expected to be found        |
+| Compound statement: single SEARCH & DISPLAY     | this is some text expected to be found @print |
+| Compound statement: two SEARCH clauses          | "this quoted text" ; other unquoted text      |
+| Compound statement: two CONTROL clauses         | search.span=@   display.heading=@             |
+| Compound: CONTROL, SEARCH, & DISPLAY            | span = 7; heading=@ ; "Moses said" @print     |
+| Compound: CONTROL, SEARCH, & LABEL              | display.span=7; "Moses said" @save {my macro} |
 
 **TABLE 3-2 -- Examples of Quelle statement types**
 
@@ -144,7 +144,7 @@ In this section, we will examine how user-defined macros are used in Quelle.  A 
 
 Let’s say we want to name our previously identified SEARCH directive with a label; We’ll call it “genesis”. To accomplish this, we would issue this command:
 
-search.domain=bible ; “in the beginning” @define {genesis} 
+search.domain=bible ; “in the beginning” @save {genesis} 
 
 It’s that simple, now instead of typing the entire statement, we can use the label to execute our newly saved statement. Here is how we would execute the macro:
 
@@ -156,7 +156,7 @@ Labelled statements also support compounding using the semi-colon ( ; ), as foll
 
 As the previous command is valid syntax for a statement, it even follows that we can define this macro:
 
-{genesis} ; {my label can contain spaces} @define sample
+{genesis} ; {my label can contain spaces} @save sample
 
 Later I can issue this command:
 
@@ -168,13 +168,13 @@ Which is obviously equivalent to executing these labeled statements:
 
 To illustrate this further, here are four more examples of labeled statement definitions:
 
-search.exact=1 @define {C1}
+search.exact=1 @save {C1}
 
-search.span=8  @define {C2}
+search.span=8  @save {C2}
 
-Godhead  @define {F1}
+Godhead  @save {F1}
 
-eternal  @define {F2}
+eternal  @save {F2}
 
 We can execute these as a compound statement by issuing this command:
 
@@ -182,7 +182,7 @@ We can execute these as a compound statement by issuing this command:
 
 Similarly, we could define another label from these, by issuing this command:
 
-{C1} ; {C2} ; {F1} ; {F2}  @define {sample2}
+{C1} ; {C2} ; {F1} ; {F2}  @save {sample2}
 
 This expands to:
 
@@ -197,11 +197,11 @@ There are two restrictions on macro definitions:
 
 Finally, there are two additional ways that a labelled statement or can be referenced. In last macro definition above where we created {sample2}, the user could see the expansion in Quelle by issuing this command:
 
-@expand {sample2}
+@list {sample2}
 
-If the user wanted to remove this definition, the @undefine action is used.  Here is an example:
+If the user wanted to remove this definition, the @delete action is used.  Here is an example:
 
-@undefine {sample2}
+@delete {sample2}
 
 ### V. Quelle SEARCH actions
 
@@ -392,19 +392,19 @@ in a beginning, God created heaven and earth
 
 
 
-| **example**                          | **explanation**               |
-| ------------------------------------ | ----------------------------- |
-| *quelle*.host = https://avbible.net/ | Assign a control setting      |
-| **@show** *quelle*.host              | Show/Get a control setting    |
-| *quelle*.host=@                      | Unset/Clear a control setting |
+| **example**                          | **explanation**          |
+| ------------------------------------ | ------------------------ |
+| *quelle*.host = https://avbible.net/ | Assign a control setting |
+| **@show** *quelle*.host              | Show a control setting   |
+| *quelle*.host=@                      | Clear a control setting  |
 
-**TABLE 7-2** -- **set**/**unset/show** action operate on configuration settings
+**TABLE 7-2** -- **set/clear/show** action operate on configuration settings
 
 
 
 **CONTROL::REMOVAL directives:**
 
-When *unset* verbs are used alongside *set* verbs, unset verbs are always executed after *set* verbs. 
+When *clear* verbs are used alongside *set* verbs, *clear* verbs are always executed after *set* verbs. 
 
 span=@ ; span = 7 `>> implies >>` span=@
 
@@ -412,7 +412,7 @@ Otherwise, when multiple clauses contain the same setting, the last setting in t
 
 set format = md  set format = text`>> implies >>` set format = text
 
-The control names are applicable to ***set***, ***unset***, and ***@show*** verbs. The control name has a fully specified name and also a short name. Either form of the control name is permitted in all Quelle statements.
+The control names are applicable to ***set***, ***clear***, and ***@show*** verbs. The control name has a fully specified name and also a short name. Either form of the control name is permitted in all Quelle statements.
 
 | Fully Specified Name | Short Name | Meaning                              | Values     | Visibility |
 | -------------------- | ---------- | ------------------------------------ | ---------- | ---------- |
@@ -428,7 +428,7 @@ The control names are applicable to ***set***, ***unset***, and ***@show*** verb
 
 
 
-Control settings can be unset/cleared using implicit wildcards, by using the shared control-prefix:
+Control settings can be cleared using implicit wildcards, by using the shared control-prefix:
 
 search=@
 
