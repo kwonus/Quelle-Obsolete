@@ -1,4 +1,4 @@
-# Quelle HMI v1.01 Specification
+# Quelle HMI v1.0.12R Specification
 
 ### I. Background
 
@@ -29,9 +29,10 @@ Quelle Syntax comprises a standard set of eleven (11) verbs. Each verb correspon
 - print
 - save
 - delete
-- list
+- review
 - help
 - generate
+- review
 - exit
 
 The verbs listed above are for the English flavor of Quelle. As Quelle is an open and extensible standard, verbs for other languages can be defined without altering the overall syntax structure of the HMI. The remainder of this document describes Version 1.0 of the Quelle-HMI specification.  
@@ -48,7 +49,7 @@ In Quelle terminology, a statement is made up of actions. Each action has a sing
 4. LABEL clause
    - save
    - delete
-   - list
+   - review
 5. DISPLAY clause
    - print
 6. SYSTEM commands
@@ -60,24 +61,24 @@ If we ignore the SYSTEM actions for the moment, we can focus on Quelle's primary
 
 Searching and displaying results are the primary purpose of Quelle.  Learning the six verbs identified in Table 3-1 is all that is necessary for using Quelle. Each verb has a minimum and maximum number of parameters.  Each of these six verbs are described in the following sections.
 
-| Verb        | Action Type | Clause Type | Required Parameters     | Required Operators | Optional Operators |
-| ----------- | :---------: | ----------- | ----------------------- | :----------------: | :----------------: |
-| *find*      |  implicit   | SEARCH      | **1**: *search spec*    |                    |  **" " [ ] ( )**   |
-| *set*       |  implicit   | CONTROL     | **2**: *name* = *value* |       **=**        |                    |
-| *clear*     |  implicit   | CONTROL     | **1**: *control_name*   |       **=@**       |                    |
-| **@show**   |  singleton  | STATUS      | **1+**: *control_names* |                    |                    |
-| **@print**  |  dependent  | DISPLAY     | **0+**: *identifiers*   |                    |      **[ ]**       |
-| **@save**   |  dependent  | LABEL       | **1**: *macro_label*    |      **{ }**       |                    |
-| **@delete** |  singleton  | LABEL       | **1+**: *macro_label*s  |      **{ }**       |                    |
-| **@list**   |  singleton  | LABEL       | **0+**: *macro_labels*  |                    |      **{ }**       |
+| Verb        | Action Type | Syntax Category | Required Parameters     | Required Operators | Optional Operators |
+| ----------- | :---------: | --------------- | ----------------------- | :----------------: | :----------------: |
+| *find*      |  implicit   | SEARCH          | **1**: *search spec*    |                    |  **" " [ ] ( )**   |
+| *set*       |  implicit   | CONTROL         | **2**: *name* = *value* |       **=**        |                    |
+| *clear*     |  implicit   | CONTROL         | **1**: *control_name*   |       **=@**       |                    |
+| **@show**   |  singleton  | STATUS          | **1+**: *control_names* |                    |                    |
+| **@print**  |  dependent  | DISPLAY         | **0+**: *identifiers*   |                    |      **[ ]**       |
+| **@save**   |  dependent  | LABEL           | **1**: *macro_label*    |      **{ }**       |                    |
+| **@delete** |  singleton  | LABEL           | **1+**: *macro_label*s  |      **{ }**       |                    |
+| **@review** |  singleton  | LABEL           | **0+**: *macro_labels*  |                    |      **{ }**       |
 
 **TABLE 3-1 -- Detailed verb descriptions with summarized syntax rules**
 
 Quelle supports three types of statements:
 
-1. Singleton statements [constrained to one action per statement]
-2. Ordinary statements [might only contain a single phrase, but not constrained to be a Singleton]
-3. Compound statements [an ordinary statement containing more than one phrase]
+1. Singleton statements [constrained to one verb-clause per statement]
+2. Ordinary statements [might only contain one verb-clause, but are not constrained to be a Singleton]
+3. Compound statements [an ordinary statement containing more than one verb-clause]
 
 There are three types of actions
 
@@ -87,16 +88,16 @@ There are three types of actions
 
 Explicit verbs always begin with an **@**.  There can be, at most, one *explicit* action per statement. Contrariwise, any number of *implicit* actions are allowed in a compound statement.  Implicit actions are separated by semi-colons. A semi-colon is <u>not</u> required to separate an *implicit* action from a final *explicit* action.  However, extraneous semi-colons are permitted, even when not required.
 
-STATUS and SYSTEM actions are constrained to be Singleton Statements.  Therefore, a singleton action in Quelle always has one of these clause types:
+STATUS and SYSTEM actions are constrained to be Singleton Statements.  Therefore, a singleton action in Quelle always falls into one of these two syntax categories:
 
 - STATUS
 - SYSTEM
 
-All other clause types can be combined to form compound statements. Compound statements are made up of two or more actions. When a compound statement includes an explicit action, it should terminate the statement.
+All other syntax categories can be syntactically combined to form compound statements. When a compound statement includes an explicit action, it should terminate the statement.
 
-*Implicit* [CONTROL::set and SEARCH::find] actions require a semi-colon ( ; ).
+*Implicit* actions must be separated with a semi-colon ( ; ).
 
-Every Quelle clause has a verb, even though it might be "implicit". Consequently, from a linguistic standpoint, all Quelle clauses are verb-phrases issued in the imperative. The syntax for each clause is dependent upon the verb for the clause. The subject of the clause is always "you understood". In other words, you are commanding Quelle what to do. Some verbs have direct objects [aka required parameters] which give Quelle more specific instructions about <u>what</u> to do. In short, the type of clause and the syntax of the phrase is always defined by the verb.  Heretofore, action and clause will be used interchangeably as they are mostly synonymous in the context of Quelle.
+Every Quelle clause has a verb, even though it might be "implicit". Consequently, from a linguistic standpoint, all Quelle clauses are verb-phrases issued in the imperative. The syntax category for each verb-clause dictates the syntax for the clause. The subject of the verb-clause is always "you understood". In other words, you are commanding Quelle what to do. Some verbs have direct objects [aka required parameters] which give Quelle more specific instructions about <u>what</u> to do. In short, the type of clause and the syntax of the phrase is always defined by the verb.  Heretofore, the word "verb" will be used to describe the English word, whereas "action" will refer to the entire verb-clause.
 
 Even before we describe Quelle syntax generally, let's look at these concepts using examples:
 
@@ -107,8 +108,8 @@ Even before we describe Quelle syntax generally, let's look at these concepts us
 | Ordinary statement with a single DISPLAY action | @print [*]                                    |
 | Ordinary statement with a single SEARCH action  | this is some text expected to be found        |
 | Compound statement: single SEARCH & DISPLAY     | this is some text expected to be found @print |
-| Compound statement: two SEARCH clauses          | "this quoted text" ; other unquoted text      |
-| Compound statement: two CONTROL clauses         | search.span=@   display.heading=@             |
+| Compound statement: two SEARCH actions          | "this quoted text" ; other unquoted text      |
+| Compound statement: two CONTROL actions         | search.span=@   display.heading=@             |
 | Compound: CONTROL, SEARCH, & DISPLAY            | span = 7; heading=@ ; "Moses said" @print     |
 | Compound: CONTROL, SEARCH, & LABEL              | display.span=7; "Moses said" @save {my macro} |
 
@@ -126,12 +127,12 @@ Notice that both statements above are ordinary statements.  If we had run these 
 
 In general, we can summarize the forms of statements as follows:
 
-- singleton clause
-- ordinary clause
-- SEARCH clauses
-- SEARCH clauses @print
-- CONTROL clauses @print
-- CONTROL clauses ; SEARCH clauses @print
+- singleton action
+- ordinary action
+- SEARCH actions
+- SEARCH action @print
+- CONTROL actions @print
+- CONTROL actions; SEARCH actions @print
 
 ### IV. Statement Labels
 
@@ -259,9 +260,9 @@ The example above also reveals how multiple search actions can be strung togethe
 
 While some of these concepts have already been introduced, the following section can be used as a glossary for the terminology used in the Quelle HMI specification.
 
-**Directives** are composed by verbs and are used to construct statements for the Quelle Command Interpreter. Each clause type has specialized syntax tailored to the imperative verb used in the statement. 
+**Syntax Categories:** Each syntax category defines rules by which verbs can be expressed in the statement. 
 
-**Clauses:** Clauses are equivalent to an imperative [you-understood] verb phrase.  Most clauses have one or more parameters.  But just like English, a verb phrase can be a single word with no explicit subject and no explicit object.  Consider this English sentence:
+**Actions:** Actions are complete verb-clauses issued in the imperative [you-understood].  Many actions have one or more parameters.  But just like English, a verb phrase can be a single word with no explicit subject and no explicit object.  Consider this English sentence:
 
 Go!
 
@@ -269,16 +270,13 @@ The subject of this sentence is "you understood".  Similarly, all Quelle verbs a
 
 Go Home!
 
-Like the earlier example, the subject is "you understood".  The object this time is defined and tells "you" where to go.  Some verbs always have objects, others sometimes do, and still others never do. Quelle follows this same pattern and each some Quelle verbs require direct-objects; and some do not.  See Table 3-1 where the column identified as "Parameter Count" identifies objects of the verb. 
+Like the earlier example, the subject is "you understood".  The object this time is defined, and insists that "you" should go home.  Some verbs always have objects, others sometimes do, and still others never do. Quelle follows this same pattern and each some Quelle verbs require direct-objects; and some do not.  See Table 3-1 where the column identified as "Parameter Count" identifies objects of the verb. 
 
-**SEARCH statement**: Each statement contains one or more *search clauses*. If there is more than one SEARCH clause, each each clause is logically OR’ed with all other clauses.
+**Statement**: A statement is composed of one or more *actions*. If there is more than one SEARCH actions issued by the statement, then search action is logically OR’ed together.
 
-**SEARCH clause**: Each clause contains one or more *search terms*. A SEARCH clause is either unquoted statement or quoted.
-
-**Unquoted SEARCH clause:** an unquoted clause contains one or more search words. If there is more than one word, then each word is logically AND’ed with all other words within the clause. Like all other types of clauses, the end of the clause terminates with any of this punctuation:
+**Unquoted SEARCH segments:** an unquoted search segment contains one or more search words. If there is more than one word in the segment, then each word is logically AND’ed together. Like all other types of clauses, the end of the clause terminates with any of this punctuation:
 
 - ; [semi-colon]
-- -- [minus-minus]
 - @ [at-symbol: the beginning of an explicit verb]
 - the end-of-the-line [newline]
 
@@ -286,7 +284,7 @@ Like the earlier example, the subject is "you understood".  The object this time
 
 The absence of double-quotes means that the statement is unquoted.
 
-**Quoted SEARCH clause:** a quoted clause contains a single string of terms to search. An explicit match on the string is required. However, an ellipsis ( … ) can be used to indicate that wildcards may appear within the quoted string.
+**Quoted SEARCH segments:** a quoted clause contains a single string of terms to search. An explicit match on the string is required. However, an ellipsis ( … ) can be used to indicate that wildcards may appear within the quoted string.
 
 **NOTES:**
 
@@ -318,7 +316,7 @@ The -- means that the clause will be subtracted from the search results while it
 
 Consider a query for all passages that contain God AND created, but NOT containing earth AND NOT containing heaven:
 
-*domain = bible.old-testament ; span = 15 ; created GOD -- Heaven Earth*
+*domain = bible.old-testament ; span = 15 ; created GOD ; -- Heaven Earth*
 
 *(this could be read as: find in the old testament using a span of 15, the words*
 
@@ -613,10 +611,3 @@ Also noteworthy: The reference Quelle implementation automatically adjusts the s
 The minimum span has to be four(4). So the Quelle parser will adjust the search criteria as if the following command had been issued:
 
 **find span=4 ; in the beginning (God Lord Jesus Christ Messiah)**
-
-**IMPLICIT-CLAUSE DELIMITERS:**
-
-| TYPE                                              | Special characters |
-| ------------------------------------------------- | ------------------ |
-| UNIVERSAL [*positive*] IMPLICIT-CLAUSE DELIMITERS | ;                  |
-| SUBTRACTIVE [*negative*] SEARCH-CLAUSE SEPERATOR  | --                 |

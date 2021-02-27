@@ -10,7 +10,7 @@ namespace QuelleHMI.Verbs
         public override string syntax { get => SYNTAX; }
         public const string DELETE = "@delete";
         public const string SAVE = "@save";
-        public const string LIST = "@list";
+        public const string REVIEW = "@review";
         public string macroName { get; private set; }
         public string macroValue { get => this.statement.statement; }
 

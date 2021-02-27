@@ -71,7 +71,7 @@ namespace QuelleHMI
                 {
                     case Verbs.Print.VERB:          return new Verbs.Print(statement, order, text);
 
-                    case Verbs.Define.LIST:
+                    case Verbs.Define.REVIEW:
                     case Verbs.Define.SAVE:
                     case Verbs.Define.DELETE:       return new Verbs.Define(statement, order, text);
 

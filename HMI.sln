@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30804.86
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StandardQuelleDriver", "..\StandardClarityDriver\StandardQuelleDriver.csproj", "{81168FCA-299A-4127-8EFA-4A0180A5FB2C}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StandardQuelleDriverInterpreter", "..\StandardClarityDriverInterpreter\StandardQuelleDriverInterpreter.csproj", "{D243552D-8436-42F7-9441-A4C628937B3D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HMI", "HMI.csproj", "{17025C81-3BEA-4E85-B4ED-F3DB2874FF88}"
@@ -17,10 +15,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{81168FCA-299A-4127-8EFA-4A0180A5FB2C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{81168FCA-299A-4127-8EFA-4A0180A5FB2C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{81168FCA-299A-4127-8EFA-4A0180A5FB2C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{81168FCA-299A-4127-8EFA-4A0180A5FB2C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D243552D-8436-42F7-9441-A4C628937B3D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D243552D-8436-42F7-9441-A4C628937B3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D243552D-8436-42F7-9441-A4C628937B3D}.Release|Any CPU.ActiveCfg = Release|Any CPU

@@ -2,7 +2,6 @@
 using System.Collections;
 using System.IO;
 using System.Text;
-using Newtonsoft.Json;
 
 namespace QuelleHMI
 {
@@ -116,8 +115,6 @@ namespace QuelleHMI
     }
     class AVXSearchBits
     {
-        private static JsonSerializer serializer = null;
-
         public BitArray segments { get; private set; }
         public BitArray fragments { get; private set; }
 
@@ -137,6 +134,7 @@ namespace QuelleHMI
             this.fragments = new BitArray(16);
         }
 
+        /*
         public string SerializeToJson()
         {
             string result = null;
@@ -155,5 +153,6 @@ namespace QuelleHMI
             }
             return result;
         }
+        */
     }
 }

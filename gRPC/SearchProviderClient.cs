@@ -61,7 +61,7 @@ namespace QuelleHMI
                 if (request.IsCompletedSuccessfully)
                     return request.Result;
 */
-                var response = searchprovider.Search(pbrequest);
+//              var response = searchprovider.Search(pbrequest);
             }
             return null;
         }
