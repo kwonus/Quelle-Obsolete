@@ -1,4 +1,4 @@
-﻿using ProtoBuf;
+﻿using MessagePack;
 using QuelleHMI.Controls;
 using QuelleHMI.Fragments;
 using QuelleHMI.Verbs;
@@ -11,42 +11,42 @@ using System.Threading.Tasks;
 
 namespace QuelleHMI
 {
-    [ProtoContract]
-    public class PBSearchClause : IQuelleSearchClause
+    [MessagePackObject]
+    public class QSearchClause : IQuelleSearchClause
     {
-        public PBSearchClause() { /*for protobuf*/ }
+        public QSearchClause() { /*for protobuf*/ }
 
-        [ProtoMember(1)]
+        [Key(1)]
         public string syntax { get; set; }
-        [ProtoIgnore]
+        [IgnoreMember]
         public IQuelleSearchFragment[] fragments
         {
             get => this.pbfragments;
             set
             {
-                this.pbfragments = new PBSearchFragment[value.Length];
+                this.pbfragments = new QSearchFragment[value.Length];
                 int i = 0;
                 foreach (var frag in value)
-                    this.pbfragments[i] = new PBSearchFragment(value[i++]);
+                    this.pbfragments[i] = new QSearchFragment(value[i++]);
             }
         }
-        [ProtoMember(2)]
-        public PBSearchFragment[] pbfragments { get; set; }
-        [ProtoMember(3)]
+        [Key(2)]
+        public QSearchFragment[] pbfragments { get; set; }
+        [Key(3)]
         public string segment { get; set; }
-        [ProtoMember(4)]
+        [Key(4)]
         public HMIClause.HMIPolarity polarity { get; }
 
-        public PBSearchClause(IQuelleSearchClause iclause)
+        public QSearchClause(IQuelleSearchClause iclause)
         {
             this.syntax = iclause.syntax;
-            this.pbfragments = iclause.fragments != null ? new PBSearchFragment[iclause.fragments.Length] : null;
+            this.pbfragments = iclause.fragments != null ? new QSearchFragment[iclause.fragments.Length] : null;
             this.segment = iclause.segment;
             this.polarity = iclause.polarity;
 
             if (this.pbfragments != null)
                 for (int i = 0; i < iclause.fragments.Length; i++)
-                    this.pbfragments[i] = new PBSearchFragment(iclause.fragments[i]);
+                    this.pbfragments[i] = new QSearchFragment(iclause.fragments[i]);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using ProtoBuf;
+﻿using MessagePack;
 using QuelleHMI.Controls;
 using QuelleHMI.Tokens;
 using QuelleHMI.Verbs;
@@ -11,36 +11,36 @@ using System.Threading.Tasks;
 
 namespace QuelleHMI
 {
-    [ProtoContract]
-    public class PBTokenVector : IQuelleTokenVector
+    [MessagePackObject]
+    public class QTokenVector : IQuelleTokenVector
     {
-        public PBTokenVector() { /*for protobuf*/ }
+        public QTokenVector() { /*for protobuf*/ }
 
-        [ProtoMember(1)]
+        [Key(1)]
         public string specification { get; set;  }
-        [ProtoIgnore]
+        [IgnoreMember]
         public IQuelleTokenMatch[] matchAll
         {
             get => this.pbMatchAll;
             set
             {
-                this.pbMatchAll = new PBTokenMatch[value.Length];
+                this.pbMatchAll = new QTokenMatch[value.Length];
                 int i = 0;
                 foreach (var frag in value)
-                    this.pbMatchAll[i] = new PBTokenMatch(value[i++]);
+                    this.pbMatchAll[i] = new QTokenMatch(value[i++]);
             }
         }
-        [ProtoMember(2)]
-        public PBTokenMatch[] pbMatchAll { get; set; }
+        [Key(2)]
+        public QTokenMatch[] pbMatchAll { get; set; }
 
-        public PBTokenVector(IQuelleTokenVector ivector)
+        public QTokenVector(IQuelleTokenVector ivector)
         {
             this.specification = ivector.specification;
 
-            this.pbMatchAll = ivector.matchAll != null ? new PBTokenMatch[ivector.matchAll.Length] : null;
+            this.pbMatchAll = ivector.matchAll != null ? new QTokenMatch[ivector.matchAll.Length] : null;
             if (this.pbMatchAll != null)
                 for (int i = 0; i < ivector.matchAll.Length; i++)
-                    this.pbMatchAll[i] = new PBTokenMatch(ivector.matchAll[i]);
+                    this.pbMatchAll[i] = new QTokenMatch(ivector.matchAll[i]);
         }
 
     }

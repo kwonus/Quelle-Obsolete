@@ -33,11 +33,6 @@ namespace Quelle.DriverDefault
             get;
             protected set;
         }
-        public HMICloud CloudHost
-        {
-            get;
-            protected set;
-        }
         public QuelleDriver(string host)
         {
             this.CloudHostName = host;
@@ -87,17 +82,6 @@ namespace Quelle.DriverDefault
 
         public IQuelleSearchResult Search(HMIStatement statement)
         {
-            if (statement == null)
-                return null;
-
-            if (this.CloudHost == null && this.CloudHostName != null)
-                this.CloudHost = new HMICloud(this.CloudHostName);
-
-            if (this.CloudHost != null)
-            {
-                var search = new CloudSearchRequest(statement, (CTLSearch)this.configuration.seachConf);
-                return this.CloudHost.Post(search);
-            }
             return null;
         }
         public IQuelleFetchResult Fetch(Guid session, uint cursor, uint count)

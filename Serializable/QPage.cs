@@ -1,4 +1,4 @@
-﻿using ProtoBuf;
+﻿using MessagePack;
 using QuelleHMI.Controls;
 using QuelleHMI.Verbs;
 using System;
@@ -10,45 +10,45 @@ using System.Threading.Tasks;
 
 namespace QuelleHMI
 {
-    [ProtoContract]
-    public class PBPageRequest : IQuellePageRequest
+    [MessagePackObject]
+    public class QPageRequest : IQuellePageRequest
     {
-        public PBPageRequest() { /*for protobuf*/ }
+        public QPageRequest() { /*for protobuf*/ }
 
-        [ProtoMember(1)]
+        [Key(1)]
         public Guid session { get; set; }
-        [ProtoMember(2)]
+        [Key(2)]
         public string format { get; set; }
-        [ProtoMember(3)]
+        [Key(3)]
         public UInt64 page { get; set; }
 
-        public PBPageRequest(IQuellePageRequest irequest)
+        public QPageRequest(IQuellePageRequest irequest)
         {
             this.session = irequest.session;
             this.format = irequest.format;
             this.page = irequest.page;
         }
     }
-    [ProtoContract]
-    public class PBPageResult : PBQuelleResult, IQuellePageResult
+    [MessagePackObject]
+    public class PBPageResult : QResult, IQuellePageResult
     {
         public PBPageResult() { /*for protobuf*/ }
 
-        [ProtoMember(4)]
+        [Key(4)]
         public string result { get; set; }
-        [ProtoIgnore]
+        [IgnoreMember]
         public IQuellePageRequest request
         {
             get => this.pbRequest;
-            set => this.pbRequest = new PBPageRequest(value);
+            set => this.pbRequest = new QPageRequest(value);
         }
-        [ProtoMember(5)]
-        public PBPageRequest pbRequest { get; set; }
+        [Key(5)]
+        public QPageRequest pbRequest { get; set; }
 
         public PBPageResult(IQuellePageResult iresult) : base((IQuelleResult)iresult)
         {
             this.result = iresult.result;
-            this.pbRequest = new PBPageRequest(iresult.request);
+            this.pbRequest = new QPageRequest(iresult.request);
         }
     }
 }

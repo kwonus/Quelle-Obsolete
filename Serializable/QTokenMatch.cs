@@ -1,4 +1,4 @@
-﻿using ProtoBuf;
+﻿using MessagePack;
 using QuelleHMI.Controls;
 using QuelleHMI.Tokens;
 using QuelleHMI.Verbs;
@@ -11,34 +11,34 @@ using System.Threading.Tasks;
 
 namespace QuelleHMI
 {
-    [ProtoContract]
-    public class PBTokenMatch : IQuelleTokenMatch
+    [MessagePackObject]
+    public class QTokenMatch : IQuelleTokenMatch
     {
-        public PBTokenMatch() { /*for protobuf*/ }
+        public QTokenMatch() { /*for protobuf*/ }
 
-        [ProtoMember(1)]
+        [Key(1)]
         public string condition { get; set; }
-        [ProtoIgnore]
+        [IgnoreMember]
         public IQuelleTokenFeature[] anyFeature
         {
             get => this.pbAnyFeature;
             set
             {
-                this.pbAnyFeature = new PBTokenFeature[value.Length];
+                this.pbAnyFeature = new QTokenFeature[value.Length];
                 int i = 0;
                 foreach (var frag in value)
-                    this.pbAnyFeature[i] = new PBTokenFeature(value[i++]);
+                    this.pbAnyFeature[i] = new QTokenFeature(value[i++]);
             }
         }
-        [ProtoMember(2)]
-        public PBTokenFeature[] pbAnyFeature { get; set; }
+        [Key(2)]
+        public QTokenFeature[] pbAnyFeature { get; set; }
 
-        public PBTokenMatch(IQuelleTokenMatch imatch)
+        public QTokenMatch(IQuelleTokenMatch imatch)
         {
             this.condition = imatch.condition;
-            this.pbAnyFeature = imatch.anyFeature != null ? new PBTokenFeature[imatch.anyFeature.Length] : null;
+            this.pbAnyFeature = imatch.anyFeature != null ? new QTokenFeature[imatch.anyFeature.Length] : null;
             for (int i = 0; i < imatch.anyFeature.Length; i++)
-                this.pbAnyFeature[i] = new PBTokenFeature(imatch.anyFeature[i]);
+                this.pbAnyFeature[i] = new QTokenFeature(imatch.anyFeature[i]);
         }
     }
 }

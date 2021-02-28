@@ -1,4 +1,4 @@
-﻿using ProtoBuf;
+﻿using MessagePack;
 using QuelleHMI.Controls;
 using QuelleHMI.Verbs;
 using System;
@@ -10,19 +10,19 @@ using System.Threading.Tasks;
 
 namespace QuelleHMI
 {
-    [ProtoContract]
-    public class PBQuelleResult : IQuelleResult
+    [MessagePackObject]
+    public class QResult : IQuelleResult
     {
-        public PBQuelleResult() { /*for protobuf*/ }
+        public QResult() { /*for protobuf*/ }
 
-        [ProtoMember(1)]
+        [Key(1)]
         public bool success { get; set; }
-        [ProtoMember(2)]
+        [Key(2)]
         public string[] errors { get; set; }
-        [ProtoMember(3)]
+        [Key(3)]
         public string[] warnings { get; set; }
 
-        public PBQuelleResult(IQuelleResult iresult)
+        public QResult(IQuelleResult iresult)
         {
             this.success = iresult.success;
             this.errors = iresult.errors;

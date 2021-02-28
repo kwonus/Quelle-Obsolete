@@ -1,4 +1,4 @@
-﻿using ProtoBuf;
+﻿using MessagePack;
 using QuelleHMI.Controls;
 using QuelleHMI.Fragments;
 using QuelleHMI.Tokens;
@@ -12,39 +12,39 @@ using System.Threading.Tasks;
 
 namespace QuelleHMI
 {
-    [ProtoContract]
-    public class PBSearchFragment : IQuelleSearchFragment
+    [MessagePackObject]
+    public class QSearchFragment : IQuelleSearchFragment
     {
-        public PBSearchFragment() { /*for protobuf*/ }
+        public QSearchFragment() { /*for protobuf*/ }
 
-        [ProtoMember(1)]
+        [Key(1)]
         public uint[] positionAspects { get; set; }
-        [ProtoIgnore]
+        [IgnoreMember]
         public IQuelleTokenVector[] anyOf
         {
             get => this.pbanyOf;
             set
             {
-                this.pbanyOf = new PBTokenVector[value.Length];
+                this.pbanyOf = new QTokenVector[value.Length];
                 int i = 0;
                 foreach (var frag in value)
-                    this.pbanyOf[i] = new PBTokenVector(value[i++]);
+                    this.pbanyOf[i] = new QTokenVector(value[i++]);
             }
         }
-        [ProtoMember(2)]
-        public PBTokenVector[] pbanyOf { get; set;  }
-        [ProtoMember(3)]
+        [Key(2)]
+        public QTokenVector[] pbanyOf { get; set;  }
+        [Key(3)]
         public string text { get; set; }
 
-        public PBSearchFragment (IQuelleSearchFragment ifragment)
+        public QSearchFragment (IQuelleSearchFragment ifragment)
         {
             this.positionAspects = ifragment.positionAspects;
-            this.pbanyOf = ifragment.anyOf != null ? new PBTokenVector[ifragment.anyOf.Length] : null;
+            this.pbanyOf = ifragment.anyOf != null ? new QTokenVector[ifragment.anyOf.Length] : null;
             this.text = ifragment.text;
 
             if (this.pbanyOf != null)
                 for (int i = 0; i < ifragment.anyOf.Length; i++)
-                    this.pbanyOf[i] = new PBTokenVector(ifragment.anyOf[i]);
+                    this.pbanyOf[i] = new QTokenVector(ifragment.anyOf[i]);
         }
     }
 }

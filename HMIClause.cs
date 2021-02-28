@@ -80,7 +80,7 @@ namespace QuelleHMI
                     case Verbs.Generate.GENERATE:   return new Verbs.Generate(statement, text, Verbs.Generate.GENERATE);
                     case Verbs.Generate.REGENERATE: return new Verbs.Generate(statement, text, Verbs.Generate.REGENERATE);
                 }
-                statement.Notify("error", "Unknown verb provided: " + text[0]);
+                statement.Notify("error", "Unknown verb provided: " + tokens[0]);
                 return null;
             }
             //  Only CONTROL::SET can be implicitly recognized
