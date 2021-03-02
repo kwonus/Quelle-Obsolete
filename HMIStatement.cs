@@ -244,7 +244,7 @@ namespace QuelleHMI
                 if (command.HasMacro())
                 {
                     var macroDef = command.GetMacroDefinition();
-                    var result = HMICommand.Driver.Write("quelle.macro." + macroDef.macroName, command.statement.statement);
+                    var result = HMICommand.configuration.Write("quelle.macro." + macroDef.macroName, command.statement.statement);
                     if (result.errors != null)
                     {
                         foreach (var error in result.errors)

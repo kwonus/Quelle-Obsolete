@@ -28,17 +28,6 @@ namespace Quelle.DriverDefault
     public class QuelleDriver : IQuelleDriver
     {
         protected HMIConfigurationDefault configuration;
-        public string CloudHostName
-        {
-            get;
-            protected set;
-        }
-        public QuelleDriver(string host)
-        {
-            this.CloudHostName = host;
-            this.configuration = new HMIConfigurationDefault();
-        }
-
         public QuelleDriver()
         {
             this.configuration = new HMIConfigurationDefault();

@@ -18,34 +18,34 @@ namespace QuelleHMI
         [IgnoreMember]
         public IQuelleSearchClause[] clauses
         {
-            get => this.pbclauses;
+            get => this.qclauses;
             set
             {
-                this.pbclauses = new QSearchClause[value.Length];
+                this.qclauses = new QSearchClause[value.Length];
                 int i = 0;
                 foreach (var val in value)
-                    this.pbclauses[i++] = new QSearchClause(val);
+                    this.qclauses[i++] = new QSearchClause(val);
             }
         }
         [IgnoreMember]
         public IQuelleSearchControls controls
         {
-            get => this.pbcontrols;
-            set => this.pbcontrols = new QSearchControls(value);
+            get => this.qcontrols;
+            set => this.qcontrols = new QSearchControls(value);
         }
         [Key(1)]
-        public QSearchClause[] pbclauses { get; set; }
+        public QSearchClause[] qclauses { get; set; }
 
         [Key(2)]
-        public QSearchControls pbcontrols;
+        public QSearchControls qcontrols;
         [Key(3)]
         public UInt64 count { get; set; }
 
         public QSearchRequest(IQuelleSearchRequest irequest)
         {
-            this.pbclauses = new QSearchClause[irequest.clauses.Length];
+            this.qclauses = new QSearchClause[irequest.clauses.Length];
             for (int i = 0; i < irequest.clauses.Length; i++)
-                this.pbclauses[i] = new QSearchClause(irequest.clauses[i]);
+                this.qclauses[i] = new QSearchClause(irequest.clauses[i]);
         }
     }
     [MessagePackObject]

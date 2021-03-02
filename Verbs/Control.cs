@@ -39,7 +39,7 @@ namespace QuelleHMI.Verbs
         {
             if (this.errors.Count == 0)
             {
-                var result = HMICommand.Driver.Write("quelle.macro." + this.controlName, this.controlValue);
+                var result = HMICommand.configuration.Write("quelle.macro." + this.controlName, this.controlValue);
                 if (result.errors != null)
                 {
                     foreach (var error in result.errors)

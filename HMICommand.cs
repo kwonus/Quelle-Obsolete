@@ -17,7 +17,6 @@ namespace QuelleHMI
 		public string command { get; private set; }
 		public List<string> errors { get; private set; }
 		public List<string> warnings { get; private set; }
-		public static IQuelleDriver Driver { get; protected set; } = null;
 
 		public void Notify(string level, string message)
         {
@@ -29,10 +28,6 @@ namespace QuelleHMI
             {
 				errors.Add(message.Trim());
 			}
-		}
-		public static void Intitialize(IQuelleDriver driver)
-        {
-			HMICommand.Driver = driver;
 		}
 		public HMICommand(String command)
         {
