@@ -9,7 +9,7 @@ namespace QuelleHMI.XGeneration
 		//	GoLang code-generator:
 		public XGenRust()
 		{
-			this.types.Add(typeof(string), "str");
+			this.types.Add(typeof(string), "String");
 			this.types.Add(typeof(bool), "bool");
 			this.types.Add(typeof(Guid), "str");
 			this.types.Add(typeof(Int16), "i16");
@@ -45,13 +45,13 @@ namespace QuelleHMI.XGeneration
 		{
 			var stype = QClass(type, "HashMap<{0}, {1}>");
 
-			return type.IsArray ? "Vec<" + stype + ">" : stype;
+			return type.IsArray ? "Vec<" + stype.Substring(0, stype.Length-2) + ">" : stype;
 		}
 		protected override string getterAndSetter(string name, Type type)
 		{
 			var stype = AdaptType(type);
 
-			string variable = "\t" + name + ": " + stype + ",\n";
+			string variable = "\tpub " + name + ": " + stype + ",\n";
 			return variable;
 		}
 		protected override string export(Type type)
@@ -69,7 +69,7 @@ namespace QuelleHMI.XGeneration
 
 				string qname = QClass(type, "map<{0}, {1}>");
 				string classname = qname ?? "UNKNOWN";
-				file += "\nstruct " + classname + " {\n";
+				file += "\npub struct " + classname + " {\n";
 
 				foreach (string p in accessible.Keys)
 				{

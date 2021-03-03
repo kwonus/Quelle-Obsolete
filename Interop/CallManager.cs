@@ -72,6 +72,7 @@ namespace QuelleHMI.Session
 
         [DllImport("QuelleSearchProvider.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private unsafe static extern UInt64 status(UInt64 session, UInt64 bucket, IntPtr request, delegate* unmanaged[Cdecl]<UInt64, UInt64, UInt32, IntPtr, Int64> writer);
+ 
         [DllImport("QuelleSearchProvider.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private unsafe static extern UInt64 page(UInt64 session, UInt64 bucket, IntPtr request, delegate* unmanaged[Cdecl]<UInt64, UInt64, UInt32, IntPtr, Int64> writer);
 
