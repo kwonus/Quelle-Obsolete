@@ -47,6 +47,7 @@ namespace QuelleHMI.Session
     }
     public class CallManager
     {
+        /*
         private static Dictionary<IntPtr, UInt16> MemorySize = new Dictionary<IntPtr, UInt16>();
 
         [DllImport("kernel32.dll")]
@@ -67,6 +68,7 @@ namespace QuelleHMI.Session
             CallManager.MemorySize[mem] = size;
             return mem;
         }
+        */
         /* THIS WOULD WORK IF WE WANTED TO CONSTRAIN OURSELFS TO STATIC LINKINMG.  USING LoadLibrary() ALLOWS USER TO CONFIGURE THE QuelleSearchProvider
         [DllImport("QuelleSearchProvider.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         private unsafe static extern IntPtr search(IntPtr request, UInt16 size, delegate* unmanaged[Cdecl]<UInt16, IntPtr> alloc);
@@ -85,12 +87,16 @@ namespace QuelleHMI.Session
 
         public CallManager()
         {
+            /*
             this.sessions = new Dictionary<UInt64, UInt64>();
             this.QuelleSearchProvider = CallManager.LoadLibrary(@"C:\Users\kevin\source\repos\Quelle-AVX\target\debug\QuelleSearchLib.dll");
+            */
         }
         ~CallManager()
         {
+            /*
             CallManager.FreeLibrary(this.QuelleSearchProvider);
+            */
         }
 
         public SessionKey CreateSession(UInt64 timestamp)   // DotNet still doesn't have UInt128
@@ -106,6 +112,7 @@ namespace QuelleHMI.Session
                 return new SessionKey(timestamp, 0);
             }
         }
+        /*
         public unsafe byte[] RequestReply(string function, byte* request, UInt16 size)
         {
             // https://docs.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.dllimportattribute?view=net-5.0
@@ -239,5 +246,6 @@ namespace QuelleHMI.Session
         {
             return null;
         }
+        */
     }
 }
