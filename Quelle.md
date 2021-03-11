@@ -1,4 +1,4 @@
-# Quelle HMI v1.0.12R Specification
+# Quelle HMI v1.0.1.3A Specification
 
 ### I. Background
 
@@ -32,20 +32,17 @@ Quelle Syntax comprises a standard set of eleven (11) verbs. Each verb correspon
 - review
 - help
 - generate
-- review
 - exit
 
 The verbs listed above are for the English flavor of Quelle. As Quelle is an open and extensible standard, verbs for other languages can be defined without altering the overall syntax structure of the HMI. The remainder of this document describes Version 1.0 of the Quelle-HMI specification.  
 
-In Quelle terminology, a statement is made up of actions. Each action has a single verb. While there are eleven verbs, there are only six distinct types of clauses:
+In Quelle terminology, a statement is made up of actions. Each action has a single verb. While there are eleven verbs, there are only five distinct types of clauses:
 
 1. SEARCH clause
    - find *(inferred)*
 2. CONTROL clauses
    - set *(inferred)*
    - clear *(inferred)*
-3. STATUS clause
-   - show
 4. LABEL clause
    - save
    - delete
@@ -53,6 +50,7 @@ In Quelle terminology, a statement is made up of actions. Each action has a sing
 5. DISPLAY clause
    - print
 6. SYSTEM commands
+   - show
    - help
    - generate
    - exit
@@ -66,7 +64,6 @@ Searching and displaying results are the primary purpose of Quelle.  Learning th
 | *find*      |  implicit   | SEARCH          | **1**: *search spec*    |                    |  **" " [ ] ( )**   |
 | *set*       |  implicit   | CONTROL         | **2**: *name* = *value* |       **=**        |                    |
 | *clear*     |  implicit   | CONTROL         | **1**: *control_name*   |       **=@**       |                    |
-| **@show**   |  singleton  | STATUS          | **1+**: *control_names* |                    |                    |
 | **@print**  |  dependent  | DISPLAY         | **0+**: *identifiers*   |                    |      **[ ]**       |
 | **@save**   |  dependent  | LABEL           | **1**: *macro_label*    |      **{ }**       |                    |
 | **@delete** |  singleton  | LABEL           | **1+**: *macro_label*s  |      **{ }**       |                    |
@@ -88,10 +85,7 @@ There are three types of actions
 
 Explicit verbs always begin with an **@**.  There can be, at most, one *explicit* action per statement. Contrariwise, any number of *implicit* actions are allowed in a compound statement.  Implicit actions are separated by semi-colons. A semi-colon is <u>not</u> required to separate an *implicit* action from a final *explicit* action.  However, extraneous semi-colons are permitted, even when not required.
 
-STATUS and SYSTEM actions are constrained to be Singleton Statements.  Therefore, a singleton action in Quelle always falls into one of these two syntax categories:
-
-- STATUS
-- SYSTEM
+SYSTEM actions are constrained to be Singleton Statements.  System actions are identified in Section IX.
 
 All other syntax categories can be syntactically combined to form compound statements. When a compound statement includes an explicit action, it should terminate the statement.
 
@@ -101,17 +95,17 @@ Every Quelle clause has a verb, even though it might be "implicit". Consequently
 
 Even before we describe Quelle syntax generally, let's look at these concepts using examples:
 
-|                                                 | Example                                       |
-| ----------------------------------------------- | :-------------------------------------------- |
-| Singleton SYSTEM action                         | @help                                         |
-| Singleton STATUS action                         | @show span domain                             |
-| Ordinary statement with a single DISPLAY action | @print [*]                                    |
-| Ordinary statement with a single SEARCH action  | this is some text expected to be found        |
-| Compound statement: single SEARCH & DISPLAY     | this is some text expected to be found @print |
-| Compound statement: two SEARCH actions          | "this quoted text" ; other unquoted text      |
-| Compound statement: two CONTROL actions         | search.span=@   display.heading=@             |
-| Compound: CONTROL, SEARCH, & DISPLAY            | span = 7; heading=@ ; "Moses said" @print     |
-| Compound: CONTROL, SEARCH, & LABEL              | display.span=7; "Moses said" @save {my macro} |
+|                                              | Example                                       |
+| -------------------------------------------- | :-------------------------------------------- |
+| Singleton SYSTEM action                      | @help                                         |
+| Singleton SYSTEM action                      | @show span domain                             |
+| Statement with explicit DISPLAY action       | @print [*]                                    |
+| Statement with a single SEARCH action        | this is some text expected to be found        |
+| Compound statement: SEARCH & DISPLAY actions | this is some text expected to be found @print |
+| Compound statement: two SEARCH actions       | "this quoted text" ; other unquoted text      |
+| Compound statement: two CONTROL actions      | search.span=@   display.heading=@             |
+| Compound: CONTROL, SEARCH, & DISPLAY         | span = 7; heading=@ ; "Moses said" @print     |
+| Compound: CONTROL, SEARCH, & LABEL           | display.span=7; "Moses said" @save {my macro} |
 
 **TABLE 3-2 -- Examples of Quelle statement types**
 
@@ -280,17 +274,12 @@ Like the earlier example, the subject is "you understood".  The object this time
 - @ [at-symbol: the beginning of an explicit verb]
 - the end-of-the-line [newline]
 
-**NOTE:**
-
-The absence of double-quotes means that the statement is unquoted.
-
 **Quoted SEARCH segments:** a quoted clause contains a single string of terms to search. An explicit match on the string is required. However, an ellipsis ( … ) can be used to indicate that wildcards may appear within the quoted string.
 
 **NOTES:**
 
-It is called *quoted,* as the entire clause is sandwiched on both sides by double-quotes ( " ).
-
- 
+- It is called *quoted,* as the entire clause is sandwiched on both sides by double-quotes ( " )
+- The absence of double-quotes means that the statement is unquoted
 
 **Parenthetical Terms:** When searching, there are situations when the exact word that appears in a text is not precisely known.
 
@@ -307,8 +296,6 @@ The above statement is equivalent to
 **or:** In Boolean logic, **or** means that any term constitutes a match. With Quelle=HMI, *or* is represented by the semi-colon ( **;** ) between SEARCH clauses. 
 
 **not:** In Boolean logic, **not** means that the term must not be found. With Quelle, *not* is represented by a minus,minus ( **--** ) and applies to an entire clause (it cannot be applied to individual words unless the search clause has only a single term). In other words, a ​--​ means subtract results; it cancels-out matches against all matches of other clauses. Most clauses are additive as each additional clause increases search results. Contrariwise, a **not** clause is subtractive as it decreases search results.
-
-**NOTE:**
 
 The -- means that the clause will be subtracted from the search results while its absence means that the clause will be added to the search results. When statement only contains a single search clause, it is always positive. A single negative clause following the find imperative, while it might be grammatically valid syntax, will never match anything. Therefore, while permitted in theory, it would have no real-world meaning. Consequently, some implementations of Quelle-HMI may disallow such a construct.
 
@@ -392,9 +379,9 @@ in a beginning, God created heaven and earth
 
 | **example**                          | **explanation**          |
 | ------------------------------------ | ------------------------ |
-| *quelle*.host = https://avbible.net/ | Assign a control setting |
-| **@show** *quelle*.host              | Show a control setting   |
-| *quelle*.host=@                      | Clear a control setting  |
+| *system*.host = https://avbible.net/ | Assign a control setting |
+| **@show** *system*.host              | Show a control setting   |
+| *system*.host=@                      | Clear a control setting  |
 
 **TABLE 7-2** -- **set/clear/show** action operate on configuration settings
 
@@ -422,7 +409,7 @@ The control names are applicable to ***set***, ***clear***, and ***@show*** verb
 | display.format       | format     | display format of results            | Table 7-1  | normal     |
 | display.output       | output     | ability to redirect output to a file | filename   | normal     |
 
-**TABLE 7-3 -- Control Names for use with CONTROL and STATUS clauses**
+**TABLE 7-3 -- Control Names that affect SEARCH & DISPLAY actions**
 
 
 
@@ -523,13 +510,16 @@ The syntax above, while biased towards Quelle-AVX search results is standard Que
 
 
 
-### IX. System Commands
+### IX. System Actions
 
 | Verb          | Action Type | Clause Type | Required Arguments |
 | ------------- | ----------- | ----------- | ------------------ |
+| **@show**     | Singleton   | SYSTEM      | 0 or more          |
 | **@help**     | Singleton   | SYSTEM      | 0 or 1             |
 | **@generate** | Singleton   | SYSTEM      | 2 or 4             |
 | **@exit**     | Singleton   | SYSTEM      | 0                  |
+
+**TABLE 9-1 -- All SYSTEM actions are Singleton phrases**
 
 **PROGRAM HELP**
 
@@ -577,7 +567,7 @@ The generate command will generate the internal Quelle class in the language spe
 
 In the case of gRPC, the third parameter must be "*" as it always generates all messages, in addition to the Quelle cloud-service definitions.
 
-The additional two parameters are optional, and are also very specific.  If the third parameter is provided, it must be ( > ) or ( >! ).  And the final and fourth parameter must be a valid path+filename specification. To expand on the previous example, we can save output to a file with this command:
+The additional two parameters are optional, and are also very specific.  If the third parameter is provided, it must be the greater-than symbol ( > ).  And the final and fourth parameter must be a valid path+filename specification. To expand on the previous example, we can save output to a file with this command:
 
 *@generate* Java CloudSearch  >  C:\\MyFolder\\src\\CloudSearch.java
 
@@ -585,20 +575,24 @@ The folder must exist, and the file in that folder must not exist.  If those two
 
 If the user does not care if the file already exists, the existence check can be bypassed by adding exclamation ( ! ) to the command:
 
-*@generate!* Java CloudSearch  >  C:\\MyFolder\\src\\CloudSearch.java
+*@generate**!*** Java CloudSearch  >  C:\\MyFolder\\src\\CloudSearch.java
 
 Finally, to generate IDL for all cloud-interface types, issue this command:
 
 *@generate* gRPC * >  C:\\MyFolder\\src\\QuelleCloudSearchProvider.proto
 
+NOTE TO DEVELOPERS: To be clear, the standard Quelle driver does <u>not</u> utilize gRPC or Protocol Buffers.  Yet, the IDL is useful and the driver could be extended by other developers.  The Standard Quelle driver is implemented in DotNet 5.0 and C#.  The reference implementation of a Quelle Search Provider is REST service implemented in Rust.
+
 ### X. System Controls
 
 | Fully Specified Name | Short Name  | Meaning                                                     | Values                                 | Visibility |
 | -------------------- | ----------- | ----------------------------------------------------------- | -------------------------------------- | ---------- |
-| quelle.host          | host        | URL of driver                                               | string                                 | normal     |
-| quelle.debug         | debug       | on or off                                                   | true/false                             | *hidden*   |
-| quelle.data          | data        | quelle data format                                          | *reserved*                             | *hidden*   |
-| quelle.indentation   | indentation | specifies tabs or spaces on when invoking @generate command | tab, spaces:2, spaces:3, spaces:4, ... | *hidden*   |
+| system.host          | host        | URL of driver                                               | string                                 | normal     |
+| system.indentation   | indentation | specifies tabs or spaces on when invoking @generate command | tab, spaces:2, spaces:3, spaces:4, ... | *hidden*   |
+
+**TABLE 10-1 -- Control Names that affect SYSTEM actions**
+
+It should be noted that system.host, while a SYSTEM control, does certainly affect SEARCH as this is how the user specifies which search provider to use.
 
 ### XI. Wrap-up
 
