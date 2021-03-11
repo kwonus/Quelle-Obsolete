@@ -47,42 +47,50 @@ namespace QuelleHMI.Session
     }
     public class CallManager
     {
+        private static Dictionary<IntPtr, UInt16> MemorySize = new Dictionary<IntPtr, UInt16>();
+
+        [DllImport("kernel32.dll")]
+        public static extern IntPtr LoadLibrary(string dllToLoad);
+
+        [DllImport("kernel32.dll")]
+        public static extern IntPtr GetProcAddress(IntPtr hModule, string procedureName);
+
+        [DllImport("kernel32.dll")]
+        public static extern bool FreeLibrary(IntPtr hModule);
+
+        private IntPtr QuelleSearchProvider;
+
         [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
-        private static Int64 Write(UInt64 session, UInt64 bucket, UInt32 size, IntPtr unmanaged)
+        private static IntPtr Alloc(UInt16 size)
         {
-            var sessionkey = new SessionKey(session, bucket).AsGuid;
-            if (IPC.ContainsKey(sessionkey))
-            {
-                byte[] managed = new byte[(int) size];
-                Marshal.Copy(unmanaged, managed, 0, (int) size);
-                IPC[sessionkey] = managed;
-                return size;
-            }
-            return -1;
+            IntPtr mem = Marshal.AllocHGlobal((Int32)size);
+            CallManager.MemorySize[mem] = size;
+            return mem;
         }
-        // https://docs.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.dllimportattribute?view=net-5.0
-        // https://github.com/dotnet/csharplang/blob/master/proposals/csharp-9.0/function-pointers.md
-        // https://devblogs.microsoft.com/dotnet/improvements-in-native-code-interop-in-net-5-0/
-        //
+        /* THIS WOULD WORK IF WE WANTED TO CONSTRAIN OURSELFS TO STATIC LINKINMG.  USING LoadLibrary() ALLOWS USER TO CONFIGURE THE QuelleSearchProvider
         [DllImport("QuelleSearchProvider.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        private unsafe static extern UInt64 search(UInt64 session, UInt64 bucket, IntPtr request, delegate* unmanaged[Cdecl]<UInt64, UInt64, UInt32, IntPtr, Int64> writer);
+        private unsafe static extern IntPtr search(IntPtr request, UInt16 size, delegate* unmanaged[Cdecl]<UInt16, IntPtr> alloc);
         
         [DllImport("QuelleSearchProvider.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        private unsafe static extern UInt64 fetch(UInt64 session, UInt64 bucket, IntPtr request, delegate* unmanaged[Cdecl]<UInt64, UInt64, UInt32, IntPtr, Int64> writer);
+        private unsafe static extern IntPtr fetch(IntPtr request, UInt16 size, delegate* unmanaged[Cdecl]<UInt16, IntPtr> alloc);
 
         [DllImport("QuelleSearchProvider.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        private unsafe static extern UInt64 status(UInt64 session, UInt64 bucket, IntPtr request, delegate* unmanaged[Cdecl]<UInt64, UInt64, UInt32, IntPtr, Int64> writer);
+        private unsafe static extern IntPtr status(IntPtr request, UInt16 size, delegate* unmanaged[Cdecl]<UInt16, IntPtr> alloc);
  
         [DllImport("QuelleSearchProvider.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        private unsafe static extern UInt64 page(UInt64 session, UInt64 bucket, IntPtr request, delegate* unmanaged[Cdecl]<UInt64, UInt64, UInt32, IntPtr, Int64> writer);
+        private unsafe static extern IntPtr page(IntPtr request, UInt16 size, delegate* unmanaged[Cdecl]<UInt16, IntPtr> alloc);
+        */
 
         private Dictionary<UInt64, UInt64> sessions;
-        private static Dictionary<Guid, byte[]> IPC;
 
         public CallManager()
         {
             this.sessions = new Dictionary<UInt64, UInt64>();
-            CallManager.IPC = new Dictionary<Guid, byte[]>();
+            this.QuelleSearchProvider = CallManager.LoadLibrary(@"C:\Users\kevin\source\repos\Quelle-AVX\target\debug\QuelleSearchLib.dll");
+        }
+        ~CallManager()
+        {
+            CallManager.FreeLibrary(this.QuelleSearchProvider);
         }
 
         public SessionKey CreateSession(UInt64 timestamp)   // DotNet still doesn't have UInt128
@@ -98,22 +106,33 @@ namespace QuelleHMI.Session
                 return new SessionKey(timestamp, 0);
             }
         }
-        public unsafe IQuelleSearchResult Search(SessionKey session, IQuelleSearchRequest request)
+        public unsafe byte[] RequestReply(string function, byte* request, UInt16 size)
         {
-            // http://newapputil.blogspot.com/2015/09/pass-image-byte-from-c-to-c-and-vice.html
-            // https://stackoverflow.com/questions/785226/practical-use-of-stackalloc-keyword/785264
-            // 
-            byte[] blob = MessageAsBlob(request);
-            byte* cblob = stackalloc byte[blob.Length];          // This must be done on the stack; it goes away on method return
-            Marshal.Copy(blob, 0, (IntPtr)cblob, blob.Length);
+            // https://docs.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.dllimportattribute?view=net-5.0
+            // https://github.com/dotnet/csharplang/blob/master/proposals/csharp-9.0/function-pointers.md
+            // https://devblogs.microsoft.com/dotnet/improvements-in-native-code-interop-in-net-5-0/
+            //
+            IntPtr Function = CallManager.GetProcAddress(this.QuelleSearchProvider, function);
+            delegate* unmanaged[Cdecl]<IntPtr, UInt16, delegate* unmanaged[Cdecl]<UInt16, IntPtr>, IntPtr> FUNCTION
+                = (delegate* unmanaged[Cdecl]<IntPtr, UInt16, delegate * unmanaged[Cdecl]<UInt16, IntPtr>, IntPtr>) Function;
 
-            delegate* unmanaged[Cdecl]<UInt64, UInt64, UInt32, IntPtr, Int64> writer = &Write;
-            UInt64 result = search(session.TimeStamp, session.Bucket, (IntPtr)cblob, writer);
+            delegate* unmanaged[Cdecl]<UInt16, IntPtr> alloc = &Alloc;
+            IntPtr result = FUNCTION((IntPtr)request, size, alloc);
 
-            return SearchResponseFromBlob(session);
+            if ( (result != IntPtr.Zero) && CallManager.MemorySize.ContainsKey(result))
+            {
+                UInt16 msize = CallManager.MemorySize[result];
+                CallManager.MemorySize.Remove(result);
+                byte[] managed = new byte[msize];
+                Marshal.Copy(result, managed, 0, msize);
+                Marshal.FreeHGlobal(result);
+                return managed;
+            }
+            return Array.Empty<byte>();
         }
-        public unsafe IQuelleFetchResult Fetch(SessionKey session, IQuelleFetchRequest request)
+        public unsafe IQuelleSearchResult Search(IQuelleSearchRequest request)
         {
+            string function = "search";
             // http://newapputil.blogspot.com/2015/09/pass-image-byte-from-c-to-c-and-vice.html
             // https://stackoverflow.com/questions/785226/practical-use-of-stackalloc-keyword/785264
             // 
@@ -121,13 +140,27 @@ namespace QuelleHMI.Session
             byte* cblob = stackalloc byte[blob.Length];          // This must be done on the stack; it goes away on method return
             Marshal.Copy(blob, 0, (IntPtr)cblob, blob.Length);
 
-            delegate* unmanaged[Cdecl]<UInt64, UInt64, UInt32, IntPtr, Int64> writer = &Write;
-            UInt64 result = fetch(session.TimeStamp, session.Bucket, (IntPtr)cblob, writer);
+            byte[] result = RequestReply(function, cblob, (UInt16)blob.Length);
 
-            return FetchResponseFromBlob(session);
+            return SearchResponseFromBlob(result);
+        }
+        public unsafe IQuelleFetchResult Fetch(IQuelleFetchRequest request)
+        {
+            string function = "fetch";
+            // http://newapputil.blogspot.com/2015/09/pass-image-byte-from-c-to-c-and-vice.html
+            // https://stackoverflow.com/questions/785226/practical-use-of-stackalloc-keyword/785264
+            // 
+            byte[] blob = MessageAsBlob(request);
+            byte* cblob = stackalloc byte[blob.Length];          // This must be done on the stack; it goes away on method return
+            Marshal.Copy(blob, 0, (IntPtr)cblob, blob.Length);
+
+            byte[] result = RequestReply(function, cblob, (UInt16)blob.Length);
+
+            return FetchResponseFromBlob(result);
         }
         public unsafe IQuelleStatusResult Status(SessionKey session, IQuelleStatusRequest request)
         {
+            string function = "status";
             // http://newapputil.blogspot.com/2015/09/pass-image-byte-from-c-to-c-and-vice.html
             // https://stackoverflow.com/questions/785226/practical-use-of-stackalloc-keyword/785264
             // 
@@ -135,13 +168,13 @@ namespace QuelleHMI.Session
             byte* cblob = stackalloc byte[blob.Length];          // This must be done on the stack; it goes away on method return
             Marshal.Copy(blob, 0, (IntPtr)cblob, blob.Length);
 
-            delegate* unmanaged[Cdecl]<UInt64, UInt64, UInt32, IntPtr, Int64> writer = &Write;
-            UInt64 result = status(session.TimeStamp, session.Bucket, (IntPtr)cblob, writer);
+            byte[] result = RequestReply(function, cblob, (UInt16)blob.Length);
 
-            return StatusResponseFromBlob(session);
+            return StatusResponseFromBlob(result);
         }
         public unsafe IQuellePageResult Page(SessionKey session, IQuellePageRequest request)
         {
+            string function = "page";
             // http://newapputil.blogspot.com/2015/09/pass-image-byte-from-c-to-c-and-vice.html
             // https://stackoverflow.com/questions/785226/practical-use-of-stackalloc-keyword/785264
             // 
@@ -149,28 +182,34 @@ namespace QuelleHMI.Session
             byte* cblob = stackalloc byte[blob.Length];          // This must be done on the stack; it goes away on method return
             Marshal.Copy(blob, 0, (IntPtr)cblob, blob.Length);
 
-            delegate* unmanaged[Cdecl]<UInt64, UInt64, UInt32, IntPtr, Int64> writer = &Write;
-            UInt64 result = page(session.TimeStamp, session.Bucket, (IntPtr)cblob, writer);
+            byte[] result = RequestReply(function, cblob, (UInt16)blob.Length);
 
-            return PageResponseFromBlob(session);
+            return PageResponseFromBlob(result);
+        }
+        public unsafe void Test(SessionKey session)
+        {
+            string function = "status";
+            // http://newapputil.blogspot.com/2015/09/pass-image-byte-from-c-to-c-and-vice.html
+            // https://stackoverflow.com/questions/785226/practical-use-of-stackalloc-keyword/785264
+            // 
+            byte[] blob = new byte[] { (byte)'h', (byte)'i', (byte)' ', (byte)'C', (byte)'!', (byte)'\0' };
+            byte* cblob = stackalloc byte[blob.Length];          // This must be done on the stack; it goes away on method return
+            Marshal.Copy(blob, 0, (IntPtr)cblob, blob.Length);
+
+            byte[] result = RequestReply(function, cblob, (UInt16)blob.Length);
+            char[] str = new char[result.Length];
+            for (int i = 0; i < str.Length; i++)
+                str[i] = (char) result[i];
+
+            Console.WriteLine(new string(str));
         }
         private byte[] MessageAsBlob(IQuellePageRequest request)
         {
             byte[] blob = new byte[] { (byte)'h', (byte)'i' }; // msgpack encoding goes here
             return blob;
         }
-        private IQuellePageResult PageResponseFromBlob(SessionKey session)
+        private IQuellePageResult PageResponseFromBlob(byte[] blob)
         {
-            var sessionkey = session.AsGuid;
-
-            if (IPC.ContainsKey(sessionkey))
-            {
-                byte[] message = IPC[sessionkey];
-                IPC.Remove(sessionkey);
-
-                // TODO: Read bytes from IPC object and convert to an object via msgpack
-                return null;
-            }
             return null;
         }
         private byte[] MessageAsBlob(IQuelleSearchRequest request)
@@ -178,18 +217,8 @@ namespace QuelleHMI.Session
             byte[] blob = new byte[] { (byte)'h', (byte)'i' }; // msgpack encoding goes here
             return blob;
         }
-        private IQuelleSearchResult SearchResponseFromBlob(SessionKey session)
+        private IQuelleSearchResult SearchResponseFromBlob(byte[] blob)
         {
-            var sessionkey = session.AsGuid;
-
-            if (IPC.ContainsKey(sessionkey))
-            {
-                byte[] message = IPC[sessionkey];
-                IPC.Remove(sessionkey);
-
-                // TODO: Read bytes from IPC object and convert to an object via msgpack
-                return null;
-            }
             return null;
         }
         private byte[] MessageAsBlob(IQuelleFetchRequest request)
@@ -197,18 +226,8 @@ namespace QuelleHMI.Session
             byte[] blob = new byte[] { (byte)'h', (byte)'i' }; // msgpack encoding goes here
             return blob;
         }
-        private IQuelleFetchResult FetchResponseFromBlob(SessionKey session)
+        private IQuelleFetchResult FetchResponseFromBlob(byte[] blob)
         {
-            var sessionkey = session.AsGuid;
-
-            if (IPC.ContainsKey(sessionkey))
-            {
-                byte[] message = IPC[sessionkey];
-                IPC.Remove(sessionkey);
-
-                // TODO: Read bytes from IPC object and convert to an object via msgpack
-                return null;
-            }
             return null;
         }
         private byte[] MessageAsBlob(IQuelleStatusRequest request)
@@ -216,18 +235,8 @@ namespace QuelleHMI.Session
             byte[] blob = new byte[] { (byte)'h', (byte)'i' }; // msgpack encoding goes here
             return blob;
         }
-        private IQuelleStatusResult StatusResponseFromBlob(SessionKey session)
+        private IQuelleStatusResult StatusResponseFromBlob(byte[] blob)
         {
-            var sessionkey = session.AsGuid;
-
-            if (IPC.ContainsKey(sessionkey))
-            {
-                byte[] message = IPC[sessionkey];
-                IPC.Remove(sessionkey);
-
-                // TODO: Read bytes from IPC object and convert to an object via msgpack
-                return null;
-            }
             return null;
         }
     }

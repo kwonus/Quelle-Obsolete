@@ -1,10 +1,6 @@
 ﻿using QuelleHMI.History;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace QuelleHMI.Serializable
 {
@@ -25,7 +21,6 @@ namespace QuelleHMI.Serializable
 			return null;
 		}
 //		public void ApplyControlActions(Guid md5)
-		[UnmanagedCallersOnly]
 		public static void ApplyControlActions(UInt64 hash_1, UInt64 hash_2)
 		{
 
