@@ -8,7 +8,7 @@ namespace QuelleHMI
     //
     public interface ISearchProviderAsync
     {
-        ValueTask<IQuelleStatusResult> StatusAsync(QStatusRequest request);
+        ValueTask<IQuelleStatusResult> StatusAsync();
         ValueTask<IQuelleSearchResult> SearchAsync(QSearchRequest request);
         ValueTask<IQuelleFetchResult> FetchAsync(QFetchRequest request);
         ValueTask<IQuellePageResult> PageAsync(QPageRequest request);
@@ -16,7 +16,7 @@ namespace QuelleHMI
     }
     public interface ISearchProvider
     {
-        IQuelleStatusResult Status(QStatusRequest request);
+        IQuelleStatusResult Status();
         IQuelleSearchResult Search(QSearchRequest request);
         IQuelleFetchResult Fetch(QFetchRequest request);
         IQuellePageResult Page(QPageRequest request);
@@ -33,8 +33,8 @@ namespace QuelleHMI
             public QuelleSearchProvider(SearchProviderClient outer)  {
                 this.outer = outer;
             }
-            public IQuelleStatusResult Status(QStatusRequest request) {
-                return outer.Status(request);
+            public IQuelleStatusResult Status() {
+                return outer.Status();
             }
             public IQuelleSearchResult Search(QSearchRequest request)  {
                 return outer.Search(request);
@@ -65,7 +65,7 @@ namespace QuelleHMI
         {
             return null;
         }
-        public IQuelleStatusResult Status(QStatusRequest req)
+        public IQuelleStatusResult Status()
         {
             return null;
         }

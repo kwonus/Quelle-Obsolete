@@ -6,7 +6,7 @@ namespace QuelleHMI
     [MessagePackObject]
     public class QTokenFeature : IQuelleTokenFeature
     {
-        public QTokenFeature() { /*for protobuf*/ }
+        public QTokenFeature() { /*for msgpack*/ }
 
         [Key(1)]
         public string feature { get; set; }

@@ -7,6 +7,8 @@ namespace QuelleHMI
     [MessagePackObject]
     public class QFetchRequest : IQuelleFetchRequest
     {
+        public QFetchRequest() : base() { /*for msgpack*/ }
+
         [Key(1)]
         public Guid session { get; set; }
         [Key(2)]
@@ -23,9 +25,9 @@ namespace QuelleHMI
     }
 
     [MessagePackObject]
-    public class PBFetchResult : QResult, IQuelleFetchResult
+    public class QFetchResult : QResult, IQuelleFetchResult
     {
-        public PBFetchResult(): base() { /*for protobuf*/ }
+        public QFetchResult(): base() { /*for msgpack*/ }
 
         [Key(4)]
         public UInt64 cursor { get; set; }
@@ -36,7 +38,7 @@ namespace QuelleHMI
         [Key(7)]
         public Dictionary<UInt64, string> records { get; set; }
 
-        public PBFetchResult(IQuelleFetchResult iresult) : base ((IQuelleResult) iresult)
+        public QFetchResult(IQuelleFetchResult iresult) : base ((IQuelleResult) iresult)
         {
             this.cursor = iresult.cursor;
             this.remainder = iresult.remainder;

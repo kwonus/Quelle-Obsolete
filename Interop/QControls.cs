@@ -6,7 +6,7 @@ namespace QuelleHMI
     [MessagePackObject]
     public class QSearchControls: IQuelleSearchControls
     {
-        public QSearchControls() { /*for protobuf*/ }
+        public QSearchControls(): base() { /*for msgpack*/ }
 
         [Key(1)]
         public string domain { get; set; }

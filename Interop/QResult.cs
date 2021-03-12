@@ -5,7 +5,7 @@ namespace QuelleHMI
     [MessagePackObject]
     public class QResult : IQuelleResult
     {
-        public QResult() { /*for protobuf*/ }
+        public QResult() { /*for msgpack*/ }
 
         [Key(1)]
         public bool success { get; set; }

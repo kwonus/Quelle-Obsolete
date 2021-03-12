@@ -4,9 +4,9 @@ using System;
 namespace QuelleHMI
 {
     [MessagePackObject]
-    public class QPageRequest : IQuellePageRequest
+    public class QPageRequest: IQuellePageRequest
     {
-        public QPageRequest() { /*for protobuf*/ }
+        public QPageRequest(): base() { /*for msgpack*/ }
 
         [Key(1)]
         public Guid session { get; set; }
@@ -23,25 +23,25 @@ namespace QuelleHMI
         }
     }
     [MessagePackObject]
-    public class PBPageResult : QResult, IQuellePageResult
+    public class QPageResult : QResult, IQuellePageResult
     {
-        public PBPageResult() { /*for protobuf*/ }
+        public QPageResult() { /*for msgpack*/ }
 
         [Key(4)]
         public string result { get; set; }
         [IgnoreMember]
         public IQuellePageRequest request
         {
-            get => this.pbRequest;
-            set => this.pbRequest = new QPageRequest(value);
+            get => this.qRequest;
+            set => this.qRequest = new QPageRequest(value);
         }
         [Key(5)]
-        public QPageRequest pbRequest { get; set; }
+        public QPageRequest qRequest { get; set; }
 
-        public PBPageResult(IQuellePageResult iresult) : base((IQuelleResult)iresult)
+        public QPageResult(IQuellePageResult iresult) : base((IQuelleResult)iresult)
         {
             this.result = iresult.result;
-            this.pbRequest = new QPageRequest(iresult.request);
+            this.qRequest = new QPageRequest(iresult.request);
         }
     }
 }

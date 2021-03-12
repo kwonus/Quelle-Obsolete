@@ -25,7 +25,7 @@ using static QuelleHMI.HMISession;
 
 namespace Quelle.DriverDefault
 {
-    public class QuelleDriver : IQuelleDriver
+    public class QuelleDriver : IQuelleConfig, IQuelleHelp
     {
         protected HMIConfigurationDefault configuration;
         public QuelleDriver()
@@ -69,6 +69,7 @@ namespace Quelle.DriverDefault
             return result;
         }
 
+        #if THIS_IS_NOW_CRUFT
         public IQuelleSearchResult Search(HMIStatement statement)
         {
             return null;
@@ -86,6 +87,8 @@ namespace Quelle.DriverDefault
         {
             return new HMIResultObject("Developer has not implemeneted the Display method of the driver");
         }
+        #endif
+
         public string Help()
         {
             string text = "Help is available on each of these topics:\n";

@@ -38,12 +38,9 @@ namespace QuelleHMI
         string summary { get; }
         IQuelleSearchRequest enrichedRequest { get; }
     }
-    public interface IQuelleStatusRequest
-    {
-        
-    }
     public interface IQuelleStatusResult : IQuelleResult
     {
+        public string summary { get; }
         public Guid[] sessions { get; }
     }
     public interface IQuellePageRequest
@@ -89,13 +86,5 @@ namespace QuelleHMI
     {
         string Help();
         string Help(string topic);
-    }
-    public interface IQuelleDriver : IQuelleConfig, IQuelleHelp
-    {
-        //IQuelleSearchResult Search(HMIStatement statement);
-
-        //IQuelleFetchResult Fetch(Guid session, uint cursor, uint count);
-
-        IQuelleResultString Get(Guid session, UInt16 key);
     }
 }

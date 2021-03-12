@@ -7,36 +7,36 @@ namespace QuelleHMI
     [MessagePackObject]
     public class QSearchFragment : IQuelleSearchFragment
     {
-        public QSearchFragment() { /*for protobuf*/ }
+        public QSearchFragment() { /*for msgpack*/ }
 
         [Key(1)]
         public uint[] positionAspects { get; set; }
         [IgnoreMember]
         public IQuelleTokenVector[] anyOf
         {
-            get => this.pbanyOf;
+            get => this.qAnyOf;
             set
             {
-                this.pbanyOf = new QTokenVector[value.Length];
+                this.qAnyOf = new QTokenVector[value.Length];
                 int i = 0;
                 foreach (var frag in value)
-                    this.pbanyOf[i] = new QTokenVector(value[i++]);
+                    this.qAnyOf[i] = new QTokenVector(value[i++]);
             }
         }
         [Key(2)]
-        public QTokenVector[] pbanyOf { get; set;  }
+        public QTokenVector[] qAnyOf { get; set;  }
         [Key(3)]
         public string text { get; set; }
 
         public QSearchFragment (IQuelleSearchFragment ifragment)
         {
             this.positionAspects = ifragment.positionAspects;
-            this.pbanyOf = ifragment.anyOf != null ? new QTokenVector[ifragment.anyOf.Length] : null;
+            this.qAnyOf = ifragment.anyOf != null ? new QTokenVector[ifragment.anyOf.Length] : null;
             this.text = ifragment.text;
 
-            if (this.pbanyOf != null)
+            if (this.qAnyOf != null)
                 for (int i = 0; i < ifragment.anyOf.Length; i++)
-                    this.pbanyOf[i] = new QTokenVector(ifragment.anyOf[i]);
+                    this.qAnyOf[i] = new QTokenVector(ifragment.anyOf[i]);
         }
     }
 }

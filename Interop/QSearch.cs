@@ -8,7 +8,7 @@ namespace QuelleHMI
     [MessagePackObject]
     public class QSearchRequest : IQuelleSearchRequest
     {
-        public QSearchRequest() { /*for protobuf*/ }
+        public QSearchRequest() { /*for msgpack*/ }
 
         [IgnoreMember]
         public IQuelleSearchClause[] clauses
@@ -44,24 +44,24 @@ namespace QuelleHMI
         }
     }
     [MessagePackObject]
-    public class PBSearchResult : PBFetchResult, IQuelleSearchResult
+    public class QSearchResult : QFetchResult, IQuelleSearchResult
     {
-        public PBSearchResult() { /*for protobuf*/ }
+        public QSearchResult() { /*for msgpack*/ }
 
         [Key(8)]
         public string summary { get; set; }
         public IQuelleSearchRequest enrichedRequest
         {
-            get => this.pbEnrichedRequest;
-            set => this.pbEnrichedRequest = new QSearchRequest(value);
+            get => this.qEnrichedRequest;
+            set => this.qEnrichedRequest = new QSearchRequest(value);
         }
         [Key(9)]
-        public QSearchRequest pbEnrichedRequest { get; set; }
+        public QSearchRequest qEnrichedRequest { get; set; }
 
-        PBSearchResult(IQuelleSearchResult iresult): base((IQuelleFetchResult) iresult)
+        QSearchResult(IQuelleSearchResult iresult): base((IQuelleFetchResult) iresult)
         {
             this.summary = iresult.summary;
-            this.pbEnrichedRequest = new QSearchRequest(iresult.enrichedRequest);
+            this.qEnrichedRequest = new QSearchRequest(iresult.enrichedRequest);
         }
     }
  }

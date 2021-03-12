@@ -4,24 +4,17 @@ using System;
 namespace QuelleHMI
 {
     [MessagePackObject]
-    public class QStatusRequest : IQuelleStatusRequest
+    public class QStatusResult: QResult, IQuelleStatusResult
     {
-        public QStatusRequest() { /*for protobuf*/ }
+        public QStatusResult() { /*for msgpack*/ }
 
-        public QStatusRequest(IQuelleStatusRequest irequest)
-        {
-            ;
-        }
-    }
-    [MessagePackObject]
-    public class PBStatusResult: QResult, IQuelleStatusResult
-    {
-        public PBStatusResult() { /*for protobuf*/ }
-
-        [Key(1)]
+        [Key(4)]
         public Guid[] sessions { get; set; }
+        [Key(5)]
+        public string summary { get; set; }
 
-        public PBStatusResult(IQuelleStatusResult iresult): base((IQuelleResult)iresult)
+
+        public QStatusResult(IQuelleStatusResult iresult): base((IQuelleResult)iresult)
         {
             this.sessions = iresult.sessions;
         }

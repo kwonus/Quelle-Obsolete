@@ -6,31 +6,31 @@ namespace QuelleHMI
     [MessagePackObject]
     public class QTokenMatch : IQuelleTokenMatch
     {
-        public QTokenMatch() { /*for protobuf*/ }
+        public QTokenMatch() { /*for msgpack*/ }
 
         [Key(1)]
         public string condition { get; set; }
         [IgnoreMember]
         public IQuelleTokenFeature[] anyFeature
         {
-            get => this.pbAnyFeature;
+            get => this.qAnyFeature;
             set
             {
-                this.pbAnyFeature = new QTokenFeature[value.Length];
+                this.qAnyFeature = new QTokenFeature[value.Length];
                 int i = 0;
                 foreach (var frag in value)
-                    this.pbAnyFeature[i] = new QTokenFeature(value[i++]);
+                    this.qAnyFeature[i] = new QTokenFeature(value[i++]);
             }
         }
         [Key(2)]
-        public QTokenFeature[] pbAnyFeature { get; set; }
+        public QTokenFeature[] qAnyFeature { get; set; }
 
         public QTokenMatch(IQuelleTokenMatch imatch)
         {
             this.condition = imatch.condition;
-            this.pbAnyFeature = imatch.anyFeature != null ? new QTokenFeature[imatch.anyFeature.Length] : null;
+            this.qAnyFeature = imatch.anyFeature != null ? new QTokenFeature[imatch.anyFeature.Length] : null;
             for (int i = 0; i < imatch.anyFeature.Length; i++)
-                this.pbAnyFeature[i] = new QTokenFeature(imatch.anyFeature[i]);
+                this.qAnyFeature[i] = new QTokenFeature(imatch.anyFeature[i]);
         }
     }
 }

@@ -7,24 +7,24 @@ namespace QuelleHMI
     [MessagePackObject]
     public class QSearchClause : IQuelleSearchClause
     {
-        public QSearchClause() { /*for protobuf*/ }
+        public QSearchClause() { /*for msgpack*/ }
 
         [Key(1)]
         public string syntax { get; set; }
         [IgnoreMember]
         public IQuelleSearchFragment[] fragments
         {
-            get => this.pbfragments;
+            get => this.qfragments;
             set
             {
-                this.pbfragments = new QSearchFragment[value.Length];
+                this.qfragments = new QSearchFragment[value.Length];
                 int i = 0;
                 foreach (var frag in value)
-                    this.pbfragments[i] = new QSearchFragment(value[i++]);
+                    this.qfragments[i] = new QSearchFragment(value[i++]);
             }
         }
         [Key(2)]
-        public QSearchFragment[] pbfragments { get; set; }
+        public QSearchFragment[] qfragments { get; set; }
         [Key(3)]
         public string segment { get; set; }
         [Key(4)]
@@ -33,13 +33,13 @@ namespace QuelleHMI
         public QSearchClause(IQuelleSearchClause iclause)
         {
             this.syntax = iclause.syntax;
-            this.pbfragments = iclause.fragments != null ? new QSearchFragment[iclause.fragments.Length] : null;
+            this.qfragments = iclause.fragments != null ? new QSearchFragment[iclause.fragments.Length] : null;
             this.segment = iclause.segment;
             this.polarity = iclause.polarity;
 
-            if (this.pbfragments != null)
+            if (this.qfragments != null)
                 for (int i = 0; i < iclause.fragments.Length; i++)
-                    this.pbfragments[i] = new QSearchFragment(iclause.fragments[i]);
+                    this.qfragments[i] = new QSearchFragment(iclause.fragments[i]);
         }
     }
 }
