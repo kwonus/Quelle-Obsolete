@@ -26,7 +26,7 @@ namespace QuelleHMI.Controls
             {
                 string value = this.map.ContainsKey("debug") ? this.map["debug"] : null;
                 if (value == null)
-                    value = HMISession.StandardConfig_QUELLE["debug"].Default;
+                    value = HMISession.StandardConfig_SYSTEM["debug"].Default;
                 
                 switch (value.ToLower())
                 {
@@ -45,7 +45,7 @@ namespace QuelleHMI.Controls
             // 0 means tab ... zero is default
             get
             {
-                var info = HMISession.StandardConfig_QUELLE["indentation"];
+                var info = HMISession.StandardConfig_SYSTEM["indentation"];
                 string value = this.map.ContainsKey("indentation") ? this.map["indentation"] : null;
                 if (value == null)
                     value = info.Default;
@@ -68,7 +68,7 @@ namespace QuelleHMI.Controls
             {
                 string value = this.map.ContainsKey("data") ? this.map["data"] : null;
                 if (value == null)
-                    value = HMISession.StandardConfig_QUELLE["data"].Default;
+                    value = HMISession.StandardConfig_SYSTEM["data"].Default;
                 return value;
             }
             set

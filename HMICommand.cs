@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using static QuelleHMI.SearchProviderClient;
 
 namespace QuelleHMI
 {
@@ -65,7 +66,11 @@ namespace QuelleHMI
 		public static HMIConfigurationDefault configuration = new HMIConfigurationDefault();
 		public bool Search()
         {
-			return false;	// This will call into cloud driver; search proivers are unimplemented in this ference implementation
+			var client = new SearchProviderClient(configuration.system.host);
+			var request = new QSearchRequest(this.statement); // (IQuelleSearchRequest)
+			IQuelleSearchResult response = client.API.Search(request);
+
+			return (response != null) && response.success;
         }
 	}
 }

@@ -13,13 +13,13 @@ namespace QuelleHMI
         [Key(2)]
         public int span { get; set; }
         [Key(3)]
-        public int strict { get; set; }
+        public int exact { get; set; }
 
         public QSearchControls(IQuelleSearchControls icontrols)
         {
             this.domain = icontrols.domain;
             this.span = icontrols.span;
-            this.strict = icontrols.strict;
+            this.exact = icontrols.exact;
         }
     }
 }

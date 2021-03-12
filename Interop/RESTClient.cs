@@ -27,6 +27,8 @@ namespace QuelleHMI
     {
         private String baseUrl;
         public QuelleSearchProvider api;
+        public ISearchProvider API { get => api; }
+
         public class QuelleSearchProvider: ISearchProvider
         {
             private SearchProviderClient outer;
@@ -49,8 +51,11 @@ namespace QuelleHMI
                 return outer.Test(request);
             }
         }
-        public SearchProviderClient()
+        public SearchProviderClient(string host)
         {
+            this.baseUrl = host != null ? host : "http://127.0.0.1:7878/";
+            if (!this.baseUrl.EndsWith('/'))
+                this.baseUrl += '/';
             this.api = new QuelleSearchProvider(this);
         }
         internal IQuelleSearchResult Search(QSearchRequest req)

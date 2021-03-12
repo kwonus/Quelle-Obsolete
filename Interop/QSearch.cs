@@ -10,6 +10,28 @@ namespace QuelleHMI
     {
         public QSearchRequest() { /*for msgpack*/ }
 
+        public QSearchRequest(HMIStatement statement)
+        {
+            int cnt = 0;
+            foreach (var clause in statement.segmentation.Values)
+            {
+                if (clause.verb == Search.VERB)
+                    cnt++;
+            }
+            this.clauses = new IQuelleSearchClause[cnt];
+            cnt = 0;
+            foreach (var clause in statement.segmentation.Values)
+            {
+                if (clause.verb == Search.VERB)
+                    this.clauses[cnt++] = (Search) clause;
+            }
+            this.qcontrols = new QSearchControls();
+            var controls = HMICommand.configuration.search;
+            this.qcontrols.domain = controls.domain;
+            this.qcontrols.exact  = controls.exact;
+            this.qcontrols.span   = controls.span;
+        }
+
         [IgnoreMember]
         public IQuelleSearchClause[] clauses
         {

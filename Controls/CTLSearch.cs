@@ -14,7 +14,7 @@ namespace QuelleHMI.Controls
         {
             get;
         }
-        public int strict
+        public int exact
         {
             get;
         }
@@ -56,13 +56,13 @@ namespace QuelleHMI.Controls
                 this.map["span"] = value.ToString();
             }
         }
-        public int strict
+        public int exact
         {
             get
             {
-                string value = this.map.ContainsKey("strict") ? this.map["strict"] : null;
+                string value = this.map.ContainsKey("exact") ? this.map["exact"] : null;
                 if (value == null)
-                    value = HMISession.StandardConfig_SEARCH["strict"].Default;
+                    value = HMISession.StandardConfig_SEARCH["exact"].Default;
 
                 switch (value.ToLower())
                 {
@@ -73,7 +73,7 @@ namespace QuelleHMI.Controls
             }
             set
             {
-                this.map["strict"] = value == 1 ? "1" : "0";
+                this.map["exact"] = value == 1 ? "1" : "0";
             }
         }
         private static Dictionary<string, ControlInfo> StandardConfig_QUELLE = new Dictionary<string, ControlInfo>()

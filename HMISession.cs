@@ -42,7 +42,7 @@ namespace QuelleHMI
     {
         public const string SEARCH  = "search";
         public const string DISPLAY = "display";
-        public const string QUELLE = "quelle";
+        public const string SYSTEM = "system";
         public const string MACROS = "macros";
 
         public Dictionary<string, Dictionary<string, string>> Configuration
@@ -55,15 +55,14 @@ namespace QuelleHMI
         {
             this.StandardConfig = new Dictionary<string, Dictionary<string, ControlInfo>>()
             {
-                { QUELLE,   StandardConfig_QUELLE }, 
+                { SYSTEM,   StandardConfig_SYSTEM }, 
                 { DISPLAY,  StandardConfig_DISPLAY },
                 { SEARCH,   StandardConfig_SEARCH },
-                { MACROS,   new Dictionary<string, ControlInfo>() }
+                { MACROS,   StandardConfig_MACROS }
             };
             this.Configuration = new Dictionary<string, Dictionary<string, string>>();
-             foreach (var section in this.StandardConfig.Keys)
+            foreach (var section in this.StandardConfig.Keys)
             {
-                var defaultControls = StandardConfig[section];
                 var localControls = new Dictionary<string, string>();
 
                 this.Configuration.Add(section, localControls);
@@ -81,18 +80,17 @@ namespace QuelleHMI
         {
             { "domain",  new ControlInfo() },
             { "span",    new ControlInfo(0, 0, 1000) },
-            { "strict",  new ControlInfo(0, 0, 1) }
+            { "exact",   new ControlInfo(0, 0, 1) }
         };
-        public static Dictionary<string, ControlInfo> StandardConfig_QUELLE = new Dictionary<string, ControlInfo>()
+        public static Dictionary<string, ControlInfo> StandardConfig_SYSTEM = new Dictionary<string, ControlInfo>()
         {
             { "host",    new ControlInfo() },
-            { "debug",   new ControlInfo(0, 0, 1, hidden:true) },
-            { "data",    new ControlInfo(new string[] { "binary", "json", "xml", "pb" }, hidden:true) },
             { "indentation",   new ControlInfo(0, 0, 32, hidden:true) },
         };
+        public static Dictionary<string, ControlInfo> StandardConfig_MACROS = new Dictionary<string, ControlInfo>();
         private static Dictionary<string, ICollection<string>> AllControls = new Dictionary<string, ICollection<string>>()
         {
-            { QUELLE,   StandardConfig_QUELLE.Keys },
+            { SYSTEM,   StandardConfig_SYSTEM.Keys },
             { DISPLAY,  StandardConfig_DISPLAY.Keys },
             { SEARCH,   StandardConfig_SEARCH.Keys }
         };

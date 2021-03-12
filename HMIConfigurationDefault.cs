@@ -11,23 +11,24 @@ namespace QuelleHMI
     public class HMIConfigurationDefault : HMISession, IQuelleConfig
     {
         private Dictionary<string, QuelleControlConfig> configs;
-        public CTLSearch seachConf   { get => (CTLSearch) configs[HMISession.SEARCH]; }
-        public CTLDisplay displayConf { get => (CTLDisplay) configs[HMISession.DISPLAY]; }
-        public CTLQuelle programConf { get => (CTLQuelle) configs[HMISession.QUELLE]; }
-        public MacroDef macroDef    { get => (MacroDef) configs["MACROS"]; }
+        public CTLSearch search   { get => (CTLSearch) configs[HMISession.SEARCH]; }
+        public CTLDisplay display { get => (CTLDisplay) configs[HMISession.DISPLAY]; }
+        public CTLQuelle system   { get => (CTLQuelle) configs[HMISession.SYSTEM]; }
+        public MacroDef macros    { get => (MacroDef) configs["MACROS"]; }
 
         private string appdir;
         public HMIConfigurationDefault()
         {
             this.appdir = HMISession.QuelleHome;
             this.configs = new Dictionary<string, QuelleControlConfig>();
-            var sconf = Path.Combine(appdir, HMISession.SEARCH + ".conf");
-            var dconf = Path.Combine(appdir, HMISession.DISPLAY + ".conf");
-            var qconf = Path.Combine(appdir, HMISession.QUELLE + ".conf");
-            var macros = Path.Combine(appdir, "MACROS.conf");
+            var sconf = Path.Combine(appdir, HMISession.SEARCH + ".yaml");
+            var dconf = Path.Combine(appdir, HMISession.DISPLAY + ".yaml");
+            var qconf = Path.Combine(appdir, HMISession.SYSTEM + ".yaml");
+            var macros = Path.Combine(appdir, HMISession.MACROS + ".yaml");
+
             configs.Add(HMISession.SEARCH, new CTLSearch(sconf));
             configs.Add(HMISession.DISPLAY, new CTLDisplay(dconf));
-            configs.Add(HMISession.QUELLE, new CTLQuelle(qconf));
+            configs.Add(HMISession.SYSTEM, new CTLQuelle(qconf));
             configs.Add("MACROS", new MacroDef(qconf));
         }
         public class HMIResultInt : IQuelleResultInt
@@ -80,8 +81,8 @@ namespace QuelleHMI
             if (key.section == null)
             {
                 if (key.setting == "*")
-                    return (null, null, new HMIResultString(error: "* here is a syntax error; please specify: " + SEARCH + ", " + DISPLAY + ", or " + QUELLE + "to enumerate all available control settins."));
-                else if (key.setting == SEARCH || key.setting == DISPLAY || key.setting == QUELLE)
+                    return (null, null, new HMIResultString(error: "* here is a syntax error; please specify: " + SEARCH + ", " + DISPLAY + ", or " + SYSTEM + "to enumerate all available control settins."));
+                else if (key.setting == SEARCH || key.setting == DISPLAY || key.setting == SYSTEM)
                     return (key.setting, "*", null);  // swap positions
                 else
                     return (null, null, new HMIResultString(error: "Driver design error"));
