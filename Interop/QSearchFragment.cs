@@ -28,11 +28,11 @@ namespace QuelleHMI
         [Key(3)]
         public string text { get; set; }
 
-        public QSearchFragment (IQuelleSearchFragment ifragment)
+        public QSearchFragment(IQuelleSearchFragment ifragment)
         {
             this.positionAspects = ifragment.positionAspects;
             this.qAnyOf = ifragment.anyOf != null ? new QTokenVector[ifragment.anyOf.Length] : null;
-            this.text = ifragment.text;
+            this.text = HMIStatement.SquenchText(ifragment.text);
 
             if (this.qAnyOf != null)
                 for (int i = 0; i < ifragment.anyOf.Length; i++)

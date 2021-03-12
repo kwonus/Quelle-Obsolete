@@ -10,8 +10,7 @@ namespace QuelleHMI.Verbs
         string syntax { get; }
         IQuelleSearchFragment[] fragments { get; }
         string segment { get; }
-        HMIClause.HMIPolarity polarity { get; }
-
+        char polarity { get; }
     }
     public class Search : HMIClause, IQuelleSearchClause
     {

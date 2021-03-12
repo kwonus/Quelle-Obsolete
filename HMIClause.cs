@@ -103,7 +103,9 @@ namespace QuelleHMI
         }
         protected UInt32 sequence { get; private set; }  // Sequence number of segment
         public string segment { get; protected set; }
-        public HMIPolarity polarity { get; private set; }
+        public HMIPolarity Polarity { get; private set; }
+        public char polarity { get => Polarity == HMIPolarity.POSITIVE ? '+' : Polarity == HMIPolarity.NEGATIVE ? '-' : '\0'; }
+
 
         public readonly static string[] Whitespace = new string[] { " ", "\t" };
 
@@ -122,7 +124,7 @@ namespace QuelleHMI
             }
             this.segment = normalized;
             this.sequence = segmentOrder; 
-            this.polarity = polarity;
+            this.Polarity = polarity;
 
             this.Parse();
         }

@@ -1,6 +1,7 @@
 ﻿using MessagePack;
 using QuelleHMI.Controls;
 using QuelleHMI.Verbs;
+using System.Linq;
 using System;
 
 namespace QuelleHMI
@@ -18,12 +19,13 @@ namespace QuelleHMI
                 if (clause.verb == Search.VERB)
                     cnt++;
             }
-            this.clauses = new IQuelleSearchClause[cnt];
+            this.qclauses = new QSearchClause[cnt];
             cnt = 0;
-            foreach (var clause in statement.segmentation.Values)
+            var searches = (from key in statement.segmentation.Keys orderby key select statement.segmentation[key]);
+            foreach (var clause in searches)
             {
                 if (clause.verb == Search.VERB)
-                    this.clauses[cnt++] = (Search) clause;
+                    this.qclauses[cnt++] = new QSearchClause((Search) clause);
             }
             this.qcontrols = new QSearchControls();
             var controls = HMICommand.configuration.search;

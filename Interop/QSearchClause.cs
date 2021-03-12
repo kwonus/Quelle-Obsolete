@@ -28,18 +28,29 @@ namespace QuelleHMI
         [Key(3)]
         public string segment { get; set; }
         [Key(4)]
-        public HMIClause.HMIPolarity polarity { get; }
+        public char polarity { get; }
 
         public QSearchClause(IQuelleSearchClause iclause)
         {
             this.syntax = iclause.syntax;
             this.qfragments = iclause.fragments != null ? new QSearchFragment[iclause.fragments.Length] : null;
-            this.segment = iclause.segment;
+            this.segment = HMIStatement.SquenchText(iclause.segment);
             this.polarity = iclause.polarity;
 
             if (this.qfragments != null)
                 for (int i = 0; i < iclause.fragments.Length; i++)
                     this.qfragments[i] = new QSearchFragment(iclause.fragments[i]);
+        }
+        public QSearchClause(Search hclause)
+        {
+            this.syntax = hclause.syntax;
+            int cnt = hclause.fragments != null ? hclause.fragments.Length : 0;
+            this.qfragments = cnt > 0 ? new QSearchFragment[cnt] : null;
+
+            for (int i = 0; i < cnt; i++)
+                this.qfragments[i] = new QSearchFragment(hclause.fragments[i]);
+            this.segment = hclause.segment;
+            this.polarity = hclause.polarity;
         }
     }
 }

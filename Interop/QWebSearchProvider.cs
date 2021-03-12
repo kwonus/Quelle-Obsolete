@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MessagePack;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -58,8 +59,14 @@ namespace QuelleHMI
                 this.baseUrl += '/';
             this.api = new QuelleSearchProvider(this);
         }
+        internal const string mimetype = "application/msgpack";
         internal IQuelleSearchResult Search(QSearchRequest req)
         {
+            var cloud = new QWebClient(this.baseUrl);
+            var payload = MessagePackSerializer.Serialize(req);
+
+            var packedRespospone = cloud.Post("/search", payload, mimetype);
+            //var response = MessagePackSerializer.Deserialize<IQuelleSearchResult>(packedRespospone.data);
             return null;
         }
         public IQuelleFetchResult Fetch(QFetchRequest req)
@@ -72,6 +79,12 @@ namespace QuelleHMI
         }
         public IQuelleStatusResult Status()
         {
+            var cloud = new QWebClient(this.baseUrl);
+
+            var result = cloud.Get("/");
+            Console.WriteLine("Result from get:");
+            Console.WriteLine(result);
+
             return null;
         }
         public string Test(string req)

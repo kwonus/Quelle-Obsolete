@@ -18,12 +18,7 @@ namespace QuelleHMI.Catalog
 			var factory = new SearchSegment();
 			factory.text = HMIStatement.SquenchText(segment.segment);
 			factory.quoted = segment.segment.StartsWith('"') && segment.segment.EndsWith('"');
-			switch (segment.polarity)
-            {
-				case HMIClause.HMIPolarity.POSITIVE: factory.polarity = '+'; break;
-				case HMIClause.HMIPolarity.NEGATIVE: factory.polarity = '-'; break;
-				default: factory.polarity = '\0'; break;
-			}
+			factory.polarity = segment.polarity;
 			return factory;
 		}
 	}
