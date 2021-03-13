@@ -22,9 +22,9 @@ The Quelle specification defines a declarative syntax for specifying search crit
 
 Quelle Syntax comprises a standard set of twelve (12) verbs. Each verb corresponds to a basic operation:
 
-- find *(inferred)*
-- set *(inferred)*
-- clear *(inferred)*
+- find
+- set
+- clear
 - show
 - print
 - save
@@ -40,10 +40,10 @@ The verbs listed above are for the English flavor of Quelle. As Quelle is an ope
 In Quelle terminology, a statement is made up of actions. Each action has a single verb. While there are twelve verbs, there are only five distinct types of actions
 
 1. SEARCH
-   - find *(inferred)*
+   - find
 2. CONTROL
-   - set *(inferred)*
-   - clear *(inferred)*
+   - set
+   - clear
 4. LABEL
    - save
    - delete
