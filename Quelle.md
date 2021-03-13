@@ -44,28 +44,29 @@ In Quelle terminology, a statement is made up of actions. Each action has a sing
 2. CONTROL
    - set
    - clear
+   - show
 4. LABEL
    - save
    - delete
    - review
 5. DISPLAY
    - print
-6. SYSTEM
-   - show
-   - status
+5. SYSTEM
    - help
+   - status
    - generate
    - exit
 
 If we ignore the SYSTEM actions for the moment, we can focus on Quelle's primary actions. Primary actions are identified in Table 3-1 below (SYSTEM actions can be found in Section IX, in Table 9-1).
 
-Searching and displaying results are the primary purpose of Quelle.  Learning the seven verbs identified in Table 3-1 is all that is necessary for mastering Quelle. Each verb has a minimum and maximum number of parameters.  Each of these seven verbs are described in the following sections.
+Searching and displaying results are the primary purpose of Quelle.  Learning the eight verbs identified in Table 3-1 is all that is necessary for mastering Quelle. Each verb has a minimum and maximum number of parameters.  Each of these eight verbs are described in the following sections.
 
 | Verb        | Action Type | Syntax Category | Required Parameters     | Required Operators | Optional Operators |
 | ----------- | :---------: | --------------- | ----------------------- | :----------------: | :----------------: |
 | *find*      |  implicit   | SEARCH          | **1**: *search spec*    |                    |  **" " [ ] ( )**   |
 | *set*       |  implicit   | CONTROL         | **2**: *name* = *value* |       **=**        |                    |
 | *clear*     |  implicit   | CONTROL         | **1**: *control_name*   |       **=@**       |                    |
+| **@show**   | independent | CONTROL         | **0+**: *control_names* |                    |                    |
 | **@print**  |  dependent  | DISPLAY         | **0+**: *identifiers*   |                    |      **[ ]**       |
 | **@save**   |  dependent  | LABEL           | **1**: *macro_label*    |      **{ }**       |                    |
 | **@delete** | independent | LABEL           | **1+**: *macro_label*s  |      **{ }**       |                    |
@@ -78,13 +79,13 @@ Quelle supports two types of actions:
 1. Implicit actions [implicit actions are inferred from the syntax of their parameters]
 2. Explicit actions [The verb is explicitly stated in a command and begins with **@**]
 
-There are two flavors of explicit actions.  Most explicit actions are independent, meaning that they can be executed independently of any other actions.  Dependent actions require that a search has already been initiated and dependent actions depend on the most previously executed search.
+There are two flavors of explicit actions.  Most explicit actions are independent, meaning that they can be executed independently of any other actions.  Dependent actions require that a search has already been initiated. In other words, such actions depend on the most previously executed search.
 
 Some actions can be combined into compound statements.  However, compound statements are limited to contain ONLY implicit actions. As stated above, explicit verbs always begin with an **@**.  Therefore, statements containing an **@** cannot be combined into a compound statement.
 
-Contrariwise, implicit actions, separated by semi-colons, can be used to generate compound statements. Quelle is optimized to make implicit actions easy and intuitive.
+Constructing a compound statement with multiple implicit actions, involves delimiting each action with semi-colons. As search is a fundamental concern of Quelle, it is optimized to make compound implicit actions easy to construct with a concise and and intuitive syntax.
 
-In summary, every Quelle statement has at least one action. From a linguistic standpoint, all Quelle commands are issued in the imperative. The subject of the verb-clause is always "you understood". In other words, you are commanding Quelle what to do. Some verbs have direct objects [aka required parameters]. These parameters instruct Quelle <u>what</u> to do. The syntax category for each verb-clause dictates the required parameters and operators (Incidentally, Quelle *@help* topics are organized around syntax categories).
+From a linguistic standpoint, all Quelle commands are issued in the imperative. The subject of the verb is always "you understood". As the user, you are commanding Quelle what to do. Some verbs have direct objects [aka required parameters]. These parameters instruct Quelle <u>what</u> to do. The syntax category for each verb-clause dictates the required parameters (Incidentally, Quelle *@help* topics are organized around syntax categories).
 
 Even before we describe Quelle syntax generally, let's examine these concepts using examples:
 
@@ -403,7 +404,17 @@ The control names are applicable to ***set***, ***clear***, and ***@show*** verb
 
 **TABLE 7-3 -- Control Names that affect SEARCH & DISPLAY actions**
 
+Table 7-3 lists Control-Names for SEARCH and DISPLAY actions.  Table 9-1 lists Control-Names for SYSTEM actions. The *@show* command will list the values associated with these. The *@show* command takes zero or more arguments. Zero arguments lists all control settings.  With one or more arguments, show only lists the values of the controls that are specified.  Examples of the command are below (both the long form and the short form of control names are accepted):
 
+*@show*
+
+*@show* host
+
+*@show* system.host
+
+*@show* search
+
+*@show* search.domain
 
 Control settings can be cleared using implicit wildcards, by using the shared control-prefix:
 
@@ -513,7 +524,6 @@ It should be noted that system.host, while a SYSTEM control, does certainly affe
 
 | Verb          | Action Type | Clause Type | Required Arguments |
 | ------------- | ----------- | ----------- | ------------------ |
-| **@show**     | independent | SYSTEM      | 0 or more          |
 | **@help**     | independent | SYSTEM      | 0 or 1             |
 | **@generate** | independent | SYSTEM      | 2 or 4             |
 | **@status**   | independent | SYSTEM      | 0 or 1             |
@@ -542,20 +552,6 @@ etc ...
 Type this to terminate the Quelle interpreter:
 
 *@exit*
-
-**SHOW CONTROL SETTINGS**
-
-Table 7-3 lists Control-Names for SEARCH and DISPLAY actions.  Table 9-1 lists Control-Names for SYSTEM actions. The *@show* command will list the values associated with these. The *@show* command takes zero or more arguments. Zero arguments lists all control settings.  With one or more arguments, show only lists the values of the controls that are specified.  Examples of the command are below (both the long form and the short form of control names are accepted):
-
-*@show*
-
-*@show* host
-
-*@show* system.host
-
-*@show* search
-
-*@show* search.domain
 
 **GETTING STATUS**
 
