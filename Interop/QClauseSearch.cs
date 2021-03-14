@@ -5,12 +5,10 @@ using QuelleHMI.Verbs;
 namespace QuelleHMI
 {
     [MessagePackObject]
-    public class QSearchClause : IQuelleSearchClause
+    public class QClauseSearch : IQuelleSearchClause
     {
-        public QSearchClause() { /*for msgpack*/ }
+        public QClauseSearch() { /*for msgpack*/ }
 
-        [Key(1)]
-        public string syntax { get; set; }
         [IgnoreMember]
         public IQuelleSearchFragment[] fragments
         {
@@ -23,16 +21,15 @@ namespace QuelleHMI
                     this.qfragments[i] = new QSearchFragment(value[i++]);
             }
         }
-        [Key(2)]
+        [Key(1)]
         public QSearchFragment[] qfragments { get; set; }
-        [Key(3)]
+        [Key(2)]
         public string segment { get; set; }
-        [Key(4)]
+        [Key(3)]
         public char polarity { get; }
 
-        public QSearchClause(IQuelleSearchClause iclause)
+        public QClauseSearch(IQuelleSearchClause iclause)
         {
-            this.syntax = iclause.syntax;
             this.qfragments = iclause.fragments != null ? new QSearchFragment[iclause.fragments.Length] : null;
             this.segment = HMIStatement.SquenchText(iclause.segment);
             this.polarity = iclause.polarity;
@@ -41,9 +38,8 @@ namespace QuelleHMI
                 for (int i = 0; i < iclause.fragments.Length; i++)
                     this.qfragments[i] = new QSearchFragment(iclause.fragments[i]);
         }
-        public QSearchClause(Search hclause)
+        public QClauseSearch(Search hclause)
         {
-            this.syntax = hclause.syntax;
             int cnt = hclause.fragments != null ? hclause.fragments.Length : 0;
             this.qfragments = cnt > 0 ? new QSearchFragment[cnt] : null;
 

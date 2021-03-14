@@ -10,25 +10,33 @@ namespace QuelleHMI
     public interface ISearchProviderAsync
     {
         ValueTask<IQuelleStatusResult> StatusAsync();
-        ValueTask<IQuelleSearchResult> SearchAsync(QSearchRequest request);
-        ValueTask<IQuelleFetchResult> FetchAsync(QFetchRequest request);
-        ValueTask<IQuellePageResult> PageAsync(QPageRequest request);
+        ValueTask<IQuelleSearchResult> SearchAsync(QRequestSearch request);
+        ValueTask<IQuelleFetchResult> FetchAsync(IQuelleFetchRequest request);
+        ValueTask<IQuellePageResult> PageAsync(QRequestPage request);
         ValueTask<string> TestAsync(string request);
     }
     public interface ISearchProvider
     {
         IQuelleStatusResult Status();
-        IQuelleSearchResult Search(QSearchRequest request);
-        IQuelleFetchResult Fetch(QFetchRequest request);
-        IQuellePageResult Page(QPageRequest request);
+        IQuelleSearchResult Search(QRequestSearch request);
+        IQuelleFetchResult Fetch(QRequestFetch request);
+        IQuellePageResult Page(QRequestPage request);
+        string Test(string request);
+    }
+    public interface ISearchProviderVanilla
+    {
+        IQuelleStatusResult Status();
+        IQuelleSearchResult Search(IQuelleSearchRequest request);
+        IQuelleFetchResult Fetch(IQuelleFetchRequest request);
+        IQuellePageResult Page(IQuellePageRequest request);
         string Test(string request);
     }
 
     public class SearchProviderClient
     {
         private String baseUrl;
-        public QuelleSearchProvider api;
-        public ISearchProvider API { get => api; }
+        public ISearchProvider api { get; private set; }
+        public ISearchProviderVanilla vanilla { get; private set; }
 
         public class QuelleSearchProvider: ISearchProvider
         {
@@ -39,16 +47,47 @@ namespace QuelleHMI
             public IQuelleStatusResult Status() {
                 return outer.Status();
             }
-            public IQuelleSearchResult Search(QSearchRequest request)  {
+            public IQuelleSearchResult Search(QRequestSearch request)  {
                 return outer.Search(request);
             }
-            public IQuelleFetchResult Fetch(QFetchRequest request) {
+            public IQuelleFetchResult Fetch(QRequestFetch request) {
                 return outer.Fetch(request);
             }
-            public IQuellePageResult Page(QPageRequest request) {
+            public IQuellePageResult Page(QRequestPage request) {       // GET HTML, TEXT, or MD page
                 return outer.Page(request);
             }
             public string Test(string request) {
+                return outer.Test(request);
+            }
+        }
+        public class QuelleSearchProviderVanilla : ISearchProviderVanilla
+        {
+            private SearchProviderClient outer;
+            public QuelleSearchProviderVanilla(SearchProviderClient outer)
+            {
+                this.outer = outer;
+            }
+            public IQuelleStatusResult Status()
+            {
+                return outer.Status();
+            }
+            public IQuelleSearchResult Search(IQuelleSearchRequest request)
+            {
+                var qrequest = new QRequestSearch(request);
+                return outer.Search(qrequest);
+            }
+            public IQuelleFetchResult Fetch(IQuelleFetchRequest request)
+            {
+                var qrequest = new QRequestFetch(request);
+                return outer.Fetch(qrequest);
+            }
+            public IQuellePageResult Page(IQuellePageRequest request)
+            {       // GET HTML, TEXT, or MD page
+                var qrequest = new QRequestPage(request);
+                return outer.Page(qrequest);
+            }
+            public string Test(string request)
+            {
                 return outer.Test(request);
             }
         }
@@ -58,9 +97,10 @@ namespace QuelleHMI
             if (!this.baseUrl.EndsWith('/'))
                 this.baseUrl += '/';
             this.api = new QuelleSearchProvider(this);
+            this.vanilla = new QuelleSearchProviderVanilla(this);
         }
         internal const string mimetype = "application/msgpack";
-        internal IQuelleSearchResult Search(QSearchRequest req)
+        internal IQuelleSearchResult Search(QRequestSearch req)
         {
             var cloud = new QWebClient(this.baseUrl);
             var payload = MessagePackSerializer.Serialize(req);
@@ -69,11 +109,11 @@ namespace QuelleHMI
             //var response = MessagePackSerializer.Deserialize<IQuelleSearchResult>(packedRespospone.data);
             return null;
         }
-        public IQuelleFetchResult Fetch(QFetchRequest req)
+        public IQuelleFetchResult Fetch(QRequestFetch req)
         {
             return null;
         }
-        public IQuellePageResult Page(QPageRequest req)
+        public IQuellePageResult Page(QRequestPage req)
         {
             return null;
         }
@@ -81,15 +121,21 @@ namespace QuelleHMI
         {
             var cloud = new QWebClient(this.baseUrl);
 
-            var result = cloud.Get("/");
-            Console.WriteLine("Result from get:");
+            var result = cloud.Get("/status");
+            Console.WriteLine("Result from get /status:");
             Console.WriteLine(result);
 
             return null;
         }
         public string Test(string req)
         {
-            return null;
+            var cloud = new QWebClient(this.baseUrl);
+
+            var result = cloud.Get("/");
+            Console.WriteLine("Result from get /:");
+            Console.WriteLine(result);
+
+            return result;
         }
     }
 }

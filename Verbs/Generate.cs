@@ -11,6 +11,7 @@ namespace QuelleHMI.Verbs
         public override string syntax { get => SYNTAX; }
         public const string GENERATE = "@generate";
         public const string REGENERATE = "@generate!";
+        public string[] parameters;
 
         private string className;
         private XGen language;
@@ -20,7 +21,7 @@ namespace QuelleHMI.Verbs
         private int arguments;
 
         public Generate(HMIStatement statement,string segment, string verb)
-        : base(statement, 1, HMIPolarity.UNDEFINED, segment, HMIClauseType.SIMPLE)
+        : base(statement, 1, HMIPolarity.UNDEFINED, segment, HMIClauseType.EXPLICIT_INDEPENDENT)
         {
             this.verb = verb;
         }

@@ -49,7 +49,7 @@ namespace QuelleHMI
         string format { get; }
         UInt64 page { get; }
     }
-    public interface IQuellePageResult : IQuelleResult
+    public interface IQuellePageResult : IQuelleResult  // GET the HTML, TEXT, or MD representation of page
     {
         string result { get; }
         IQuellePageRequest request { get; }

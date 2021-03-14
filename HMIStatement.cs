@@ -207,7 +207,7 @@ namespace QuelleHMI
             var clauses = (from key in this.segmentation.Keys orderby key select this.segmentation[key]);
             foreach (var clause in clauses)
             {
-                this.normalized.simple = this.normalized.simple || clause.isSimple();
+                this.normalized.simple = this.normalized.simple || clause.isExplicit();
 
                 if (!clause.isDefined())
                     this.Notify("error", "The type of clause could not be identified");

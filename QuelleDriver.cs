@@ -69,31 +69,11 @@ namespace Quelle.DriverDefault
             return result;
         }
 
-        #if THIS_IS_NOW_CRUFT
-        public IQuelleSearchResult Search(HMIStatement statement)
-        {
-            return null;
-        }
-        public IQuelleFetchResult Fetch(Guid session, uint cursor, uint count)
-        {
-            return null;
-        }
-
-        public IQuelleResultString Get(Guid session, UInt16 key)
-        {
-            return null;
-        }
-        public IQuelleResultObject Display(HMIStatement statement, string specification)
-        {
-            return new HMIResultObject("Developer has not implemeneted the Display method of the driver");
-        }
-        #endif
-
         public string Help()
         {
             string text = "Help is available on each of these topics:\n";
 
-            foreach (var verb in new string[] { QuelleHMI.Verbs.Search.VERB, Control.SET, Control.CLEAR, Define.SAVE, Define.DELETE, Define.REVIEW, Print.VERB, Show.VERB, Generate.GENERATE, Generate.REGENERATE, "@exit" })
+            foreach (var verb in new string[] { QuelleHMI.Verbs.Search.VERB, Control.SET, Control.CLEAR, Define.SAVE, Define.DELETE, Define.REVIEW, Print.VERB, Show.VERB, Status.VERB, Generate.GENERATE, Generate.REGENERATE, "@exit" })
                 text += ("\n\t" + (verb.StartsWith('@') ? verb.Substring(1) : verb));
 
             text += "\n\n";
@@ -111,7 +91,7 @@ namespace Quelle.DriverDefault
             var help = topic.Trim().ToLower();
             if (help.StartsWith('@'))
                 help = help.Substring(1).Trim();
-            foreach (var verb in new string[] { QuelleHMI.Verbs.Search.VERB, Control.SET, Control.CLEAR, Print.VERB, Define.SAVE, Define.DELETE, Define.REVIEW, Show.VERB, Generate.GENERATE, Generate.REGENERATE, "@exit" })
+            foreach (var verb in new string[] { QuelleHMI.Verbs.Search.VERB, Control.SET, Control.CLEAR, Print.VERB, Define.SAVE, Define.DELETE, Define.REVIEW, Show.VERB, Status.VERB, Generate.GENERATE, Generate.REGENERATE, "@exit" })
                 if (verb.EndsWith(help) && verb.StartsWith('@'))
                 {
                     help = '@' + help;
@@ -128,6 +108,7 @@ namespace Quelle.DriverDefault
                 case Define.DELETE:
                 case Define.REVIEW:                 return Define.Help(help);
                 case Show.VERB:                     return Show.Help();
+                case Status.VERB:                   return Status.Help();
                 case Generate.GENERATE:
                 case Generate.REGENERATE:           return Generate.Help();
                 case "@exit":                       return "@exit\n... on a line by itself followed by the <Enter> key will cause the program to exit.\n";

@@ -13,10 +13,6 @@ namespace QuelleHMI
         protected List<string> errors { get => this.statement.command.errors; }
         protected List<string> warnings { get => this.statement.command.warnings; }
         protected HMIClauseType type;
-        public bool isSimple()
-        {
-            return type == HMIClauseType.SIMPLE;
-        }
         public bool isImplicit()
         {
             return type == HMIClauseType.IMPLICIT;
@@ -49,9 +45,8 @@ namespace QuelleHMI
         {
             UNDEFINED = 0xF,
             IMPLICIT = 0,
-            SIMPLE = 1,                         // also explicit
             EXPLICIT_DEPENDENT = 2,             // e.g. @define
-            EXPLICIT_INDEPENDENT = 3            // e.g. @print: not simple AND not dependent, but positionally similar to both
+            EXPLICIT_INDEPENDENT = 1            // e.g. @print: not simple AND not dependent, but positionally similar to both
         }
  
         public static HMIClause CreateVerbClause(HMIStatement statement, uint order, HMIPolarity polarity, string text)

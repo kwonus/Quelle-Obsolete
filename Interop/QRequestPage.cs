@@ -4,9 +4,9 @@ using System;
 namespace QuelleHMI
 {
     [MessagePackObject]
-    public class QPageRequest: IQuellePageRequest
+    public class QRequestPage: IQuellePageRequest
     {
-        public QPageRequest(): base() { /*for msgpack*/ }
+        public QRequestPage(): base() { /*for msgpack*/ }
 
         [Key(1)]
         public Guid session { get; set; }
@@ -15,7 +15,7 @@ namespace QuelleHMI
         [Key(3)]
         public UInt64 page { get; set; }
 
-        public QPageRequest(IQuellePageRequest irequest)
+        public QRequestPage(IQuellePageRequest irequest)
         {
             this.session = irequest.session;
             this.format = irequest.format;
@@ -33,15 +33,15 @@ namespace QuelleHMI
         public IQuellePageRequest request
         {
             get => this.qRequest;
-            set => this.qRequest = new QPageRequest(value);
+            set => this.qRequest = new QRequestPage(value);
         }
         [Key(5)]
-        public QPageRequest qRequest { get; set; }
+        public QRequestPage qRequest { get; set; }
 
         public QPageResult(IQuellePageResult iresult) : base((IQuelleResult)iresult)
         {
             this.result = iresult.result;
-            this.qRequest = new QPageRequest(iresult.request);
+            this.qRequest = new QRequestPage(iresult.request);
         }
     }
 }

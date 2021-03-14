@@ -5,9 +5,9 @@ using System.Collections.Generic;
 namespace QuelleHMI
 {
     [MessagePackObject]
-    public class QFetchRequest : IQuelleFetchRequest
+    public class QRequestFetch: IQuelleFetchRequest
     {
-        public QFetchRequest() : base() { /*for msgpack*/ }
+        public QRequestFetch() : base() { /*for msgpack*/ }
 
         [Key(1)]
         public Guid session { get; set; }
@@ -16,7 +16,7 @@ namespace QuelleHMI
         [Key(3)]
         public UInt64 count { get; set; }
 
-        public QFetchRequest(IQuelleFetchRequest irequest)
+        public QRequestFetch(IQuelleFetchRequest irequest)
         {
             this.session = irequest.session;
             this.cursor = irequest.cursor;
@@ -25,9 +25,9 @@ namespace QuelleHMI
     }
 
     [MessagePackObject]
-    public class QFetchResult : QResult, IQuelleFetchResult
+    public class QResultFetch : QResult, IQuelleFetchResult
     {
-        public QFetchResult(): base() { /*for msgpack*/ }
+        public QResultFetch(): base() { /*for msgpack*/ }
 
         [Key(4)]
         public UInt64 cursor { get; set; }
@@ -38,7 +38,7 @@ namespace QuelleHMI
         [Key(7)]
         public Dictionary<UInt64, string> records { get; set; }
 
-        public QFetchResult(IQuelleFetchResult iresult) : base ((IQuelleResult) iresult)
+        public QResultFetch(IQuelleFetchResult iresult) : base ((IQuelleResult) iresult)
         {
             this.cursor = iresult.cursor;
             this.remainder = iresult.remainder;

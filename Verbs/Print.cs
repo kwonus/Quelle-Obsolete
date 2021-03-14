@@ -5,12 +5,28 @@ using System.Text;
 
 namespace QuelleHMI.Verbs
 {
-    public class Print: HMIClause
+    public interface IQuelleDisplayClause
+    {
+        string[] specification { get; }
+    }
+    public class Print: HMIClause, IQuelleDisplayClause
     {
         public const string SYNTAX = "DISPLAY";
         public override string syntax { get => SYNTAX; }
         public const string VERB = "@print";
         public Dictionary<UInt64, PrimativeFragment> fragments { get; private set; }
+
+        public string[] specification
+        {
+            get
+            {
+                var spec = new string[this.fragments.Count];
+                int i = 0;
+                foreach (var frag in this.fragments.Values)
+                    spec[i++] = frag.text;
+                return spec;
+            }
+        }
 
         public Print(HMIStatement statement, UInt32 segmentOrder, string segment)
             : base(statement, segmentOrder, HMIPolarity.UNDEFINED, segment, HMIClauseType.EXPLICIT_INDEPENDENT)

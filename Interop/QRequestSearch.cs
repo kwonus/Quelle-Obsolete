@@ -7,11 +7,11 @@ using System;
 namespace QuelleHMI
 {
     [MessagePackObject]
-    public class QSearchRequest : IQuelleSearchRequest
+    public class QRequestSearch : IQuelleSearchRequest
     {
-        public QSearchRequest() { /*for msgpack*/ }
+        public QRequestSearch() { /*for msgpack*/ }
 
-        public QSearchRequest(HMIStatement statement)
+        public QRequestSearch(HMIStatement statement)
         {
             int cnt = 0;
             foreach (var clause in statement.segmentation.Values)
@@ -19,13 +19,13 @@ namespace QuelleHMI
                 if (clause.verb == Search.VERB)
                     cnt++;
             }
-            this.qclauses = new QSearchClause[cnt];
+            this.qclauses = new QClauseSearch[cnt];
             cnt = 0;
             var searches = (from key in statement.segmentation.Keys orderby key select statement.segmentation[key]);
             foreach (var clause in searches)
             {
                 if (clause.verb == Search.VERB)
-                    this.qclauses[cnt++] = new QSearchClause((Search) clause);
+                    this.qclauses[cnt++] = new QClauseSearch((Search) clause);
             }
             this.qcontrols = new QSearchControls();
             var controls = HMICommand.configuration.search;
@@ -40,10 +40,10 @@ namespace QuelleHMI
             get => this.qclauses;
             set
             {
-                this.qclauses = new QSearchClause[value.Length];
+                this.qclauses = new QClauseSearch[value.Length];
                 int i = 0;
                 foreach (var val in value)
-                    this.qclauses[i++] = new QSearchClause(val);
+                    this.qclauses[i++] = new QClauseSearch(val);
             }
         }
         [IgnoreMember]
@@ -53,22 +53,22 @@ namespace QuelleHMI
             set => this.qcontrols = new QSearchControls(value);
         }
         [Key(1)]
-        public QSearchClause[] qclauses { get; set; }
+        public QClauseSearch[] qclauses { get; set; }
 
         [Key(2)]
         public QSearchControls qcontrols;
         [Key(3)]
         public UInt64 count { get; set; }
 
-        public QSearchRequest(IQuelleSearchRequest irequest)
+        public QRequestSearch(IQuelleSearchRequest irequest)
         {
-            this.qclauses = new QSearchClause[irequest.clauses.Length];
+            this.qclauses = new QClauseSearch[irequest.clauses.Length];
             for (int i = 0; i < irequest.clauses.Length; i++)
-                this.qclauses[i] = new QSearchClause(irequest.clauses[i]);
+                this.qclauses[i] = new QClauseSearch(irequest.clauses[i]);
         }
     }
     [MessagePackObject]
-    public class QSearchResult : QFetchResult, IQuelleSearchResult
+    public class QSearchResult : QResultFetch, IQuelleSearchResult
     {
         public QSearchResult() { /*for msgpack*/ }
 
@@ -77,15 +77,15 @@ namespace QuelleHMI
         public IQuelleSearchRequest enrichedRequest
         {
             get => this.qEnrichedRequest;
-            set => this.qEnrichedRequest = new QSearchRequest(value);
+            set => this.qEnrichedRequest = new QRequestSearch(value);
         }
         [Key(9)]
-        public QSearchRequest qEnrichedRequest { get; set; }
+        public QRequestSearch qEnrichedRequest { get; set; }
 
         QSearchResult(IQuelleSearchResult iresult): base((IQuelleFetchResult) iresult)
         {
             this.summary = iresult.summary;
-            this.qEnrichedRequest = new QSearchRequest(iresult.enrichedRequest);
+            this.qEnrichedRequest = new QRequestSearch(iresult.enrichedRequest);
         }
     }
  }

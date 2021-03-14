@@ -7,7 +7,6 @@ namespace QuelleHMI.Verbs
 {
     public interface IQuelleSearchClause
     {
-        string syntax { get; }
         IQuelleSearchFragment[] fragments { get; }
         string segment { get; }
         char polarity { get; }
