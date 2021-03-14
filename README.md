@@ -23,7 +23,7 @@ More complete user-oriented documentation can be found here:</br>
 
 https://github.com/kwonus/Quelle/blob/master/Quelle.md
 
-<br/></br>
+</br>
 Developer notes about the implementation can be found at:</br>
 
 https://github.com/kwonus/Quelle/blob/master/Quelle-Developer-Notes.md
