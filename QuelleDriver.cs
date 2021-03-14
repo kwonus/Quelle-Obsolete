@@ -73,7 +73,7 @@ namespace Quelle.DriverDefault
         {
             string text = "Help is available on each of these topics:\n";
 
-            foreach (var verb in new string[] { QuelleHMI.Verbs.Search.VERB, Control.SET, Control.CLEAR, Define.SAVE, Define.DELETE, Define.REVIEW, Print.VERB, Show.VERB, Status.VERB, Generate.GENERATE, Generate.REGENERATE, "@exit" })
+            foreach (var verb in new string[] { QuelleHMI.Verbs.Search.VERB, Control.SET, Control.CLEAR, Define.SAVE, Define.DELETE, Define.REVIEW, Print.VERB, Get.VERB, Status.VERB, Generate.GENERATE, Generate.REGENERATE, "@exit" })
                 text += ("\n\t" + (verb.StartsWith('@') ? verb.Substring(1) : verb));
 
             text += "\n\n";
@@ -91,7 +91,7 @@ namespace Quelle.DriverDefault
             var help = topic.Trim().ToLower();
             if (help.StartsWith('@'))
                 help = help.Substring(1).Trim();
-            foreach (var verb in new string[] { QuelleHMI.Verbs.Search.VERB, Control.SET, Control.CLEAR, Print.VERB, Define.SAVE, Define.DELETE, Define.REVIEW, Show.VERB, Status.VERB, Generate.GENERATE, Generate.REGENERATE, "@exit" })
+            foreach (var verb in new string[] { QuelleHMI.Verbs.Search.VERB, Control.SET, Control.CLEAR, Print.VERB, Define.SAVE, Define.DELETE, Define.REVIEW, Get.VERB, Status.VERB, Generate.GENERATE, Generate.REGENERATE, "@exit" })
                 if (verb.EndsWith(help) && verb.StartsWith('@'))
                 {
                     help = '@' + help;
@@ -107,7 +107,7 @@ namespace Quelle.DriverDefault
                 case Define.SAVE:
                 case Define.DELETE:
                 case Define.REVIEW:                 return Define.Help(help);
-                case Show.VERB:                     return Show.Help();
+                case Get.VERB:                     return Get.Help();
                 case Status.VERB:                   return Status.Help();
                 case Generate.GENERATE:
                 case Generate.REGENERATE:           return Generate.Help();

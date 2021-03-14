@@ -14,7 +14,7 @@ namespace QuelleHMI.Verbs
         public Status(HMIStatement statement, UInt32 segmentOrder, string segment)
     : base(statement, segmentOrder, HMIPolarity.UNDEFINED, segment, HMIClauseType.EXPLICIT_INDEPENDENT)
         {
-            this.verb = Show.VERB;
+            this.verb = Get.VERB;
         }
         protected override bool Parse()
         {

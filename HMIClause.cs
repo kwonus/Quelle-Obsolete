@@ -70,7 +70,7 @@ namespace QuelleHMI
                     case Verbs.Define.SAVE:
                     case Verbs.Define.DELETE:       return new Verbs.Define(statement, order, text);
 
-                    case Verbs.Show.VERB:           return new Verbs.Show(statement, order, text);
+                    case Verbs.Get.VERB:            return new Verbs.Show(statement, order, text);
 
                     case Verbs.Generate.GENERATE:   return new Verbs.Generate(statement, text, Verbs.Generate.GENERATE);
                     case Verbs.Generate.REGENERATE: return new Verbs.Generate(statement, text, Verbs.Generate.REGENERATE);
