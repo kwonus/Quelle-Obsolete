@@ -14,7 +14,7 @@
    - show
 4. DISPLAY
    - print
-5. - HISTORY
+5. HISTORY
    - review
    - undo
    - redo
