@@ -22,16 +22,16 @@ Any application can implement the Quelle specification without royalty. We provi
 
 The Quelle specification defines a declarative syntax for specifying search criteria using the *find* verb. Quelle also defines additional verbs to round out its syntax as a simple straightforward means to interact with custom applications where searching text is the fundamental problem at hand. As mentioned earlier, AV Text Ministries provides a reference implementation. This implementation is written in C# and runs on most operating systems (e.g. Windows, Mac, Linux, iOS, Android, etc).  As source code is provided, it can be seamlessly extended by application programmers.
 
-Quelle Syntax comprises a standard set of twelve (12) verbs. Each verb corresponds to a basic operation:
+Quelle Syntax comprises fourteen (14) verbs. Each verb corresponds to a basic action:
 
 - find
 - set
 - clear
-- show
+- get
 - print
 - save
 - delete
-- review
+- show
 - help
 - status
 - generate
@@ -41,29 +41,31 @@ Quelle Syntax comprises a standard set of twelve (12) verbs. Each verb correspon
 
 The verbs listed above are for the English flavor of Quelle. As Quelle is an open and extensible standard, verbs for other languages can be defined without altering the overall syntax structure of the HMI. The remainder of this document describes Version 1.0 of the Quelle-HMI specification.  
 
-In Quelle terminology, a statement is made up of actions. Each action has a single verb. While there are twelve verbs, there are only five distinct types of actions
+In Quelle terminology, a statement is made up of actions. Each action has a single verb. While there are fourteen verbs, there are only six distinct types of actions
 
 1. SEARCH
    - find
 2. CONTROL
    - set
    - clear
-   - show
+   - get
 4. LABEL
    - save
    - delete
-   - review
+   - show
 5. DISPLAY
    - print
-5. SYSTEM
-   - help
+5. HISTORY
+   - review
    - undo
    - redo
+6. SYSTEM
+   - help
    - status
    - generate
    - exit
 
-If we ignore the SYSTEM actions for the moment, we can focus on Quelle's primary actions. Primary actions are identified in Table 3-1 below (SYSTEM actions can be found in Section IX, in Table 9-1).
+If we ignore the SYSTEM/HISTORY actions for the moment, we can focus on Quelle's primary actions. Primary actions are identified in Table 3-1 below (SYSTEM/HISTORY actions can be found in Section X, in Table 10-1).
 
 Searching and displaying results are the primary purpose of Quelle.  Learning the eight verbs identified in Table 3-1 is all that is necessary for mastering Quelle. Each verb has a minimum and maximum number of parameters.  Each of these eight verbs are described in the following sections.
 
@@ -72,11 +74,11 @@ Searching and displaying results are the primary purpose of Quelle.  Learning th
 | *find*      |  implicit   | SEARCH          | **1**: *search spec*    |                    |  **" " [ ] ( )**   |
 | *set*       |  implicit   | CONTROL         | **2**: *name* = *value* |       **=**        |                    |
 | *clear*     |  implicit   | CONTROL         | **1**: *control_name*   |       **=@**       |                    |
-| **@show**   | independent | CONTROL         | **0+**: *control_names* |                    |                    |
+| **@get**    | independent | CONTROL         | **0+**: *control_names* |                    |                    |
 | **@print**  |  dependent  | DISPLAY         | **0+**: *identifiers*   |                    |      **[ ]**       |
 | **@save**   |  dependent  | LABEL           | **1**: *macro_label*    |      **{ }**       |                    |
 | **@delete** | independent | LABEL           | **1+**: *macro_label*s  |      **{ }**       |                    |
-| **@review** | independent | LABEL           | **0+**: *macro_labels*  |                    |      **{ }**       |
+| **@show**   | independent | LABEL           | **0+**: *macro_labels*  |                    |      **{ }**       |
 
 **TABLE 3-1 -- Verb descriptions and syntax summary**
 
@@ -98,7 +100,7 @@ Even before we describe Quelle syntax generally, let's examine these concepts us
 | Description                                  | Example                                       |
 | -------------------------------------------- | :-------------------------------------------- |
 | Explicit independent SYSTEM action           | @help                                         |
-| Explicit independent SYSTEM action           | @show span domain                             |
+| Explicit independent SYSTEM action           | @get span domain                              |
 | Explicit dependent LABEL action              | @save {my macro}                              |
 | Explicit dependent DISPLAY action            | @print [*]                                    |
 | Implicit single SEARCH action                | this is some text expected to be found        |
@@ -379,10 +381,10 @@ in a beginning, God created heaven and earth
 | **example**                          | **explanation**          |
 | ------------------------------------ | ------------------------ |
 | *system*.host = https://avbible.net/ | Assign a control setting |
-| **@show** *system*.host              | Show a control setting   |
+| **@get** *system*.host               | get a control setting    |
 | *system*.host=@                      | Clear a control setting  |
 
-**TABLE 7-2** -- **set/clear/show** action operate on configuration settings
+**TABLE 7-2** -- **set/clear/get** action operate on configuration settings
 
 
 
@@ -396,7 +398,7 @@ Otherwise, when multiple clauses contain the same setting, the last setting in t
 
 set format = md  set format = text`>> implies >>` set format = text
 
-The control names are applicable to ***set***, ***clear***, and ***@show*** verbs. The control name has a fully specified name and also a short name. Either form of the control name is permitted in all Quelle statements.
+The control names are applicable to ***set***, ***clear***, and ***@get*** verbs. The control name has a fully specified name and also a short name. Either form of the control name is permitted in all Quelle statements.
 
 | Fully Specified Name | Short Name | Meaning                              | Values     | Visibility |
 | -------------------- | ---------- | ------------------------------------ | ---------- | ---------- |
@@ -410,17 +412,17 @@ The control names are applicable to ***set***, ***clear***, and ***@show*** verb
 
 **TABLE 7-3 -- Control Names that affect SEARCH & DISPLAY actions**
 
-Table 7-3 lists Control-Names for SEARCH and DISPLAY actions.  Table 9-1 lists Control-Names for SYSTEM actions. The *@show* command will list the values associated with these. The *@show* command takes zero or more arguments. Zero arguments lists all control settings.  With one or more arguments, show only lists the values of the controls that are specified.  Examples of the command are below (both the long form and the short form of control names are accepted):
+Table 7-3 lists Control-Names for SEARCH and DISPLAY actions.  Table 9-1 lists Control-Names for SYSTEM actions. The *@get* command will list the values associated with these. The *@get* command takes zero or more arguments. Zero arguments lists all control settings.  With one or more arguments, get only lists the values of the controls that are specified.  Examples of the command are below (both the long form and the short form of control names are accepted):
 
-*@show*
+*@get*
 
-*@show* host
+*@get* host
 
-*@show* system.host
+*@get* system.host
 
-*@show* search
+*@get* search
 
-*@show* search.domain
+*@get* search.domain
 
 Control settings can be cleared using implicit wildcards, by using the shared control-prefix:
 
@@ -526,19 +528,19 @@ The syntax above, while biased towards Quelle-AVX search results is standard Que
 
 It should be noted that system.host, while a SYSTEM control, does certainly affect SEARCH as this is how the user specifies which search provider to use.
 
-### X. System Actions
+### X. System & History Actions
 
-| Verb          | Action Type | Clause Type | Required Arguments |
-| ------------- | ----------- | ----------- | ------------------ |
-| **@help**     | independent | SYSTEM      | 0 or 1             |
-| **@generate** | independent | SYSTEM      | 2 or 4             |
-| **@status**   | independent | SYSTEM      | 0 or 1             |
-| **@history**  | independent | SYSTEM      | 0 or 1             |
-| **@undo**     | independent | SYSTEM      | 0                  |
-| **@redo**     | independent | SYSTEM      | 0                  |
-| **@exit**     | independent | SYSTEM      | 0                  |
+| Verb          | Action Type | Syntax Category | Required Arguments |
+| ------------- | ----------- | --------------- | ------------------ |
+| **@review**   | independent | HISTORY         | 0 or 1             |
+| **@undo**     | independent | HISTORY         | 0                  |
+| **@redo**     | independent | HISTORY         | 0                  |
+| **@help**     | independent | SYSTEM          | 0 or 1             |
+| **@generate** | independent | SYSTEM          | 2 or 4             |
+| **@status**   | independent | SYSTEM          | 0 or 1             |
+| **@exit**     | independent | SYSTEM          | 0                  |
 
-**TABLE 10-1 -- All SYSTEM actions are explicit independent actions**
+**TABLE 10-1 -- All SYSTEM and HISTORY actions are explicit independent actions**
 
 **PROGRAM HELP**
 
@@ -556,19 +558,19 @@ Or for specific topics:
 
 etc ...
 
-**SEARCH HISTORY**
+**REVIEW SEARCH HISTORY**
 
-*@history* shows the user's search activity for the current session.  To show the last ten searches, type:
+*@review* gets the user's search activity for the current session.  To show the last ten searches, type:
 
-*@history*
+*@review*
 
 To show the last three searches, type:
 
-*@history* 3
+*@review* 3
 
 To show the last twenty searches, type:
 
-*@history* 20 
+*@review* 20 
 
 **UNDO & REDO**
 

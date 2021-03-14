@@ -7,17 +7,19 @@
 2. CONTROL
    - set
    - clear
-   - show
+   - get
 3. LABEL
    - save
    - delete
-   - review
+   - show
 4. DISPLAY
    - print
-5. SYSTEM
-   - help
+5. - HISTORY
+   - review
    - undo
    - redo
+6. SYSTEM
+   - help
    - status
    - generate
    - exit
@@ -27,32 +29,32 @@
 | *find*        |  implicit   | SEARCH          | **1**: *search spec*    |                    |  **" " [ ] ( )**   | provider           |
 | *set*         |  implicit   | CONTROL         | **2**: *name* = *value* |       **=**        |                    | driver             |
 | *clear*       |  implicit   | CONTROL         | **1**: *control_name*   |       **=@**       |                    | driver             |
-| **@show**     | independent | CONTROL         | **0+**: *control_names* |                    |                    | driver             |
+| **@get**      | independent | CONTROL         | **0+**: *control_names* |                    |                    | driver             |
 | **@print**    |  dependent  | DISPLAY         | **0+**: *identifiers*   |                    |      **[ ]**       | provider           |
 | **@save**     |  dependent  | LABEL           | **1**: *macro_label*    |                    |                    | driver             |
 | **@delete**   | independent | LABEL           | **1+**: *macro_label*s  |      **{ }**       |                    | driver             |
-| **@review**   | independent | LABEL           | **0+**: *macro_labels*  |                    |      **{ }**       | driver             |
+| **@show**     | independent | LABEL           | **0+**: *macro_labels*  |                    |      **{ }**       | driver             |
+| **@review**   | independent | HISTORY         | 0 or 1                  |                    |                    | driver             |
+| **@undo**     | independent | HISTORY         | 0                       |                    |                    | driver             |
+| **@redo**     | independent | HISTORY         | 0                       |                    |                    | driver             |
 | **@help**     | independent | SYSTEM          | 0 or 1                  |                    |                    | driver             |
-| **@history**  | independent | SYSTEM          | 0 or 1                  |                    |                    | driver             |
-| **@undo**     | independent | SYSTEM          | 0                       |                    |                    | driver             |
-| **@redo**     | independent | SYSTEM          | 0                       |                    |                    | driver             |
 | **@generate** | independent | SYSTEM          | 2 or 4                  |                    |      **! >**       | driver             |
 | **@status**   | independent | SYSTEM          | 0 or 1                  |                    |                    | provider           |
 | **@exit**     | independent | SYSTEM          | 0                       |                    |                    | driver             |
 
 
 
-| Long Name          | Short Name  | Meaning                                                     | Values                                 | Passed to search provider | Notes                                                    |
-| ------------------ | ----------- | ----------------------------------------------------------- | -------------------------------------- | ------------------------- | -------------------------------------------------------- |
-| search.span        | span        | proximity                                                   | 0 to 1000                              | yes                       |                                                          |
-| search.domain      | domain      | search domain                                               | string                                 | yes                       |                                                          |
-| search.exact       | exact       | exact vs liberal/fuzzy                                      | true/false                             | yes                       |                                                          |
-| display.heading    | heading     | heading of results                                          | string                                 | no                        |                                                          |
-| display.record     | record      | fetch result annotations                                    | string                                 | no                        |                                                          |
-| display.format     | format      | page result format                                          | Table 7-1                              | yes                       |                                                          |
-| display.output     | output      | save page result to file                                    | filename                               | no                        |                                                          |
-| system.host        | host        | URL of driver                                               | string                                 | no                        | define the search provider to use                        |
-| system.indentation | indentation | specifies tabs or spaces on when invoking @generate command | tab, spaces:2, spaces:3, spaces:4, ... | *hidden*                  | hidden, do not expose value with wildcard @show requests |
+| Long Name          | Short Name  | Meaning                                                     | Values                                 | Passed to search provider | Notes                                                   |
+| ------------------ | ----------- | ----------------------------------------------------------- | -------------------------------------- | ------------------------- | ------------------------------------------------------- |
+| search.span        | span        | proximity                                                   | 0 to 1000                              | yes                       |                                                         |
+| search.domain      | domain      | search domain                                               | string                                 | yes                       |                                                         |
+| search.exact       | exact       | exact vs liberal/fuzzy                                      | true/false                             | yes                       |                                                         |
+| display.heading    | heading     | heading of results                                          | string                                 | no                        |                                                         |
+| display.record     | record      | fetch result annotations                                    | string                                 | no                        |                                                         |
+| display.format     | format      | page result format                                          | Table 7-1                              | yes                       |                                                         |
+| display.output     | output      | save page result to file                                    | filename                               | no                        |                                                         |
+| system.host        | host        | URL of driver                                               | string                                 | no                        | define the search provider to use                       |
+| system.indentation | indentation | specifies tabs or spaces on when invoking @generate command | tab, spaces:2, spaces:3, spaces:4, ... | *hidden*                  | hidden, do not expose value with wildcard @get requests |
 
 Macros are yaml files which include values for all controls.  In the example below, the yaml file would be *named my-macro-label.yaml*.  Macros are always case-insensitive.  And hyphens and spaces are synonymous when naming the macro.
 
