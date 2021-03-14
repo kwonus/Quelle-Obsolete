@@ -16,6 +16,8 @@
    - print
 5. SYSTEM
    - help
+   - undo
+   - redo
    - status
    - generate
    - exit
@@ -27,11 +29,14 @@
 | *clear*       |  implicit   | CONTROL         | **1**: *control_name*   |       **=@**       |                    | driver             |
 | **@show**     | independent | CONTROL         | **0+**: *control_names* |                    |                    | driver             |
 | **@print**    |  dependent  | DISPLAY         | **0+**: *identifiers*   |                    |      **[ ]**       | provider           |
-| **@save**     |  dependent  | LABEL           | **1**: *macro_label*    |      **{ }**       |                    | driver             |
+| **@save**     |  dependent  | LABEL           | **1**: *macro_label*    |                    |                    | driver             |
 | **@delete**   | independent | LABEL           | **1+**: *macro_label*s  |      **{ }**       |                    | driver             |
 | **@review**   | independent | LABEL           | **0+**: *macro_labels*  |                    |      **{ }**       | driver             |
 | **@help**     | independent | SYSTEM          | 0 or 1                  |                    |                    | driver             |
-| **@generate** | independent | SYSTEM          | 2 or 4                  |                    |                    | driver             |
+| **@history**  | independent | SYSTEM          | 0 or 1                  |                    |                    | driver             |
+| **@undo**     | independent | SYSTEM          | 0                       |                    |                    | driver             |
+| **@redo**     | independent | SYSTEM          | 0                       |                    |                    | driver             |
+| **@generate** | independent | SYSTEM          | 2 or 4                  |                    |      **! >**       | driver             |
 | **@status**   | independent | SYSTEM          | 0 or 1                  |                    |                    | provider           |
 | **@exit**     | independent | SYSTEM          | 0                       |                    |                    | driver             |
 

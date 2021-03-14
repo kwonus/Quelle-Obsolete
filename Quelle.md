@@ -1,6 +1,6 @@
 # Quelle HMI Specification
 
-##### version 1.0.1.3C
+##### version 1.0.1.3E
 
 ### I. Background
 
@@ -35,6 +35,8 @@ Quelle Syntax comprises a standard set of twelve (12) verbs. Each verb correspon
 - help
 - status
 - generate
+- back
+- next
 - exit
 
 The verbs listed above are for the English flavor of Quelle. As Quelle is an open and extensible standard, verbs for other languages can be defined without altering the overall syntax structure of the HMI. The remainder of this document describes Version 1.0 of the Quelle-HMI specification.  
@@ -55,6 +57,8 @@ In Quelle terminology, a statement is made up of actions. Each action has a sing
    - print
 5. SYSTEM
    - help
+   - undo
+   - redo
    - status
    - generate
    - exit
@@ -529,6 +533,9 @@ It should be noted that system.host, while a SYSTEM control, does certainly affe
 | **@help**     | independent | SYSTEM      | 0 or 1             |
 | **@generate** | independent | SYSTEM      | 2 or 4             |
 | **@status**   | independent | SYSTEM      | 0 or 1             |
+| **@history**  | independent | SYSTEM      | 0 or 1             |
+| **@undo**     | independent | SYSTEM      | 0                  |
+| **@redo**     | independent | SYSTEM      | 0                  |
 | **@exit**     | independent | SYSTEM      | 0                  |
 
 **TABLE 10-1 -- All SYSTEM actions are explicit independent actions**
@@ -548,6 +555,24 @@ Or for specific topics:
 @help print
 
 etc ...
+
+**SEARCH HISTORY**
+
+*@history* shows the user's search activity for the current session.  To show the last ten searches, type:
+
+*@history*
+
+To show the last three searches, type:
+
+*@history* 3
+
+To show the last twenty searches, type:
+
+*@history* 20 
+
+**UNDO & REDO**
+
+These commands work like *Back & Forward* in a browser.  *@undo* will cancel the current search and revert to the most previous search.  *@redo* does the opposite: id re-executes the search that was previously undone. Any undone searches are forgotten upon *@exit*. Yet, The ten most recent searches are saved as history for your next session.
 
 **EXITING QUELLE**
 
