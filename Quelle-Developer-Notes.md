@@ -1,9 +1,10 @@
 # Quelle Developer Notes
 
-##### version 1.0.1.3E
+##### version 1.0.1.3G
 
 1. SEARCH
    - find
+   - status
 2. CONTROL
    - set
    - clear
@@ -12,54 +13,92 @@
    - save
    - delete
    - show
+   - execute
 4. DISPLAY
    - print
 5. HISTORY
    - review
-   - undo
-   - redo
+   - invoke
 6. SYSTEM
    - help
-   - status
    - generate
    - exit
 
 | Verb          | Action Type | Syntax Category | Required Parameters     | Required Operators | Optional Operators | Provider or Driver |
 | ------------- | :---------: | --------------- | ----------------------- | :----------------: | :----------------: | ------------------ |
 | *find*        |  implicit   | SEARCH          | **1**: *search spec*    |                    |  **" " [ ] ( )**   | provider           |
+| **@status**   | independent | SEARCH          | 0 or 1                  |                    |                    | provider           |
 | *set*         |  implicit   | CONTROL         | **2**: *name* = *value* |       **=**        |                    | driver             |
 | *clear*       |  implicit   | CONTROL         | **1**: *control_name*   |       **=@**       |                    | driver             |
 | **@get**      | independent | CONTROL         | **0+**: *control_names* |                    |                    | driver             |
 | **@print**    |  dependent  | DISPLAY         | **0+**: *identifiers*   |                    |      **[ ]**       | provider           |
 | **@save**     |  dependent  | LABEL           | **1**: *macro_label*    |                    |                    | driver             |
-| **@delete**   | independent | LABEL           | **1+**: *macro_label*s  |      **{ }**       |                    | driver             |
+| **@delete**   | independent | LABEL           | **1+**: *macro_labels*  |      **{ }**       |                    | driver             |
 | **@show**     | independent | LABEL           | **0+**: *macro_labels*  |                    |      **{ }**       | driver             |
+| *execute*     |  implicit   | LABEL           | 1                       |      **{ }**       |                    | driver             |
 | **@review**   | independent | HISTORY         | 0 or 1                  |                    |                    | driver             |
-| **@undo**     | independent | HISTORY         | 0                       |                    |                    | driver             |
-| **@redo**     | independent | HISTORY         | 0                       |                    |                    | driver             |
+| *invoke*      |  implicit   | HISTORY         | 1                       |      **{ }**       |                    | driver             |
 | **@help**     | independent | SYSTEM          | 0 or 1                  |                    |                    | driver             |
-| **@generate** | independent | SYSTEM          | 2 or 4                  |                    |      **! >**       | driver             |
-| **@status**   | independent | SYSTEM          | 0 or 1                  |                    |                    | provider           |
+| **@generate** | independent | SYSTEM          | 2 or 4                  |                    |      **! >**       | driver (hidden)    |
 | **@exit**     | independent | SYSTEM          | 0                       |                    |                    | driver             |
 
+One command not listed in the users guide is @generate. While not a normal user function, it can be useful for Quelle Search Provider developers as it generates code for interop with the standard C# reference implementation.
 
+*@generate* system command assists <u>programmers and developers</u>
 
-| Long Name          | Short Name  | Meaning                                                     | Values                                 | Passed to search provider | Notes                                                   |
-| ------------------ | ----------- | ----------------------------------------------------------- | -------------------------------------- | ------------------------- | ------------------------------------------------------- |
-| search.span        | span        | proximity                                                   | 0 to 1000                              | yes                       |                                                         |
-| search.domain      | domain      | search domain                                               | string                                 | yes                       |                                                         |
-| search.exact       | exact       | exact vs liberal/fuzzy                                      | true/false                             | yes                       |                                                         |
-| display.heading    | heading     | heading of results                                          | string                                 | no                        |                                                         |
-| display.record     | record      | fetch result annotations                                    | string                                 | no                        |                                                         |
-| display.format     | format      | page result format                                          | Table 7-1                              | yes                       |                                                         |
-| display.output     | output      | save page result to file                                    | filename                               | no                        |                                                         |
-| system.host        | host        | URL of driver                                               | string                                 | no                        | define the search provider to use                       |
-| system.indentation | indentation | specifies tabs or spaces on when invoking @generate command | tab, spaces:2, spaces:3, spaces:4, ... | *hidden*                  | hidden, do not expose value with wildcard @get requests |
+indentation=tab
+
+indentation=spaces:8
+
+There are two required parameters for the @generate command: the programming-language and the name of the class.  Consult the source-code on GitHub for classnames.  Or just code-generate CloudSearch first and find dependent imports in that code-generated class, to determine additional code-generation requirements.
+
+*@generate* Java IQuelleSearchRequest
+
+The generate command will generate the internal Quelle class in the language specified. Indentation will be controlled as specified by a separate CONTROL statement.  Quelle's communication with a web-search provider [aka host] uses an HTTPS POST request and JSON serialization of C# classes that contain the parsed Quelle clauses.  Generating these classes accelerates the development of deserializers for the language of the search host.  In each invocation, the class/structure is code-generated into the language specified.  Languages & IDL supported are:
+
+- Java
+- Go
+- C
+- C#
+- Rust
+- Protobuf
+- gRPC
+
+In the case of gRPC, the third parameter must be "*" as it always generates all messages, in addition to the Quelle cloud-service definitions.
+
+The additional two parameters are optional, and are also very specific.  If the third parameter is provided, it must be the greater-than symbol ( > ).  And the final and fourth parameter must be a valid path+filename specification. To expand on the previous example, we can save output to a file with this command:
+
+*@generate* Java IQuelleSearchRequest >  C:\\MyFolder\\src\\IQuelleSearchRequest.java
+
+The folder must exist, and the file in that folder must not exist.  If those two conditions are met, the CloudSearch.java will contain the generated code.
+
+If the user does not care if the file already exists, the existence check can be bypassed by adding exclamation ( ! ) to the command:
+
+*@generate**!*** Java IQuelleSearchRequest >  C:\\MyFolder\\src\\IQuelleSearchRequest.java
+
+Finally, to generate IDL for all cloud-interface types, issue this command:
+
+*@generate* gRPC * >  C:\\MyFolder\\src\\QuelleCloudSearchProvider.proto
+
+NOTE: To be clear, the standard Quelle driver does <u>not</u> utilize gRPC or Protocol Buffers.  Yet, the IDL is useful and the driver could be extended by other developers.  The Standard Quelle driver is implemented in DotNet 5.0 and C#.  The reference implementation of a Quelle Search Provider is REST service implemented in Rust.
+
+| Long Name          | Short Name  | Meaning                                                     | Values                                 | Passed to search provider | Notes                             |
+| ------------------ | ----------- | ----------------------------------------------------------- | -------------------------------------- | ------------------------- | --------------------------------- |
+| search.host        | host        | URL of driver                                               | string                                 | yes                       | define the search provider to use |
+| search.span        | span        | proximity                                                   | 0 to 1000                              | yes                       |                                   |
+| search.domain      | domain      | search domain                                               | string                                 | yes                       |                                   |
+| search.exact       | exact       | exact vs liberal/fuzzy                                      | true/false                             | yes                       |                                   |
+| display.heading    | heading     | heading of results                                          | string                                 | no                        |                                   |
+| display.record     | record      | fetch result annotations                                    | string                                 | no                        |                                   |
+| display.format     | format      | page result format                                          | Table 9-2                              | yes                       |                                   |
+| display.output     | output      | save page result to file                                    | filename                               | no                        |                                   |
+| system.indentation | indentation | specifies tabs or spaces on when invoking @generate command | tab, spaces:2, spaces:3, spaces:4, ... | no                        | hidden and not persisted          |
 
 Macros are yaml files which include values for all controls.  In the example below, the yaml file would be *named my-macro-label.yaml*.  Macros are always case-insensitive.  And hyphens and spaces are synonymous when naming the macro.
 
 ```yaml
 search:
+​	host: http://avbible.net
 ​	span: 7
 ​	domain: kjv
 ​	extact: false
@@ -69,7 +108,6 @@ display:
 #	format: html    # need not be included, because it has no effect on macros
 #	output: !!null	# need not be included, because it has no effect on macros
 system:
-​	host: http://avbible.net
 #	indentation: 4  # need not be included, because it has no effect on macros
 definition:
 ​	label:	My Macro Label
@@ -83,6 +121,7 @@ Control variable share this common format.  However, they are split across three
 search.yaml
 
 ```yaml
+host: http://avbible.net
 span: 7
 domain: kjv
 extact: false
@@ -104,8 +143,7 @@ output: !!null
 system.yaml
 
 ```yaml
-host: http://avbible.net
-indentation: 4
+NOT PERSISTED!
 ```
 
 

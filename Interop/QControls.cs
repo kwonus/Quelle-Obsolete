@@ -11,9 +11,9 @@ namespace QuelleHMI
         [Key(1)]
         public string domain { get; set; }
         [Key(2)]
-        public int span { get; set; }
+        public uint span { get; set; }
         [Key(3)]
-        public int exact { get; set; }
+        public bool exact { get; set; }
 
         public QSearchControls(IQuelleSearchControls icontrols)
         {

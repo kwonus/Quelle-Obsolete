@@ -6,6 +6,7 @@ namespace QuelleHMI.Controls
 {
     public class CTLDisplay : QuelleControlConfig
     {
+        private static List<string> formats = new List<string>() { "text", "html", "md" };
         public string heading
         {
             get
@@ -38,17 +39,23 @@ namespace QuelleHMI.Controls
         {
             get
             {
-                string value = this.map.ContainsKey("format") ? this.map["format"] : null;
-                if (value == null)
-                    value = HMISession.StandardConfig_DISPLAY["format"].Default;
+                string value = this.map.ContainsKey("format") ? this.map["format"] : "html";
+                if (value == null || !formats.Contains(value))
+                    value = "html"; // default
                 return value;
             }
             set
             {
-                if (value == null)
+                if (value == null || !formats.Contains(value))
+                {
                     this.map.Remove("format");
-                else
+                    this.map["format"] = "html";
+                }
+                else if (this.map["format"] == null || this.map["format"] != value)
+                {
                     this.map["format"] = value;
+                    Update();
+                }
             }
         }
         public string output

@@ -25,48 +25,11 @@ using static QuelleHMI.HMISession;
 
 namespace Quelle.DriverDefault
 {
-    public class QuelleDriver : IQuelleConfig, IQuelleHelp
+    public class QuelleDriver : IQuelleHelp
     {
-        protected HMIConfigurationDefault configuration;
         public QuelleDriver()
         {
-            this.configuration = new HMIConfigurationDefault();
-        }
-        public IQuelleResultString Read(string setting)
-        {
-            //  Add specialized behavior before following through to HMISession static implementation
-            //
-            var result = this.configuration.Read(setting);
-            return result;
-        }
-        public IQuelleResultInt ReadInt(string setting)
-        {
-            //  Add specialized behavior before following through to HMISession static implementation
-            //
-            var result = this.configuration.ReadInt(setting);
-            return result;
-        }
-
-        public IQuelleResult Remove(string setting)
-        {
-            //  Add specialized behavior before following through to HMISession static implementation
-            //
-            return this.configuration.Remove(setting);
-        }
-
-        public IQuelleResult Write(string setting, string value)
-        {
-            //  Add specialized behavior before following through to HMISession static implementation
-            //
-            var result = this.configuration.Write(setting, value);
-            return result;
-        }
-        public IQuelleResult Write(string setting, Int64 value)
-        {
-            //  Add specialized behavior before following through to HMISession static implementation
-            //
-            var result = this.configuration.Write(setting, value);
-            return result;
+            ;
         }
 
         public string Help()

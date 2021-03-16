@@ -1,4 +1,5 @@
-﻿using System;
+﻿using QuelleHMI.Controls;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -29,20 +30,10 @@ namespace QuelleHMI.Verbs
         {
             if (this.errors.Count == 0)
             {
-                var result = HMICommand.configuration.Write("quelle.macro." + this.macroName, this.macroValue);
-                if (result.errors != null)
+                var result = QuelleMacro.Create(this.macroName, this.macroValue);
+                if (result == null)
                 {
-                    foreach (var error in result.errors)
-                        this.errors.Add(error);
-                }
-                else if (!result.success)
-                {
-                    this.errors.Add("Unspecific macro error; Please contact vendor about this Quelle driver implementation");
-                }
-                if (result.warnings != null)
-                {
-                    foreach (var warnings in result.warnings)
-                        this.warnings.Add(warnings);
+                    this.errors.Add("Could not create macro");
                 }
             }
             return (this.errors.Count == 0);

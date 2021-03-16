@@ -1,4 +1,5 @@
-﻿using System;
+﻿using QuelleHMI.Controls;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using static QuelleHMI.SearchProviderClient;
@@ -63,10 +64,9 @@ namespace QuelleHMI
 
 			return null;
 		}
-		public static HMIConfigurationDefault configuration = new HMIConfigurationDefault();
 		public bool Search()
         {
-			var client = new SearchProviderClient(configuration.system.host);
+			var client = new SearchProviderClient(QuelleControlConfig.system.host);
 			var request = new QRequestSearch(this.statement); // (IQuelleSearchRequest)
 			IQuelleSearchResult response = client.api.Search(request);
 

@@ -28,10 +28,9 @@ namespace QuelleHMI
                     this.qclauses[cnt++] = new QClauseSearch((Search) clause);
             }
             this.qcontrols = new QSearchControls();
-            var controls = HMICommand.configuration.search;
-            this.qcontrols.domain = controls.domain;
-            this.qcontrols.exact  = controls.exact;
-            this.qcontrols.span   = controls.span;
+            this.qcontrols.domain = QuelleControlConfig.search.domain;
+            this.qcontrols.exact  = QuelleControlConfig.search.exact;
+            this.qcontrols.span   = QuelleControlConfig.search.span;
         }
 
         [IgnoreMember]

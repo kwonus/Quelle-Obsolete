@@ -10,17 +10,23 @@ namespace QuelleHMI.Controls
         {
             get;
         }
-        public int span
+        public uint span
         {
             get;
         }
-        public int exact
+        public bool exact
         {
             get;
         }
     }
     public class CTLSearch: QuelleControlConfig, IQuelleSearchControls
     {
+        public const uint maxSpan = 1000;
+        public const uint minSpan = 0;
+        public const uint defaultSpan = 0;
+
+        public const bool defaultExact = false;
+
         public string domain
         {
             get
@@ -35,51 +41,45 @@ namespace QuelleHMI.Controls
                     this.map["domain"] = value;
             }
         }
-        public int span
+        public uint span
         {
             get
             {
-                var info = HMISession.StandardConfig_SEARCH["span"];
                 string value = this.map.ContainsKey("span") ? this.map["span"] : null;
                 if (value == null)
-                    value = info.Default;
+                    return defaultSpan;   // default
 
-                int val = int.Parse(value);
-
-                if (info.MinMax != null && (val < info.MinMax[0] || val > info.MinMax[1]))
-                    val = int.Parse(info.Default);
-
-                return val;
+                uint val = uint.Parse(value);
+                return val >= minSpan && val <= maxSpan ? val : defaultSpan;
             }
             set
             {
+                var val = value >= minSpan && value <= maxSpan ? value : defaultSpan;
                 this.map["span"] = value.ToString();
             }
         }
-        public int exact
+        public bool exact
         {
             get
             {
                 string value = this.map.ContainsKey("exact") ? this.map["exact"] : null;
                 if (value == null)
-                    value = HMISession.StandardConfig_SEARCH["exact"].Default;
+                    return defaultExact;
 
                 switch (value.ToLower())
                 {
-                    case "1":    return 1;
-                    case "true": return 1;
-                    default:     return 0;
+                    case "1":
+                    case "true":  return true;
+                    case "0":
+                    case "false": return false;
+                    default:      return defaultExact;
                 }
             }
             set
             {
-                this.map["exact"] = value == 1 ? "1" : "0";
+                this.map["exact"] = value ? "true" : "false";
             }
         }
-        private static Dictionary<string, ControlInfo> StandardConfig_QUELLE = new Dictionary<string, ControlInfo>()
-        {
-
-        };
         public CTLSearch(string file) : base(file)
         {
             ;

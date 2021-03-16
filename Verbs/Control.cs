@@ -1,4 +1,5 @@
-﻿using System;
+﻿using QuelleHMI.Controls;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -39,20 +40,10 @@ namespace QuelleHMI.Verbs
         {
             if (this.errors.Count == 0)
             {
-                var result = HMICommand.configuration.Write("quelle.macro." + this.controlName, this.controlValue);
-                if (result.errors != null)
+                var result = QuelleMacro.Create(this.controlName, this.controlValue);
+                if (result == null)
                 {
-                    foreach (var error in result.errors)
-                        this.errors.Add(error);
-                }
-                else if (!result.success)
-                {
-                    this.errors.Add("Unspecific macro error; Please contact vendor about this Quelle driver implementation");
-                }
-                if (result.warnings != null)
-                {
-                    foreach (var warnings in result.warnings)
-                        this.warnings.Add(warnings);
+                    this.errors.Add("Could not create macro");
                 }
             }
             return (this.errors.Count == 0);
@@ -126,7 +117,7 @@ namespace QuelleHMI.Verbs
             if (tokens != null && tokens[0] != null && tokens[0].Length > 0 && ((result.verb == Control.CLEAR) || (result.verb != Control.SET && tokens[1] != null && tokens[1].Length > 0)))
             {
                 string normalized;
-                if (HMISession.IsControl(tokens[0], out normalized))
+                if (QuelleControlConfig.IsControl(tokens[0], out normalized))
                 {
                     tokens[0] = normalized;
                     result.tokens = tokens;

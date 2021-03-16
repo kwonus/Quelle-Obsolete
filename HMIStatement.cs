@@ -4,6 +4,7 @@ using System.Text;
 using System.Linq;
 using static QuelleHMI.HMIClause;
 using QuelleHMI.Verbs;
+using QuelleHMI.Controls;
 
 namespace QuelleHMI
 {
@@ -243,18 +244,12 @@ namespace QuelleHMI
 
                 if (command.HasMacro())
                 {
+                    // TODO: some redundancy is going on here
                     var macroDef = command.GetMacroDefinition();
-                    var result = HMICommand.configuration.Write("quelle.macro." + macroDef.macroName, command.statement.statement);
-                    if (result.errors != null)
+                    var result = QuelleMacro.Create(macroDef.macroName, command.statement.statement);
+                    if (result == null)
                     {
-                        foreach (var error in result.errors)
-                            this.Notify("error", error);
-
-                        return false;
-                    }
-                    if (!result.success)
-                    {
-                        this.Notify("error", "Unspecific macro error; Please contact vendor about this Quelle driver implementation");
+                        this.Notify("error", "Could not create macro");
                         return false;
                     }
                     return true;
