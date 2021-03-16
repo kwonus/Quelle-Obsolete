@@ -5,18 +5,23 @@ using System.Text;
 
 namespace QuelleHMI.Verbs
 {
-    public class Define : HMIClause
+    public class Label : HMIClause
     {
         public const string SYNTAX = "LABEL";
         public override string syntax { get => SYNTAX; }
         public const string DELETE = "@delete";
         public const string SAVE = "@save";
-        public const string REVIEW = "@review";
+        public const string SHOW = "@show";
+        public const string EXPAND = "execute";
+
+        public static readonly List<string> EXPLICIT = new List<string>() { DELETE, SAVE, SHOW };
+        public static readonly List<string> IMPLICIT = new List<string>() { EXPAND };
+
         public string macroName { get; private set; }
         public string macroValue { get => this.statement.statement; }
 
 
-        public Define(HMIStatement statement, UInt32 segmentOrder, string segment)
+        public Label(HMIStatement statement, UInt32 segmentOrder, string segment)
     : base(statement, segmentOrder, HMIPolarity.UNDEFINED, segment, HMIClauseType.EXPLICIT_DEPENDENT)
         {
             if (this.verb == null)

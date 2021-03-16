@@ -64,16 +64,16 @@ namespace QuelleHMI
                 var tokens = text.Split(Whitespace, StringSplitOptions.RemoveEmptyEntries);
                 switch(tokens[0].ToLower())
                 {
-                    case Verbs.Print.VERB:          return new Verbs.Print(statement, order, text);
+                    case Verbs.Display.PRINT:     return new Verbs.Display(statement, order, text);
 
-                    case Verbs.Define.REVIEW:
-                    case Verbs.Define.SAVE:
-                    case Verbs.Define.DELETE:       return new Verbs.Define(statement, order, text);
+                    case Verbs.Label.SHOW:
+                    case Verbs.Label.SAVE:
+                    case Verbs.Label.DELETE:      return new Verbs.Label(statement, order, text);
 
-                    case Verbs.Get.VERB:            return new Verbs.Show(statement, order, text);
+                    case Verbs.Control_Get.GET:   return new Verbs.Control_Get(statement, order, text);
 
-                    case Verbs.Generate.GENERATE:   return new Verbs.Generate(statement, text, Verbs.Generate.GENERATE);
-                    case Verbs.Generate.REGENERATE: return new Verbs.Generate(statement, text, Verbs.Generate.REGENERATE);
+                    case Verbs.System.GENERATE:   return new Verbs.System(statement, text, Verbs.System.GENERATE);
+                    case Verbs.System.REGENERATE: return new Verbs.System(statement, text, Verbs.System.REGENERATE);
                 }
                 statement.Notify("error", "Unknown verb provided: " + tokens[0]);
                 return null;

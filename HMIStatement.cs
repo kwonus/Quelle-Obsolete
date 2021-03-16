@@ -216,7 +216,7 @@ namespace QuelleHMI
                 if (!clause.isImplicit())
                     this.normalized.explicitClause = clause;
 
-                else if (clause.verb == Verbs.Search.VERB)
+                else if (clause.verb == Verbs.Search.FIND)
                     Append(ref this.normalized.searches, clause);
 
                 else if (clause.verb == Verbs.Control.CLEAR)

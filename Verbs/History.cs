@@ -4,17 +4,20 @@ using System.Text;
 
 namespace QuelleHMI.Verbs
 {
-    public class Get : HMIClause
+    public class History : HMIClause
     {
-        public const string SYNTAX = "CONTROL";
+        public const string SYNTAX = "HISTORY";
         public override string syntax { get => SYNTAX; }
-        public const string VERB = "@get";
+        public const string REVIEW = "@review";
+        public const string EXPAND = "invoke";
+        public static readonly List<string> EXPLICIT = new List<string>() { REVIEW };
+        public static readonly List<string> IMPLICIT = new List<string>() { EXPAND };
         public string[] parameters;
 
-        public Get(HMIStatement statement, UInt32 segmentOrder, string segment)
+        public History(HMIStatement statement, UInt32 segmentOrder, string segment)
     : base(statement, segmentOrder, HMIPolarity.UNDEFINED, segment, HMIClauseType.EXPLICIT_INDEPENDENT)
         {
-            this.verb = Get.VERB;
+            this.verb = History.REVIEW;
         }
         protected override bool Parse()
         {

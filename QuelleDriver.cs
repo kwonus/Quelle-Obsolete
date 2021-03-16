@@ -36,7 +36,7 @@ namespace Quelle.DriverDefault
         {
             string text = "Help is available on each of these topics:\n";
 
-            foreach (var verb in new string[] { QuelleHMI.Verbs.Search.VERB, Control.SET, Control.CLEAR, Define.SAVE, Define.DELETE, Define.REVIEW, Print.VERB, Get.VERB, Status.VERB, Generate.GENERATE, Generate.REGENERATE, "@exit" })
+            foreach (var verb in new string[] { QuelleHMI.Verbs.Search.FIND, Control.SET, Control.CLEAR, Label.SAVE, Label.DELETE, Label.SHOW, Display.PRINT, Control_Get.GET, Search.STATUS, QuelleHMI.Verbs.System.GENERATE, QuelleHMI.Verbs.System.REGENERATE, "@exit" })
                 text += ("\n\t" + (verb.StartsWith('@') ? verb.Substring(1) : verb));
 
             text += "\n\n";
@@ -54,7 +54,7 @@ namespace Quelle.DriverDefault
             var help = topic.Trim().ToLower();
             if (help.StartsWith('@'))
                 help = help.Substring(1).Trim();
-            foreach (var verb in new string[] { QuelleHMI.Verbs.Search.VERB, Control.SET, Control.CLEAR, Print.VERB, Define.SAVE, Define.DELETE, Define.REVIEW, Get.VERB, Status.VERB, Generate.GENERATE, Generate.REGENERATE, "@exit" })
+            foreach (var verb in new string[] { QuelleHMI.Verbs.Search.FIND, Control.SET, Control.CLEAR, Display.PRINT, Label.SAVE, Label.DELETE, Label.SHOW, Control_Get.GET, Search.STATUS, QuelleHMI.Verbs.System.GENERATE, QuelleHMI.Verbs.System.REGENERATE, "@exit" })
                 if (verb.EndsWith(help) && verb.StartsWith('@'))
                 {
                     help = '@' + help;
@@ -63,18 +63,26 @@ namespace Quelle.DriverDefault
 
             switch (help)
             {
-                case QuelleHMI.Verbs.Search.VERB:   return QuelleHMI.Verbs.Search.Help();
-                case Control.SET:                   return Control.Help(Control.SET);
-                case Control.CLEAR:                 return Control.Help(Control.CLEAR);
-                case Print.VERB:                    return Print.Help();
-                case Define.SAVE:
-                case Define.DELETE:
-                case Define.REVIEW:                 return Define.Help(help);
-                case Get.VERB:                     return Get.Help();
-                case Status.VERB:                   return Status.Help();
-                case Generate.GENERATE:
-                case Generate.REGENERATE:           return Generate.Help();
-                case "@exit":                       return "@exit\n... on a line by itself followed by the <Enter> key will cause the program to exit.\n";
+                case Search.STATUS:
+                case Search.FIND:                    return Search.Help();
+                     
+                case Control.SET:                    return Control.Help(Control.SET);
+                case Control.CLEAR:                  return Control.Help(Control.CLEAR);
+                case Control_Get.GET:                return Control_Get.Help();
+
+                case Display.PRINT:                  return Display.Help();
+
+                case Label.SAVE:
+                case Label.DELETE:
+                case Label.SHOW:                     return Label.Help(help);
+
+                case QuelleHMI.Verbs.History.REVIEW:
+                case QuelleHMI.Verbs.History.EXPAND: return QuelleHMI.Verbs.History.Help();
+
+                case QuelleHMI.Verbs.System.GENERATE:
+                case QuelleHMI.Verbs.System.REGENERATE:
+                case QuelleHMI.Verbs.System.EXIT:
+                case QuelleHMI.Verbs.System.HELP:    return QuelleHMI.Verbs.System.Help();
             }
             return this.Help();
         }

@@ -10,20 +10,7 @@ namespace QuelleHMI.Controls
         public const uint maxIndentation = 10;
         public const uint minIndentation = 0;
         public const uint defaultIndentation = 0;
-        public string host
-        {
-            get
-            {
-                return this.map.ContainsKey("host") ? this.map["host"] : null;
-            }
-            set
-            {
-                if (value == null)
-                    this.map.Remove("host");
-                else
-                    this.map["host"] = value;
-            }
-        }
+
         public uint indentation
         {
             // 0 means tab ... zero is default

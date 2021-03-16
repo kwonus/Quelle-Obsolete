@@ -15,7 +15,12 @@ namespace QuelleHMI.Verbs
     {
         public const string SYNTAX = "SEARCH";
         public override string syntax { get => SYNTAX; }
-        public const string VERB = "find";
+        public const string FIND = "find";
+        public const string STATUS = "@status";
+
+        public static readonly List<string> EXPLICIT = new List<string>() { STATUS };
+        public static readonly List<string> IMPLICIT = new List<string>() { FIND };
+
         protected Dictionary<UInt64, SearchFragment> searchFragments;
         public IQuelleSearchFragment[] fragments
         {
@@ -48,7 +53,7 @@ namespace QuelleHMI.Verbs
         public Search(HMIStatement statement, UInt32 segmentOrder, HMIPolarity polarity, string segment)
             : base(statement, segmentOrder, polarity, segment, HMIClauseType.IMPLICIT)
         {
-            this.verb = VERB;
+            this.verb = FIND;
         }
         private (string token, int offset, string error) GetNextUnquotedSearchToken(string text, int offset = 0)
         {

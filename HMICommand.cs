@@ -45,28 +45,28 @@ namespace QuelleHMI
 
 		public bool HasMacro()
 		{
-			if (this.explicitClause != null && this.explicitClause.verb == Verbs.Define.SAVE)
+			if (this.explicitClause != null && this.explicitClause.verb == Verbs.Label.SAVE)
 				return true;
 
 			return false;
 		}
-		public Verbs.Define GetMacroDefinition()
+		public Verbs.Label GetMacroDefinition()
 		{
-			if (this.explicitClause != null && this.explicitClause.verb == Verbs.Define.SAVE)
-				return (Verbs.Define)this.explicitClause;
+			if (this.explicitClause != null && this.explicitClause.verb == Verbs.Label.SAVE)
+				return (Verbs.Label)this.explicitClause;
 
 			return null;
 		}
-		public Verbs.Print GetPrintClause()
+		public Verbs.Display GetPrintClause()
 		{
-			if (this.explicitClause != null && this.explicitClause.verb == Verbs.Print.VERB)
-				return (Verbs.Print)this.explicitClause;
+			if (this.explicitClause != null && this.explicitClause.verb == Verbs.Display.PRINT)
+				return (Verbs.Display)this.explicitClause;
 
 			return null;
 		}
 		public bool Search()
         {
-			var client = new SearchProviderClient(QuelleControlConfig.system.host);
+			var client = new SearchProviderClient(QuelleControlConfig.search.host);
 			var request = new QRequestSearch(this.statement); // (IQuelleSearchRequest)
 			IQuelleSearchResult response = client.api.Search(request);
 

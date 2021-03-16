@@ -11,6 +11,7 @@ namespace QuelleHMI.Verbs
         public override string syntax { get => SYNTAX; }
         public const string SET = "set";
         public const string CLEAR = "clear";
+        public static readonly List<string> IMPLICIT = new List<string>() { SET, CLEAR };
         public string controlName { get; private set; }
         public string controlValue { get; private set; }
 

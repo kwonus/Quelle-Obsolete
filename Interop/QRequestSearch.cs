@@ -16,7 +16,7 @@ namespace QuelleHMI
             int cnt = 0;
             foreach (var clause in statement.segmentation.Values)
             {
-                if (clause.verb == Search.VERB)
+                if (clause.verb == Search.FIND)
                     cnt++;
             }
             this.qclauses = new QClauseSearch[cnt];
@@ -24,7 +24,7 @@ namespace QuelleHMI
             var searches = (from key in statement.segmentation.Keys orderby key select statement.segmentation[key]);
             foreach (var clause in searches)
             {
-                if (clause.verb == Search.VERB)
+                if (clause.verb == Search.FIND)
                     this.qclauses[cnt++] = new QClauseSearch((Search) clause);
             }
             this.qcontrols = new QSearchControls();

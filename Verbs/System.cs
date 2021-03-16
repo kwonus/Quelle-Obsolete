@@ -5,12 +5,17 @@ using System.Text;
 
 namespace QuelleHMI.Verbs
 {
-    public class Generate : HMIClause
+    public class System : HMIClause
     {
         public const string SYNTAX = "SYSTEM";
         public override string syntax { get => SYNTAX; }
+        public const string EXIT = "@exit";
+        public const string HELP = "@help";
         public const string GENERATE = "@generate";
         public const string REGENERATE = "@generate!";
+
+        public static readonly List<string> EXPLICIT = new List<string>() { EXIT, HELP, GENERATE, REGENERATE };
+
         public string[] parameters;
 
         private string className;
@@ -20,7 +25,7 @@ namespace QuelleHMI.Verbs
         private bool overwrite;
         private int arguments;
 
-        public Generate(HMIStatement statement,string segment, string verb)
+        public System(HMIStatement statement,string segment, string verb)
         : base(statement, 1, HMIPolarity.UNDEFINED, segment, HMIClauseType.EXPLICIT_INDEPENDENT)
         {
             this.verb = verb;
@@ -34,7 +39,7 @@ namespace QuelleHMI.Verbs
             var max = expanded.Contains('!') ? 6 : 5;
             var tokens = expanded.Split(HMIClause.Whitespace, max, StringSplitOptions.RemoveEmptyEntries);
 
-            if (tokens[0] == Generate.GENERATE || tokens[0] == Generate.REGENERATE)
+            if (tokens[0] == System.GENERATE || tokens[0] == System.REGENERATE)
             {
                 this.verb = tokens[0];
                 this.arguments = (tokens.Length == 3)
@@ -53,7 +58,7 @@ namespace QuelleHMI.Verbs
                     if (this.arguments == 5)
                     {
                         this.output = tokens[4];
-                        this.overwrite = this.verb.Equals(Generate.REGENERATE, StringComparison.InvariantCultureIgnoreCase);
+                        this.overwrite = this.verb.Equals(System.REGENERATE, StringComparison.InvariantCultureIgnoreCase);
                      }
                     return true;
                 }

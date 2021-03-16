@@ -27,6 +27,20 @@ namespace QuelleHMI.Controls
 
         public const bool defaultExact = false;
 
+        public string host
+        {
+            get
+            {
+                return this.map.ContainsKey("host") ? this.map["host"] : null;
+            }
+            set
+            {
+                if (value == null)
+                    this.map.Remove("host");
+                else
+                    this.map["host"] = value;
+            }
+        }
         public string domain
         {
             get
