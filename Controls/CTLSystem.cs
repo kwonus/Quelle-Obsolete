@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace QuelleHMI.Controls
+namespace QuelleHMI.Definitions
 {
     public class CTLSystem: QuelleControlConfig
     {

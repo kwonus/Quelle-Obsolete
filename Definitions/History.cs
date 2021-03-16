@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace QuelleHMI.Controls
+namespace QuelleHMI.Definitions
 {
-    public class QuelleHistory
+    public class History
     {
-        public QuelleHistory()
+        public History()
         {
 
         }

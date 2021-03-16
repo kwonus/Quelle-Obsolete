@@ -1,5 +1,5 @@
 ﻿using MessagePack;
-using QuelleHMI.Controls;
+using QuelleHMI.Definitions;
 
 namespace QuelleHMI
 {

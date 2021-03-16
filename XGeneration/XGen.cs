@@ -1,6 +1,6 @@
-﻿using QuelleHMI.Controls;
+﻿using QuelleHMI.Definitions;
 using QuelleHMI.Fragments;
-using QuelleHMI.Verbs;
+using QuelleHMI.Actions;
 using System;
 using System.Collections.Generic;
 using System.Text;

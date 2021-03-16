@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace QuelleHMI.Controls
+namespace QuelleHMI.Definitions
 {
     public abstract class QuelleControlConfig
     {

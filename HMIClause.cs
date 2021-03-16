@@ -64,29 +64,29 @@ namespace QuelleHMI
                 var tokens = text.Split(Whitespace, StringSplitOptions.RemoveEmptyEntries);
                 switch(tokens[0].ToLower())
                 {
-                    case Verbs.Display.PRINT:     return new Verbs.Display(statement, order, text);
+                    case Actions.Display.PRINT:     return new Actions.Display(statement, order, text);
 
-                    case Verbs.Label.SHOW:
-                    case Verbs.Label.SAVE:
-                    case Verbs.Label.DELETE:      return new Verbs.Label(statement, order, text);
+                    case Actions.Label.SHOW:
+                    case Actions.Label.SAVE:
+                    case Actions.Label.DELETE:      return new Actions.Label(statement, order, text);
 
-                    case Verbs.Control_Get.GET:   return new Verbs.Control_Get(statement, order, text);
+                    case Actions.Control_Get.GET:   return new Actions.Control_Get(statement, order, text);
 
-                    case Verbs.System.GENERATE:   return new Verbs.System(statement, text, Verbs.System.GENERATE);
-                    case Verbs.System.REGENERATE: return new Verbs.System(statement, text, Verbs.System.REGENERATE);
+                    case Actions.System.GENERATE:   return new Actions.System(statement, text, Actions.System.GENERATE);
+                    case Actions.System.REGENERATE: return new Actions.System(statement, text, Actions.System.REGENERATE);
                 }
                 statement.Notify("error", "Unknown verb provided: " + tokens[0]);
                 return null;
             }
             //  Only CONTROL::SET can be implicitly recognized
             //
-            if (Verbs.Control.Test(text))
+            if (Actions.Control.Test(text))
             {
-                return new Verbs.Control(statement, order, text);
+                return new Actions.Control(statement, order, text);
             }
             //  No other segments can be implicitly recognized, it defaults to SEARCH
             //
-            return new Verbs.Search(statement, order, polarity, text);
+            return new Actions.Search(statement, order, polarity, text);
         }
         protected HMIStatement statement;
         public string verb;

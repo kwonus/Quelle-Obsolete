@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace QuelleHMI.Controls
+namespace QuelleHMI.Definitions
 {
     public class CTLDisplay : QuelleControlConfig
     {
@@ -56,20 +56,6 @@ namespace QuelleHMI.Controls
                     this.map["format"] = value;
                     Update();
                 }
-            }
-        }
-        public string output
-        {
-            get
-            {
-                return this.map.ContainsKey("output") ? this.map["output"] : null;
-            }
-            set
-            {
-                if (value == null)
-                    this.map.Remove("output");
-                else
-                    this.map["output"] = value;
             }
         }
         public CTLDisplay(string file): base(file)

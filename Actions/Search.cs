@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace QuelleHMI.Verbs
+namespace QuelleHMI.Actions
 {
     public interface IQuelleSearchClause
     {

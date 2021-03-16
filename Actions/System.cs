@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace QuelleHMI.Verbs
+namespace QuelleHMI.Actions
 {
     public class System : HMIClause
     {

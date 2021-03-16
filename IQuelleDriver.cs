@@ -1,5 +1,5 @@
-﻿using QuelleHMI.Controls;
-using QuelleHMI.Verbs;
+﻿using QuelleHMI.Definitions;
+using QuelleHMI.Actions;
 using System;
 using System.Collections.Generic;
 using System.Text;

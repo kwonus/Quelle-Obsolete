@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using static QuelleHMI.HMIClause;
-using QuelleHMI.Verbs;
-using QuelleHMI.Controls;
+using QuelleHMI.Actions;
+using QuelleHMI.Definitions;
 
 namespace QuelleHMI
 {
@@ -216,13 +216,13 @@ namespace QuelleHMI
                 if (!clause.isImplicit())
                     this.normalized.explicitClause = clause;
 
-                else if (clause.verb == Verbs.Search.FIND)
+                else if (clause.verb == Actions.Search.FIND)
                     Append(ref this.normalized.searches, clause);
 
-                else if (clause.verb == Verbs.Control.CLEAR)
+                else if (clause.verb == Actions.Control.CLEAR)
                     Append(ref this.normalized.removals, clause);
 
-                else if (clause.verb == Verbs.Control.SET)
+                else if (clause.verb == Actions.Control.SET)
                     Append(ref this.normalized.setters, clause);
 
                 else

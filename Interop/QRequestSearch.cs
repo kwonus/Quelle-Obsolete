@@ -1,6 +1,6 @@
 ﻿using MessagePack;
-using QuelleHMI.Controls;
-using QuelleHMI.Verbs;
+using QuelleHMI.Definitions;
+using QuelleHMI.Actions;
 using System.Linq;
 using System;
 

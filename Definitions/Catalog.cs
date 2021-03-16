@@ -1,10 +1,10 @@
 ﻿using QuelleHMI;
-using QuelleHMI.Catalog;
-using QuelleHMI.History;
+using QuelleHMI.Definitions;
+using QuelleHMI.Definitions;
 using System;
 using System.Collections.Generic;
 
-namespace Quelle.History
+namespace Quelle.Definitions
 {
 	public struct Catalog
 	{
@@ -19,7 +19,6 @@ namespace Quelle.History
 
 		public Guid Add(HMIStatement statement)
 		{
-
 			return Guid.Empty;
 		}
 		public void Save(String md5, Guid entry)

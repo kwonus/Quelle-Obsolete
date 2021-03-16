@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Net.Http;
 using QuelleHMI;
-using QuelleHMI.Controls;
-using QuelleHMI.Verbs;
+using QuelleHMI.Definitions;
+using QuelleHMI.Actions;
 using static QuelleHMI.HMISession;
 
 //  This driver implementation depends upon QuelleHMI library
@@ -36,7 +36,7 @@ namespace Quelle.DriverDefault
         {
             string text = "Help is available on each of these topics:\n";
 
-            foreach (var verb in new string[] { QuelleHMI.Verbs.Search.FIND, Control.SET, Control.CLEAR, Label.SAVE, Label.DELETE, Label.SHOW, Display.PRINT, Control_Get.GET, Search.STATUS, QuelleHMI.Verbs.System.GENERATE, QuelleHMI.Verbs.System.REGENERATE, "@exit" })
+            foreach (var verb in new string[] { QuelleHMI.Actions.Search.FIND, Control.SET, Control.CLEAR, Label.SAVE, Label.DELETE, Label.SHOW, Display.PRINT, Control_Get.GET, Search.STATUS, QuelleHMI.Actions.System.GENERATE, QuelleHMI.Actions.System.REGENERATE, "@exit" })
                 text += ("\n\t" + (verb.StartsWith('@') ? verb.Substring(1) : verb));
 
             text += "\n\n";
@@ -54,7 +54,7 @@ namespace Quelle.DriverDefault
             var help = topic.Trim().ToLower();
             if (help.StartsWith('@'))
                 help = help.Substring(1).Trim();
-            foreach (var verb in new string[] { QuelleHMI.Verbs.Search.FIND, Control.SET, Control.CLEAR, Display.PRINT, Label.SAVE, Label.DELETE, Label.SHOW, Control_Get.GET, Search.STATUS, QuelleHMI.Verbs.System.GENERATE, QuelleHMI.Verbs.System.REGENERATE, "@exit" })
+            foreach (var verb in new string[] { QuelleHMI.Actions.Search.FIND, Control.SET, Control.CLEAR, Display.PRINT, Label.SAVE, Label.DELETE, Label.SHOW, Control_Get.GET, Search.STATUS, QuelleHMI.Actions.System.GENERATE, QuelleHMI.Actions.System.REGENERATE, "@exit" })
                 if (verb.EndsWith(help) && verb.StartsWith('@'))
                 {
                     help = '@' + help;
@@ -76,13 +76,13 @@ namespace Quelle.DriverDefault
                 case Label.DELETE:
                 case Label.SHOW:                     return Label.Help(help);
 
-                case QuelleHMI.Verbs.History.REVIEW:
-                case QuelleHMI.Verbs.History.EXPAND: return QuelleHMI.Verbs.History.Help();
+                case QuelleHMI.Actions.History.REVIEW:
+                case QuelleHMI.Actions.History.EXPAND: return QuelleHMI.Actions.History.Help();
 
-                case QuelleHMI.Verbs.System.GENERATE:
-                case QuelleHMI.Verbs.System.REGENERATE:
-                case QuelleHMI.Verbs.System.EXIT:
-                case QuelleHMI.Verbs.System.HELP:    return QuelleHMI.Verbs.System.Help();
+                case QuelleHMI.Actions.System.GENERATE:
+                case QuelleHMI.Actions.System.REGENERATE:
+                case QuelleHMI.Actions.System.EXIT:
+                case QuelleHMI.Actions.System.HELP:    return QuelleHMI.Actions.System.Help();
             }
             return this.Help();
         }

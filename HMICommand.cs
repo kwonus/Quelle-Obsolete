@@ -1,4 +1,4 @@
-﻿using QuelleHMI.Controls;
+﻿using QuelleHMI.Definitions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,22 +45,22 @@ namespace QuelleHMI
 
 		public bool HasMacro()
 		{
-			if (this.explicitClause != null && this.explicitClause.verb == Verbs.Label.SAVE)
+			if (this.explicitClause != null && this.explicitClause.verb == Actions.Label.SAVE)
 				return true;
 
 			return false;
 		}
-		public Verbs.Label GetMacroDefinition()
+		public Actions.Label GetMacroDefinition()
 		{
-			if (this.explicitClause != null && this.explicitClause.verb == Verbs.Label.SAVE)
-				return (Verbs.Label)this.explicitClause;
+			if (this.explicitClause != null && this.explicitClause.verb == Actions.Label.SAVE)
+				return (Actions.Label)this.explicitClause;
 
 			return null;
 		}
-		public Verbs.Display GetPrintClause()
+		public Actions.Display GetPrintClause()
 		{
-			if (this.explicitClause != null && this.explicitClause.verb == Verbs.Display.PRINT)
-				return (Verbs.Display)this.explicitClause;
+			if (this.explicitClause != null && this.explicitClause.verb == Actions.Display.PRINT)
+				return (Actions.Display)this.explicitClause;
 
 			return null;
 		}
