@@ -66,7 +66,7 @@ In Quelle terminology, a statement is made up of actions. Each action has a sing
 
 ### IV. Fundamental Quelle Commands
 
-Learning just five verbs is all that is necessary to effectively use Quelle. In the table below, each verb has a minimum and maximum number of parameters.  Each of these verbs are described below in this section.
+Learning just five verbs is all that is necessary to effectively use Quelle. In the table below, each verb has a minimum and maximum number of parameters.  Each of these verbs are described below and in this section.
 
 | Verb       | Action Type | Syntax Category | Required Parameters     | Required Operators | Optional Operators |
 | ---------- | :---------: | :-------------- | ----------------------- | :----------------: | :----------------: |
