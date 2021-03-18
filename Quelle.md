@@ -66,7 +66,7 @@ In Quelle terminology, a statement is made up of actions. Each action has a sing
 
 ### IV. Fundamental Quelle Commands
 
-Learning just six verbs is all that is necessary to effectively use Quelle. In the table below, each verb has a minimum and maximum number of parameters.  Each of these verbs are described below in this section.
+Learning just five verbs is all that is necessary to effectively use Quelle. In the table below, each verb has a minimum and maximum number of parameters.  Each of these verbs are described below in this section.
 
 | Verb       | Action Type | Syntax Category | Required Parameters     | Required Operators | Optional Operators |
 | ---------- | :---------: | :-------------- | ----------------------- | :----------------: | :----------------: |
@@ -76,9 +76,7 @@ Learning just six verbs is all that is necessary to effectively use Quelle. In t
 | **@help**  |  explicit   | SYSTEM          | 0 or 1                  |                    |                    |
 | **@exit**  |  explicit   | SYSTEM          | 0                       |                    |                    |
 
-**TABLE 4-1** -- **The five fundamental Quelle command with corresponding syntax summaries**
-
-In Table 4-1 above, four of the six syntax categories are represented.
+**TABLE 4-1** -- **The five fundamental Quelle commands with corresponding syntax summaries**
 
 From a linguistic standpoint, all Quelle commands are issued in the imperative. The subject of the verb is always "you understood". As the user, you are commanding Quelle what to do. Some verbs have direct objects [aka required parameters]. These parameters instruct Quelle <u>what</u> to act upon. The syntax category of the verb dictates the required parameters.
 
@@ -336,7 +334,7 @@ Type this to terminate the Quelle interpreter:
 | *clear*     |  implicit   | CONTROL         | **1**: *control_name*   |       **=@**       |                    |              |
 | **@get**    |  explicit   | CONTROL         | **0+**: *control_names* |                    |                    |              |
 
-**TABLE 9-1** -- **Listing of all SEARCH & CONTROL actions**
+**TABLE 9-1** -- **Listing of all SEARCH & CONTROL actions** *(the two primary verbs find and set are listed here again just for clarity)*
 
 **CONTROL::SETTING directives:**
 
