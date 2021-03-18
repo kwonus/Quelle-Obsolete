@@ -10,12 +10,6 @@ namespace QuelleHMI
 {
     public class HMIStatement
     {
-        public enum SettingOperation
-        {
-            Read = 0,
-            Write = 1,
-            Remove = (-1)
-        }
         public HMICommand command { get; protected set; }
         public void Notify(string mode, string message)
         {
@@ -29,13 +23,6 @@ namespace QuelleHMI
         public Dictionary<UInt32, HMIClause> segmentation { get; private set; }
 
         protected (bool simple, HMIClause explicitClause, HMIClause[] setters, HMIClause[] removals, HMIClause[] searches) normalized;
-        public HMIClause explicitClause
-        {
-            get
-            {
-                return normalized.explicitClause;
-            }
-        }
 
         public static string SquenchAndNormalizeText(string text)
         {
@@ -110,37 +97,18 @@ namespace QuelleHMI
                     polarity = positives;
                     last = i + 1;
                 }
-                else if (c == '!')  // ::clear! syntax counts as a segment delimiter
+                else if (c == '-' && i < len-1) // look for --
                 {
-                    polarity.Add(order++, this.statement.Substring(last, 1 + i - last).Trim());
-                    polarity = positives;
-                    last = i + 1;
-                }
-                else if (c == '@')
-                {
-                    positives.Add(order++, this.statement.Substring(last));
-                    break;
-                }
-                else
-                {
-                    if (c != '-' || i >= len - 1)
-                        continue;
-
-                    char next = this.statement[i + 1];
-
-                    if (last < i)
+                    char next = this.statement[i+1];
+                    if (next == '-' && last < i)
                     {
-                        if (next == '-')
-                        {
-                            polarity.Add(order++, this.statement.Substring(last, i - last).Trim());
-                            polarity = negatives;
-                            last = i + 2;
-                            i++;
-                        }
+                        polarity.Add(order++, this.statement.Substring(last, i - last).Trim());
+                        polarity = negatives;
+                        last = i + 2;
+                        i++;
                     }
                 }
             }
-
             this.segmentation = new Dictionary<UInt32, HMIClause>();
             i = 0;
             // Eliminate duplicate segments (NOTE [-] polarity has precedence over [+] polarity)
@@ -242,18 +210,6 @@ namespace QuelleHMI
                 if (!this.Normalize())
                     return false;
 
-                if (command.HasMacro())
-                {
-                    // TODO: some redundancy is going on here
-                    var macroDef = command.GetMacroDefinition();
-                    var result = QuelleMacro.Create(macroDef.macroName, command.statement.statement);
-                    if (result == null)
-                    {
-                        this.Notify("error", "Could not create macro");
-                        return false;
-                    }
-                    return true;
-                }
                 if (normalized.simple)
                 {
                     ok = normalized.explicitClause.Execute();

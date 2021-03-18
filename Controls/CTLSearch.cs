@@ -6,15 +6,19 @@ namespace QuelleHMI.Definitions
 {
     public interface IQuelleSearchControls
     {
-        public string domain
+        string domain
         {
             get;
         }
-        public uint span
+        uint span
         {
             get;
         }
-        public bool exact
+        bool exact
+        {
+            get;
+        }
+        string host
         {
             get;
         }
@@ -96,7 +100,32 @@ namespace QuelleHMI.Definitions
         }
         public CTLSearch(string file) : base(file)
         {
+            if (!this.map.ContainsKey("host"))
+                this.map.Add("host", this.host);
+            if (!this.map.ContainsKey("domain"))
+                this.map.Add("domain", this.domain);
+            if (!this.map.ContainsKey("span"))
+                this.map.Add("span", this.span.ToString());
+            if (!this.map.ContainsKey("exact"))
+                this.map.Add("exact", this.exact ? "true" : "false");
+        }
+        private CTLSearch(QuelleControlConfig source) : base(source)    // Copy constructor
+        {
             ;
+        }
+        public IQuelleSearchControls CreateCopy
+        {
+            get
+            {
+                return new CTLSearch(this);
+            }
+        }
+        public void Update(string host, string domain, uint span, bool exact)
+        {
+            this.host   = host;
+            this.domain = domain;
+            this.span   = span;
+            this.exact  = exact;
         }
     }
 }

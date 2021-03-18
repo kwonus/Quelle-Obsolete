@@ -4,7 +4,22 @@ using System.Text;
 
 namespace QuelleHMI.Definitions
 {
-    public class CTLDisplay : QuelleControlConfig
+    public interface IQuelleDisplayControls
+    {
+        string heading
+        {
+            get;
+        }
+        string record
+        {
+            get;
+        }
+        string format
+        {
+            get;
+        }
+    }
+    public class CTLDisplay : QuelleControlConfig, IQuelleDisplayControls
     {
         private static List<string> formats = new List<string>() { "text", "html", "md" };
         public string heading
@@ -60,7 +75,29 @@ namespace QuelleHMI.Definitions
         }
         public CTLDisplay(string file): base(file)
         {
+            if (!this.map.ContainsKey("heading"))
+                this.map.Add("heading", this.heading);
+            if (!this.map.ContainsKey("record"))
+                this.map.Add("record", this.heading);
+            if (!this.map.ContainsKey("format"))
+                this.map.Add("format", this.heading);
+        }
+        private CTLDisplay(QuelleControlConfig source) : base(source)    // Copy constructor
+        {
             ;
+        }
+        public IQuelleDisplayControls CreateCopy
+        {
+            get
+            {
+                return new CTLDisplay(this);
+            }
+        }
+        public void Update(string heading, string record, string format)
+        {
+            this.heading = heading;
+            this.record  = record;
+            this.format  = format;
         }
     }
 }

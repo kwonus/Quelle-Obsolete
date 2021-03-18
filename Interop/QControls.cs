@@ -9,17 +9,19 @@ namespace QuelleHMI
         public QSearchControls(): base() { /*for msgpack*/ }
 
         [Key(1)]
-        public string domain { get; set; }
+        public string host { get; set; }
         [Key(2)]
-        public uint span { get; set; }
+        public string domain { get; set; }
         [Key(3)]
+        public uint span { get; set; }
+        [Key(4)]
         public bool exact { get; set; }
-
         public QSearchControls(IQuelleSearchControls icontrols)
         {
+            this.host   = icontrols.host;
             this.domain = icontrols.domain;
-            this.span = icontrols.span;
-            this.exact = icontrols.exact;
+            this.span   = icontrols.span;
+            this.exact  = icontrols.exact;
         }
     }
 }

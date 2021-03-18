@@ -9,13 +9,13 @@
    - set
    - clear
    - get
-3. LABEL
+3. DISPLAY
+   - print
+4. LABEL
    - save
    - delete
    - show
    - execute
-4. DISPLAY
-   - print
 5. HISTORY
    - review
    - invoke
@@ -24,23 +24,23 @@
    - generate
    - exit
 
-| Verb          | Action Type | Syntax Category | Required Parameters     | Required Operators | Optional Operators | Provider or Driver |
-| ------------- | :---------: | --------------- | ----------------------- | :----------------: | :----------------: | ------------------ |
-| *find*        |  implicit   | SEARCH          | **1**: *search spec*    |                    |  **" " [ ] ( )**   | provider           |
-| **@status**   | independent | SEARCH          | 0 or 1                  |                    |                    | provider           |
-| *set*         |  implicit   | CONTROL         | **2**: *name* = *value* |       **=**        |                    | driver             |
-| *clear*       |  implicit   | CONTROL         | **1**: *control_name*   |       **=@**       |                    | driver             |
-| **@get**      | independent | CONTROL         | **0+**: *control_names* |                    |                    | driver             |
-| **@print**    |  dependent  | DISPLAY         | **0+**: *identifiers*   |                    |      **[ ]**       | provider           |
-| **@save**     |  dependent  | LABEL           | **1**: *macro_label*    |                    |                    | driver             |
-| **@delete**   | independent | LABEL           | **1+**: *macro_labels*  |      **{ }**       |                    | driver             |
-| **@show**     | independent | LABEL           | **0+**: *macro_labels*  |                    |      **{ }**       | driver             |
-| *execute*     |  implicit   | LABEL           | 1                       |      **{ }**       |                    | driver             |
-| **@review**   | independent | HISTORY         | 0 or 1                  |                    |                    | driver             |
-| *invoke*      |  implicit   | HISTORY         | 1                       |      **{ }**       |                    | driver             |
-| **@help**     | independent | SYSTEM          | 0 or 1                  |                    |                    | driver             |
-| **@generate** | independent | SYSTEM          | 2 or 4                  |                    |      **! >**       | driver (hidden)    |
-| **@exit**     | independent | SYSTEM          | 0                       |                    |                    | driver             |
+| Verb          | Syntax Category | Required Parameters     | Required Operators | Optional Operators | Provider or Driver |
+| ------------- | --------------- | ----------------------- | :----------------: | :----------------: | ------------------ |
+| *find*        | SEARCH          | **1**: *search spec*    |                    |  **" " [ ] ( )**   | provider           |
+| **@status**   | SEARCH          | 0 or 1                  |                    |                    | provider           |
+| *set*         | CONTROL         | **2**: *name* = *value* |       **=**        |                    | driver             |
+| *clear*       | CONTROL         | **1**: *control_name*   |       **=@**       |                    | driver             |
+| **@get**      | CONTROL         | **0+**: *control_names* |                    |                    | driver             |
+| **@print**    | DISPLAY         | **0+**: *identifiers*   |                    |   **[ ]  !  >**    | provider           |
+| **@save**     | LABEL           | **1**: *macro_label*    |                    |                    | driver             |
+| **@delete**   | LABEL           | **1+**: *macro_labels*  |      **{ }**       |                    | driver             |
+| **@show**     | LABEL           | **0+**: *macro_labels*  |                    |      **{ }**       | driver             |
+| *execute*     | LABEL           | 1                       |      **{ }**       |                    | driver             |
+| **@review**   | HISTORY         | 0 or 1                  |                    |                    | driver             |
+| *invoke*      | HISTORY         | 1                       |      **{ }**       |                    | driver             |
+| **@help**     | SYSTEM          | 0 or 1                  |                    |                    | driver             |
+| **@generate** | SYSTEM          | 2 or 4                  |                    |      **!  >**      | driver (hidden)    |
+| **@exit**     | SYSTEM          | 0                       |                    |                    | driver             |
 
 One command not listed in the users guide is @generate. While not a normal user function, it can be useful for Quelle Search Provider developers as it generates code for interop with the standard C# reference implementation.
 
@@ -91,8 +91,7 @@ NOTE: To be clear, the standard Quelle driver does <u>not</u> utilize gRPC or Pr
 | display.heading    | heading     | heading of results                                          | string                                 | no                        |                                   |
 | display.record     | record      | fetch result annotations                                    | string                                 | no                        |                                   |
 | display.format     | format      | page result format                                          | Table 9-2                              | yes                       |                                   |
-| display.output     | output      | save page result to file                                    | filename                               | no                        |                                   |
-| system.indentation | indentation | specifies tabs or spaces on when invoking @generate command | tab, spaces:2, spaces:3, spaces:4, ... | no                        | hidden and not persisted          |
+| system.indentation | indentation | specifies tabs or spaces on when invoking @generate command | tab, spaces:2, spaces:3, spaces:4, ... | no                        | hidden                            |
 
 Macros are yaml files which include values for all controls.  In the example below, the yaml file would be *named my-macro-label.yaml*.  Macros are always case-insensitive.  And hyphens and spaces are synonymous when naming the macro.
 
@@ -135,7 +134,6 @@ display.yaml
 heading: !!null
 record: !!null
 format: html
-output: !!null
 ```
 
 
@@ -143,7 +141,7 @@ output: !!null
 system.yaml
 
 ```yaml
-NOT PERSISTED!
+indentation: 0
 ```
 
 

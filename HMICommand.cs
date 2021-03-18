@@ -9,13 +9,6 @@ namespace QuelleHMI
     public class HMICommand
     {
 		public HMIStatement statement { get; private set; }
-		public HMIClause explicitClause
-        {
-			get
-			{
-				return this.statement != null ? statement.explicitClause : null;
-			}
-        }
 		public string command { get; private set; }
 		public List<string> errors { get; private set; }
 		public List<string> warnings { get; private set; }
@@ -43,27 +36,6 @@ namespace QuelleHMI
 			}
         }
 
-		public bool HasMacro()
-		{
-			if (this.explicitClause != null && this.explicitClause.verb == Actions.Label.SAVE)
-				return true;
-
-			return false;
-		}
-		public Actions.Label GetMacroDefinition()
-		{
-			if (this.explicitClause != null && this.explicitClause.verb == Actions.Label.SAVE)
-				return (Actions.Label)this.explicitClause;
-
-			return null;
-		}
-		public Actions.Display GetPrintClause()
-		{
-			if (this.explicitClause != null && this.explicitClause.verb == Actions.Display.PRINT)
-				return (Actions.Display)this.explicitClause;
-
-			return null;
-		}
 		public bool Search()
         {
 			var client = new SearchProviderClient(QuelleControlConfig.search.host);

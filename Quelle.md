@@ -59,6 +59,10 @@ In Quelle terminology, a statement is made up of actions. Each action has a sing
    - review
    - invoke
 6. LABEL
+   - save
+   - delete
+   - show
+   - execute
 
 ### IV. Fundamental Quelle Commands
 
@@ -68,38 +72,36 @@ Learning just six verbs is all that is necessary to effectively use Quelle. In t
 | ---------- | :---------: | :-------------- | ----------------------- | :----------------: | :----------------: |
 | *find*     |  implicit   | SEARCH          | **1**: *search spec*    |                    |  **" " [ ] ( )**   |
 | *set*      |  implicit   | CONTROL         | **2**: *name* = *value* |       **=**        |                    |
-| **@print** |  dependent  | DISPLAY         | **0+**: *identifiers*   |                    |   **[ ]  !  >**    |
-| **@help**  | independent | SYSTEM          | 0 or 1                  |                    |                    |
-| **@exit**  | independent | SYSTEM          | 0                       |                    |                    |
+| **@print** |  explicit   | DISPLAY         | **0+**: *identifiers*   |                    |   **[ ]  !  >**    |
+| **@help**  |  explicit   | SYSTEM          | 0 or 1                  |                    |                    |
+| **@exit**  |  explicit   | SYSTEM          | 0                       |                    |                    |
 
 **TABLE 4-1** -- **The five fundamental Quelle command with corresponding syntax summaries**
 
-In Table 4-1 above, four of the six syntax categories are represented.  Moreover, all Quelle action types are represented with just this handful of fundamental commands.
+In Table 4-1 above, four of the six syntax categories are represented.
+
+From a linguistic standpoint, all Quelle commands are issued in the imperative. The subject of the verb is always "you understood". As the user, you are commanding Quelle what to do. Some verbs have direct objects [aka required parameters]. These parameters instruct Quelle <u>what</u> to act upon. The syntax category of the verb dictates the required parameters.
 
 Quelle supports two types of actions:
 
 1. Implicit actions [implicit actions are inferred from the syntax of their parameters]
 2. Explicit actions [The verb needs to be explicitly stated in the command and it begins with **@**]
 
-There are two flavors of explicit actions.  Most explicit actions are independent, meaning that they can be executed independently of any other actions.  Dependent actions require that a search has already been initiated. In other words, such actions depend on the most previously executed search.
-
-Some actions can be combined into compound statements.  However, compound statements are limited to contain ONLY implicit actions. Consequently, explicit actions cannot be used to construct a compound statement.
+Implicit actions can be combined into compound statements.  However, compound statements are limited to contain ONLY implicit actions. This means that explicit actions cannot be used to construct a compound statement.
 
 Constructing a compound statement with multiple implicit actions, involves delimiting each action with semi-colons. As search is a fundamental concern of Quelle, it is optimized to make compound implicit actions easy to construct with a concise and and intuitive syntax.
-
-From a linguistic standpoint, all Quelle commands are issued in the imperative. The subject of the verb is always "you understood". As the user, you are commanding Quelle what to do. Some verbs have direct objects [aka required parameters]. These parameters instruct Quelle <u>what</u> to act upon. The syntax category of the verb dictates the required parameters (Incidentally, Quelle *@help* topics are organized around syntax categories).
 
 Even before we describe Quelle syntax generally, let's examine these concepts using examples:
 
 | Description                                  | Example                                       |
 | -------------------------------------------- | :-------------------------------------------- |
-| Explicit independent SYSTEM action           | @help                                         |
-| Explicit dependent DISPLAY action            | @print [*]                                    |
+| Explicit SYSTEM action                       | @help                                         |
+| Explicit DISPLAY action                      | @print [*]                                    |
 | Implicit single SEARCH action                | this is some text expected to be found        |
 | Compound statement: SEARCH & DISPLAY actions | this is some text expected to be found @print |
 | Compound statement: two SEARCH actions       | "this quoted text" ; other unquoted text      |
 | Compound statement: two CONTROL actions      | span=7 ; exact = true                         |
-| Compound: CONTROL & SEARCH                   | span=7; "Moses said"                          |
+| Compound statement: CONTROL & SEARCH         | span=7; "Moses said"                          |
 
 **TABLE 4-2** -- **Examples of Quelle statement types**
 
@@ -329,10 +331,10 @@ Type this to terminate the Quelle interpreter:
 | Verb        | Action Type | Syntax Category | Required Parameters     | Required Operators | Optional Operators | Primary Verb |
 | ----------- | :---------: | --------------- | ----------------------- | :----------------: | ------------------ | ------------ |
 | *find*      |  implicit   | SEARCH          | **1**: *search spec*    |                    | **" " [ ] ( )**    | yes          |
-| **@status** | independent | SEARCH          | 0                       |                    |                    |              |
+| **@status** |  explicit   | SEARCH          | 0                       |                    |                    |              |
 | *set*       |  implicit   | CONTROL         | **2**: *name* = *value* |       **=**        |                    | yes          |
 | *clear*     |  implicit   | CONTROL         | **1**: *control_name*   |       **=@**       |                    |              |
-| **@get**    | independent | CONTROL         | **0+**: *control_names* |                    |                    |              |
+| **@get**    |  explicit   | CONTROL         | **0+**: *control_names* |                    |                    |              |
 
 **TABLE 9-1** -- **Listing of all SEARCH & CONTROL actions**
 
@@ -424,7 +426,7 @@ If no search.host has been configured, the default host is http://localhost:1611
 
 | Verb        | Action Type | Syntax Category | Required Arguments | Required Operators |
 | ----------- | ----------- | --------------- | ------------------ | :----------------: |
-| **@review** | independent | HISTORY         | 0 or 1             |                    |
+| **@review** | explicit    | HISTORY         | 0 or 1             |                    |
 | *invoke*    | implicit    | HISTORY         | 1: historic-id     |      **{ }**       |
 
 ##### **TABLE 10-1 -- Reviewing history and re-invoking previous commands**

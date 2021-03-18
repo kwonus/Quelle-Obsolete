@@ -28,7 +28,16 @@ namespace QuelleHMI.Definitions
             QuelleControlConfig.Configuration.Add(QuelleControlConfig.DISPLAY, new CTLDisplay(displayConf));
             QuelleControlConfig.Configuration.Add(QuelleControlConfig.SYSTEM, new CTLSystem(systemConf));
         }
+        protected QuelleControlConfig(QuelleControlConfig source) // for subclass copy constructors
+        {
+            this.conf = null;
+            this.map = new Dictionary<string, string>();
 
+            foreach (String key in source.map.Keys)
+            {
+                this.map.Add(key, source.map[key]);
+            }
+        }
         public QuelleControlConfig (string file)
         {
             this.conf = file;
@@ -48,13 +57,13 @@ namespace QuelleHMI.Definitions
             {
                 for (string line = reader.ReadLine(); line != null; line = reader.ReadLine())
                 {
-                    var parts = line.Split(new char[] { '=' }, 2, StringSplitOptions.None);
+                    var parts = line.Split(new char[] { ':' }, 2, StringSplitOptions.None);
                     if (parts.Length == 2)
                     {
                         parts[0] = parts[0].Trim();
                         parts[1] = parts[1].Trim();
 
-                        if (parts[0].Length > 0 && parts[1].Length > 0)
+                        if (parts[0].Length > 0 && parts[1].Length > 0 && !parts[1].Trim().StartsWith("!!null"))
                         {
                             this.map.Add(parts[0], parts[1]);
                         }
@@ -73,13 +82,12 @@ namespace QuelleHMI.Definitions
                 foreach (var entry in this.map)
                 {
                     writer.Write(entry.Key);
-                    writer.Write("\t= ");
-                    writer.WriteLine(entry.Value);
+                    writer.Write(": ");
+                    writer.WriteLine(entry.Value != null ? entry.Value : "!!null");
                 }
             }
             result.ok = true;
             return result;
-
         }
         public (bool ok, string message) Update()
         {
@@ -88,17 +96,6 @@ namespace QuelleHMI.Definitions
         public (bool ok, string message) Retreive()
         {
             return this.Read(this.conf);
-        }
-        public (bool ok, string message) Backup(string file)
-        {
-            return this.Write(file);
-        }
-        public (bool ok, string message) Restore(string file)
-        {
-            var result = this.Read(file);
-            if (result.ok)
-                result = this.Write(this.conf);
-            return result;
         }
         protected readonly static char[] dot = new char[] { '.' };
 

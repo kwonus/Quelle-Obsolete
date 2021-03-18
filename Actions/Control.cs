@@ -15,11 +15,10 @@ namespace QuelleHMI.Actions
         public string controlName { get; private set; }
         public string controlValue { get; private set; }
 
-        public Control(HMIStatement statement, UInt32 segmentOrder, string segment)
-    : base(statement, segmentOrder, HMIPolarity.UNDEFINED, segment, HMIClauseType.IMPLICIT)
+        public Control(HMIStatement statement, UInt32 segmentOrder, string verb, string segment)
+        : base(statement, segmentOrder, HMIPolarity.UNDEFINED, segment, HMIClauseType.IMPLICIT)
         {
-            if (this.verb == null)
-                this.verb = this.syntax;
+            this.verb = verb;
         }
         protected override bool Parse()
         {
@@ -28,12 +27,12 @@ namespace QuelleHMI.Actions
                 this.Notify("error", "Cannot parse an empty clause");
                 return false;
             }
-            var pair = Control.GetTokenPair(this.segment);
-            if (pair.token != null && pair.token.Length >= 1 && pair.error == null)
+            var action = Control.GetAction(this.segment);
+            if (action.tokens != null && action.tokens.Length >= 1 && action.error == null)
             {
-                this.controlName = pair.token[0].Trim();
-                this.controlValue = pair.token.Length > 1 ? pair.token[1].Trim() : null;
-                this.verb = pair.verb;
+                this.controlName = action.tokens[0].Trim();
+                this.controlValue = action.tokens.Length > 1 ? action.tokens[1].Trim() : null;
+                this.verb = action.verb;
             }
             return this.verb == Control.CLEAR || this.verb == Control.SET;
         }
@@ -41,7 +40,7 @@ namespace QuelleHMI.Actions
         {
             if (this.errors.Count == 0)
             {
-                var result = QuelleMacro.Create(this.controlName, this.controlValue);
+                var result = IExpand.Create(this.controlName, this.statement);
                 if (result == null)
                 {
                     this.errors.Add("Could not create macro");
@@ -49,99 +48,44 @@ namespace QuelleHMI.Actions
             }
             return (this.errors.Count == 0);
         }
-        private static (string verb, string[] token, string error) GetTokenPair(string text)
+        public static (string verb, string[] tokens, string error) GetAction(string text)
         {
-            // TODO: How to handle =@
-            int i;
-            int offset;
-            int len = text.Length;
-            (string verb, string[] tokens, string error) result = (Control.SYNTAX, null, null);
-
-            for (offset = 0; offset < len; offset++)
-            {
-                char c = text[offset];
-                if (!char.IsWhiteSpace(c))
-                    break;
-            }
-            if (offset >= len)
-            {
-                return result;          // this is not an error. It just means that there was trailing whitespace
-            }
-            bool c_quoted = false;
             string[] tokens = null;
-            string remainder;
-            for (i = offset; i < len; i++)
+            string error = null;
+            int equals = text.IndexOf('=');
+            if (equals > 0 && equals+1 < text.Length)
             {
-                if (c_quoted)
+                var value = text.Substring(equals+1).Trim();
+                var first = text.Substring(0, equals).Trim();
+                string control;
+                if (QuelleControlConfig.IsControl(first, out control))
                 {
-                    c_quoted = false;
-                    i++;
-                    continue;
-                }
-                char c = text[i];
-                if ((tokens == null) && c == '\\')
-                {
-                    c_quoted = true;
-                    continue;
-                }
-                remainder = text.Substring(i);
-                if (c == '=')
-                {
-                    if (i + 1 < len)
+                    if (value.Length > 0)
                     {
-                        result.verb = Control.SET;
-                        tokens = new string[] { text.Substring(offset, i - offset).Trim().ToLower(), text.Substring(i + 1).Trim().ToLower() };
+                        if (value == "@")  // This is a CONTROL::clear
+                            return (Control.CLEAR, new string[] { control }, null);
+
+                        return (Control.SET, new string[] { control, value }, null);
                     }
-                    break;
+                    return (Control.SET, new string[] { control, value }, "Attempting to set an unknown control");
                 }
-                else if (remainder.StartsWith("::"))
+                else
                 {
-                    var semicolon = i;
-                    if (i + 2 < len)
+                    if (value.Length > 0)
                     {
-                        i += 2;
-                        remainder = remainder.Substring(2).Trim().ToLower();
-                        if (remainder.StartsWith(Control.CLEAR) && ((i + Control.CLEAR.Length) < len))
-                        {
-                            i += Control.CLEAR.Length;
-                            remainder = remainder.Substring(Control.CLEAR.Length).Trim();
-                            if (remainder.StartsWith('!'))
-                            {
-                                result.verb = Control.CLEAR;
-                                tokens = new string[] { text.Substring(offset, semicolon - offset).Trim().ToLower() };
-                            }
-                        }
+                        if (value == "@")  // This is a CONTROL::clear
+                            return (Control.CLEAR, new string[] { control }, "Attempting to clear an unknown control");
+
+                        return (Control.SET, new string[] { control, value }, "Attempting to set an unknown control");
                     }
-                    break;
+                    return (Control.SET, new string[] { control, value }, "Unknown control and invalid syntax");
                 }
             }
-            if (tokens != null && tokens[0] != null && tokens[0].Length > 0 && ((result.verb == Control.CLEAR) || (result.verb != Control.SET && tokens[1] != null && tokens[1].Length > 0)))
+            else if (equals >= 0)
             {
-                string normalized;
-                if (QuelleControlConfig.IsControl(tokens[0], out normalized))
-                {
-                    tokens[0] = normalized;
-                    result.tokens = tokens;
-                    return result;
-                }
+                return (Control.SET, null, "Invalid CONTROL syntax: Badly placed equal sign");
             }
-            result.error = "Comtrol setting is malformed";
-            return result;
-        }
-        //  Assume that an explicit verb has not been passed
-        //  (We will not be looking for explicit verbs here)
-        //
-        public static bool Test(string text)
-        {
-            if (text != null && text.Trim().Length > 0)
-            {
-                var pair = Control.GetTokenPair(text);
-                if (pair.token != null && pair.error == null)
-                {
-                    return (pair.verb == Control.CLEAR && pair.token.Length == 1) || (pair.verb == Control.SET && pair.token.Length == 2 && pair.token[1].Length > 0);
-                }
-            }
-            return false;
+            return (null, null, null);  // NOT A CONTROL ... AND NO ERRORS
         }
         public static string Help(string verb)  // SET or CLEAR
         {

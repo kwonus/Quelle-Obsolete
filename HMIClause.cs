@@ -45,7 +45,7 @@ namespace QuelleHMI
         {
             UNDEFINED = 0xF,
             IMPLICIT = 0,
-            EXPLICIT_DEPENDENT = 2,             // e.g. @define
+            EXPLICIT_DEPENDENT = 2,             // e.g. @save
             EXPLICIT_INDEPENDENT = 1            // e.g. @print: not simple AND not dependent, but positionally similar to both
         }
  
@@ -78,11 +78,17 @@ namespace QuelleHMI
                 statement.Notify("error", "Unknown verb provided: " + tokens[0]);
                 return null;
             }
-            //  Only CONTROL::SET can be implicitly recognized
+            //  Only CONTROL::SET/CONTROL::CLEAR can be implicitly recognized
             //
-            if (Actions.Control.Test(text))
+            var controlAction = Actions.Control.GetAction(text);
+            if (controlAction.error != null)
             {
-                return new Actions.Control(statement, order, text);
+                statement.Notify("error", controlAction.error);
+                return null;
+            }
+            else if (controlAction.verb != null && controlAction.tokens != null)
+            {
+                return new Actions.Control(statement, order, controlAction.verb, text);
             }
             //  No other segments can be implicitly recognized, it defaults to SEARCH
             //

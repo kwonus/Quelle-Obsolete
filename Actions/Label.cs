@@ -35,7 +35,7 @@ namespace QuelleHMI.Actions
         {
             if (this.errors.Count == 0)
             {
-                var result = QuelleMacro.Create(this.macroName, this.macroValue);
+                var result = new Macro(this.macroName, this.statement);
                 if (result == null)
                 {
                     this.errors.Add("Could not create macro");
