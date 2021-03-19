@@ -11,6 +11,7 @@ namespace QuelleHMI.Definitions
         public const uint minIndentation = 0;
         public const uint defaultIndentation = 0;
         public const string INDENTATION = "indentation";
+        public readonly List<string> CONTROLS = new List<string>() { INDENTATION };
 
         public uint? indentation
         {

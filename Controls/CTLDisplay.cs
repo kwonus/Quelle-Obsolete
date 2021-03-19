@@ -24,6 +24,7 @@ namespace QuelleHMI.Definitions
         public const string HEADING = "heading";
         public const string RECORD = "record";
         public const string FORMAT = "format";
+        public readonly List<string> CONTROLS = new List<string>() { HEADING, RECORD, FORMAT };
 
         private static List<string> formats = new List<string>() { "text", "html", "md" };
         public string heading

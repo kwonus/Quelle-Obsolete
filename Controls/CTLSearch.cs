@@ -35,6 +35,7 @@ namespace QuelleHMI.Definitions
         public const string DOMAIN = "domain";
         public const string SPAN = "span";
         public const string EXACT = "exact";
+        public readonly List<string> CONTROLS = new List<string>() { HOST, DOMAIN, SPAN, EXACT };
 
         public string host
         {

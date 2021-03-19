@@ -142,40 +142,23 @@ namespace QuelleHMI.Definitions
                     return false;
 
                 parts[0] = parts[0].ToLower();
+                parts[1] = parts[1].ToLower();
 
-                if (QuelleControlConfig.Configuration.ContainsKey(parts[0]))
-                {
-                    parts[1] = parts[1].ToLower();
-                    var config = QuelleControlConfig.Configuration[parts[0]];
-                    var found = config.map.ContainsKey(parts[1]) || (parts[1] == "*");
-                    if (found)
-                    {
-                        normalizedName = candidate.ToLower();
-                        return true;
-                    }
+                switch (parts[0])
+                { 
+                    case QuelleControlConfig.SEARCH:  return QuelleControlConfig.search.CONTROLS.Contains(parts[1]);
+                    case QuelleControlConfig.DISPLAY: return QuelleControlConfig.display.CONTROLS.Contains(parts[1]);
+                    case QuelleControlConfig.SYSTEM:  return QuelleControlConfig.system.CONTROLS.Contains(parts[1]);
+                    default: return false;
                 }
             }
             else
             {
-                var lower = candidate.ToLower();
-
-                if (QuelleControlConfig.Configuration.ContainsKey(lower))
-                {
-                    normalizedName = lower + ".*";
-                    return true;
-                }
-                foreach (var key in QuelleControlConfig.Configuration.Keys)
-                {
-                    var config = QuelleControlConfig.Configuration[key];
-
-                    if (config.map.ContainsKey(lower))
-                    {
-                        normalizedName = key + "." + lower;
-                        return true;
-                    }
-                }
+                candidate = candidate.ToLower();
+                return QuelleControlConfig.search.CONTROLS.Contains(candidate)
+                    || QuelleControlConfig.display.CONTROLS.Contains(candidate)
+                    || QuelleControlConfig.system.CONTROLS.Contains(candidate);
             }
-            return false;
         }
     }
 }
