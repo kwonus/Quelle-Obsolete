@@ -10,11 +10,11 @@ namespace QuelleHMI.Definitions
         {
             get;
         }
-        uint span
+        uint? span
         {
             get;
         }
-        bool exact
+        bool? exact
         {
             get;
         }
@@ -31,39 +31,66 @@ namespace QuelleHMI.Definitions
 
         public const bool defaultExact = false;
 
+        public const string HOST = "host";
+        public const string DOMAIN = "domain";
+        public const string SPAN = "span";
+        public const string EXACT = "exact";
+
         public string host
         {
             get
             {
-                return this.map.ContainsKey("host") ? this.map["host"] : null;
+                return this.map.ContainsKey(HOST) ? this.map[HOST] : null;
             }
             set
             {
-                if (value == null)
-                    this.map.Remove("host");
-                else
-                    this.map["host"] = value;
+                bool remove = (value == null) && this.map.ContainsKey(HOST);
+                if (remove)
+                {
+                    this.map.Remove(HOST);
+                    this.Update();
+                }
+                else if (value != null)
+                {
+                    bool update = (this.map.ContainsKey(HOST) && (this.map[HOST] != value)) || !this.map.ContainsKey(HOST);
+                    if (update)
+                    {
+                        this.map[HOST] = value;
+                        this.Update();
+                    }
+                }
             }
         }
         public string domain
         {
             get
             {
-                return this.map.ContainsKey("domain") ? this.map["domain"] : null;
+                return this.map.ContainsKey(DOMAIN) ? this.map[DOMAIN] : null;
             }
             set
             {
-                if (value == null)
-                    this.map.Remove("domain");
-                else
-                    this.map["domain"] = value;
+                bool remove = (value == null) && this.map.ContainsKey(DOMAIN);
+                if (remove)
+                {
+                    this.map.Remove(DOMAIN);
+                    this.Update();
+                }
+                else if (value != null)
+                {
+                    bool update = (this.map.ContainsKey(DOMAIN) && (this.map[DOMAIN] != value)) || !this.map.ContainsKey(DOMAIN);
+                    if (update)
+                    {
+                        this.map[DOMAIN] = value;
+                        this.Update();
+                    }
+                }
             }
         }
-        public uint span
+        public uint? span
         {
             get
             {
-                string value = this.map.ContainsKey("span") ? this.map["span"] : null;
+                string value = this.map.ContainsKey(SPAN) ? this.map[SPAN] : null;
                 if (value == null)
                     return defaultSpan;   // default
 
@@ -72,11 +99,24 @@ namespace QuelleHMI.Definitions
             }
             set
             {
-                var val = value >= minSpan && value <= maxSpan ? value : defaultSpan;
-                this.map["span"] = value.ToString();
+                bool remove = (value == null) && this.map.ContainsKey(SPAN);
+                if (remove)
+                {
+                    this.map.Remove(SPAN);
+                    this.Update();
+                }
+                else if (value != null)
+                {
+                    bool update = (this.map.ContainsKey(SPAN) && (this.map[SPAN] != value.ToString())) || !this.map.ContainsKey(SPAN);
+                    if (update)
+                    {
+                        this.map[SPAN] = value.ToString();
+                        this.Update();
+                    }
+                }
             }
         }
-        public bool exact
+        public bool? exact
         {
             get
             {
@@ -95,19 +135,27 @@ namespace QuelleHMI.Definitions
             }
             set
             {
-                this.map["exact"] = value ? "true" : "false";
+                bool remove = (value == null) && this.map.ContainsKey(EXACT);
+                if (remove)
+                {
+                    this.map.Remove(EXACT);
+                    this.Update();
+                }
+                else if (value != null)
+                {
+                    string boolVal = value.Value ? "true" : "false";
+                    bool update = (this.map.ContainsKey(EXACT) && (this.map[EXACT] != boolVal)) || !this.map.ContainsKey(EXACT);
+                    if (update)
+                    {
+                        this.map[EXACT] = boolVal;
+                        this.Update();
+                    }
+                }
             }
         }
         public CTLSearch(string file) : base(file)
         {
-            if (!this.map.ContainsKey("host"))
-                this.map.Add("host", this.host);
-            if (!this.map.ContainsKey("domain"))
-                this.map.Add("domain", this.domain);
-            if (!this.map.ContainsKey("span"))
-                this.map.Add("span", this.span.ToString());
-            if (!this.map.ContainsKey("exact"))
-                this.map.Add("exact", this.exact ? "true" : "false");
+            ;
         }
         private CTLSearch(QuelleControlConfig source) : base(source)    // Copy constructor
         {
@@ -126,6 +174,27 @@ namespace QuelleHMI.Definitions
             this.domain = domain;
             this.span   = span;
             this.exact  = exact;
+        }
+        public override bool Update(string key, string value)
+        {
+            if (key != null)
+            {
+                try
+                {
+                    switch (key)
+                    {
+                        case HOST:   this.host   = value;   return true;
+                        case DOMAIN: this.domain = value;   return true;
+                        case SPAN:   this.span   = value != null ? uint.Parse(value) : null; return true;
+                        case EXACT:  this.exact  = value != null ? (value == "true") : null; return true;
+                    }
+                }
+                catch
+                {
+                    ;
+                }
+            }
+            return false;
         }
     }
 }

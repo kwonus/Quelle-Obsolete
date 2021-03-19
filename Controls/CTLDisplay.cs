@@ -21,66 +21,92 @@ namespace QuelleHMI.Definitions
     }
     public class CTLDisplay : QuelleControlConfig, IQuelleDisplayControls
     {
+        public const string HEADING = "heading";
+        public const string RECORD = "record";
+        public const string FORMAT = "format";
+
         private static List<string> formats = new List<string>() { "text", "html", "md" };
         public string heading
         {
             get
             {
-                return this.map.ContainsKey("heading") ? this.map["heading"] : null;
+                return this.map.ContainsKey(HEADING) ? this.map[HEADING] : null;
             }
             set
             {
-                if (value == null)
-                    this.map.Remove("heading");
-                else
-                    this.map["heading"] = value;
+                bool remove = (value == null) && this.map.ContainsKey(HEADING);
+                if (remove)
+                {
+                    this.map.Remove(HEADING);
+                    this.Update();
+                }
+                else if (value != null)
+                {
+                    bool update = (this.map.ContainsKey(HEADING) && (this.map[HEADING] != value)) || !this.map.ContainsKey(HEADING);
+                    if (update)
+                    {
+                        this.map[HEADING] = value;
+                        this.Update();
+                    }
+                }
             }
         }
         public string record
         {
             get
             {
-                return this.map.ContainsKey("record") ? this.map["record"] : null;
+                return this.map.ContainsKey(RECORD) ? this.map[RECORD] : null;
             }
             set
             {
-                if (value == null)
-                    this.map.Remove("record");
-                else
-                    this.map["record"] = value;
+                bool remove = (value == null) && this.map.ContainsKey(RECORD);
+                if (remove)
+                {
+                    this.map.Remove(RECORD);
+                    this.Update();
+                }
+                else if (value != null)
+                {
+                    bool update = (this.map.ContainsKey(RECORD) && (this.map[RECORD] != value)) || !this.map.ContainsKey(RECORD);
+                    if (update)
+                    {
+                        this.map[RECORD] = value;
+                        this.Update();
+                    }
+                }
             }
         }
         public string format
         {
             get
             {
-                string value = this.map.ContainsKey("format") ? this.map["format"] : "html";
+                string value = this.map.ContainsKey(FORMAT) ? this.map[RECORD] : "html";
                 if (value == null || !formats.Contains(value))
                     value = "html"; // default
                 return value;
             }
             set
             {
-                if (value == null || !formats.Contains(value))
+                bool remove = (value == null) && this.map.ContainsKey(RECORD);
+                if (remove)
                 {
-                    this.map.Remove("format");
-                    this.map["format"] = "html";
+                    this.map.Remove(RECORD);
+                    this.Update();
                 }
-                else if (this.map["format"] == null || this.map["format"] != value)
+                else if (value != null)
                 {
-                    this.map["format"] = value;
-                    Update();
+                    bool update = (this.map.ContainsKey(RECORD) && (this.map[RECORD] != value)) || !this.map.ContainsKey(RECORD);
+                    if (update)
+                    {
+                        this.map[RECORD] = value;
+                        this.Update();
+                    }
                 }
             }
         }
         public CTLDisplay(string file): base(file)
         {
-            if (!this.map.ContainsKey("heading"))
-                this.map.Add("heading", this.heading);
-            if (!this.map.ContainsKey("record"))
-                this.map.Add("record", this.heading);
-            if (!this.map.ContainsKey("format"))
-                this.map.Add("format", this.heading);
+            ;
         }
         private CTLDisplay(QuelleControlConfig source) : base(source)    // Copy constructor
         {
@@ -98,6 +124,19 @@ namespace QuelleHMI.Definitions
             this.heading = heading;
             this.record  = record;
             this.format  = format;
+        }
+        public override bool Update(string key, string value)
+        {
+            if (key != null)
+            {
+                switch (key)
+                {
+                    case HEADING:   this.heading = value; return true;
+                    case RECORD:    this.record  = value; return true;
+                    case FORMAT:    this.format  = value; return true;
+                }
+            }
+            return false;
         }
     }
 }

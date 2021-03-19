@@ -8,20 +8,41 @@ namespace QuelleHMI
     {
         public QSearchControls(): base() { /*for msgpack*/ }
 
-        [Key(1)]
         public string host { get; set; }
-        [Key(2)]
         public string domain { get; set; }
+        public uint? span { get; set; }
+        public bool? exact { get; set; }
+
+        [Key(1)]
+        public string Host
+        {
+            get => host;
+            set => host = value;
+        }
+        [Key(2)]
+        public string Domain
+        {
+            get => domain;
+            set => domain = value;
+        }
         [Key(3)]
-        public uint span { get; set; }
+        public uint Span
+        {
+            get => span.HasValue ? span.Value : CTLSearch.defaultSpan;
+            set => span = value;
+        }
         [Key(4)]
-        public bool exact { get; set; }
+        public bool Exact
+        {
+            get => exact.HasValue ? exact.Value : CTLSearch.defaultExact;
+            set => exact = value;
+        }
         public QSearchControls(IQuelleSearchControls icontrols)
         {
             this.host   = icontrols.host;
             this.domain = icontrols.domain;
-            this.span   = icontrols.span;
-            this.exact  = icontrols.exact;
+            this.span   = icontrols.span.Value;
+            this.exact  = icontrols.exact.Value;
         }
     }
 }

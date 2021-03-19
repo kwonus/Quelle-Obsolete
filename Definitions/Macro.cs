@@ -56,8 +56,8 @@ namespace QuelleHMI.Definitions
                 writer.WriteLine("search:");
                 writer.WriteLine("\thost: "   + search.host != null   ? search.host   : "!!null");
                 writer.WriteLine("\tdomain: " + search.domain != null ? search.domain : "!!null");
-                writer.WriteLine("\tspan: "   + search.span.ToString());
-                writer.WriteLine("\texact: "  + (search.exact ? "true" : "false"));
+                writer.WriteLine("\tspan: "   + search.span != null   ? search.span.ToString() : "!!null");
+                writer.WriteLine("\texact: "  + search.exact != null  ? (search.exact.Value ? "true" : "false") : "!!null");
 
                 writer.WriteLine("search:");
                 writer.WriteLine("\thost: "   + display.heading != null ? display.heading : "!!null");

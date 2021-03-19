@@ -36,17 +36,25 @@ namespace QuelleHMI.Actions
             }
             return this.verb == Control.CLEAR || this.verb == Control.SET;
         }
+        public static readonly char[] dot = new char[] { '.' };
         public override bool Execute()
         {
             if (this.errors.Count == 0)
             {
-                var result = IExpand.Create(this.controlName, this.statement);
-                if (result == null)
+                var parts = this.controlName.Split(dot);
+                var value = this.verb == Control.CLEAR ? null : this.controlValue;
+                if (parts.Length == 2)
                 {
-                    this.errors.Add("Could not create macro");
+                    switch (parts[0])
+                    {
+                        case QuelleControlConfig.SEARCH:  return QuelleControlConfig.search.Update(parts[1],  value);
+                        case QuelleControlConfig.DISPLAY: return QuelleControlConfig.display.Update(parts[1], value);
+                        case QuelleControlConfig.SYSTEM:  return QuelleControlConfig.system.Update(parts[1],  value);
+                    }
                 }
+                this.errors.Add("Ill-defined control action provided by user");
             }
-            return (this.errors.Count == 0);
+            return false;
         }
         public static (string verb, string[] tokens, string error) GetAction(string text)
         {

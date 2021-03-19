@@ -43,8 +43,10 @@ namespace QuelleHMI.Definitions
             this.conf = file;
             this.map = new Dictionary<string, string>();
             if (File.Exists(file))
-                this.Read(this.conf);            
+                this.Read(this.conf);    
         }
+        public abstract bool Update(string key, string value);
+
         private string conf;
         protected Dictionary<String, String> map;
 
@@ -89,11 +91,11 @@ namespace QuelleHMI.Definitions
             result.ok = true;
             return result;
         }
-        public (bool ok, string message) Update()
+        protected (bool ok, string message) Update()
         {
             return this.Write(this.conf);
         }
-        public (bool ok, string message) Retreive()
+        protected (bool ok, string message) Retreive()
         {
             return this.Read(this.conf);
         }

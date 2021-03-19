@@ -29,8 +29,8 @@ namespace QuelleHMI
             }
             this.qcontrols = new QSearchControls();
             this.qcontrols.domain = QuelleControlConfig.search.domain;
-            this.qcontrols.exact  = QuelleControlConfig.search.exact;
-            this.qcontrols.span   = QuelleControlConfig.search.span;
+            this.qcontrols.exact  = QuelleControlConfig.search.exact.Value;
+            this.qcontrols.span   = QuelleControlConfig.search.span.Value;
         }
 
         [IgnoreMember]
