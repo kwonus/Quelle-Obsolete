@@ -125,7 +125,10 @@ namespace QuelleHMI.Definitions
                     }
                     _root = dir;
                 }
-                return Path.Combine(_root, "Quelle");  // always combine so that _root is immutable
+                string folder = Path.Combine(_root, "Quelle");  // always combine so that _root is immutable
+                if (!Directory.Exists(folder))
+                    Directory.CreateDirectory(folder);
+                return folder;
             }
         }
         public static bool IsControl(string candidate, out string normalizedName)
