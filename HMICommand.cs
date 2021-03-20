@@ -8,6 +8,8 @@ namespace QuelleHMI
 {
     public class HMICommand
     {
+		public static List<HMIStatement> history = new List<HMIStatement>();
+		public static HMIStatement current = null;
 		public HMIStatement statement { get; private set; }
 		public string command { get; private set; }
 		public List<string> errors { get; private set; }
@@ -33,6 +35,18 @@ namespace QuelleHMI
 			if (command != null)
 			{
 				this.statement = new HMIStatement(this, command.Trim());
+				if (this.errors.Count == 0)
+				{
+					HMICommand.history.Add(this.statement);
+					foreach (var segment in this.statement.segmentation.Values)
+					{
+						if (segment.verb.Equals(Actions.Search.FIND, StringComparison.InvariantCultureIgnoreCase))
+						{
+							HMICommand.current = this.statement;
+							break;
+						}
+					}
+				}
 			}
         }
 

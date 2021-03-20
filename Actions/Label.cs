@@ -18,24 +18,35 @@ namespace QuelleHMI.Actions
         public static readonly List<string> IMPLICIT = new List<string>() { EXPAND };
 
         public string macroName { get; private set; }
-        public string macroValue { get => this.statement.statement; }
-
+        public string macroValue { get; private set; }
 
         public Label(HMIStatement statement, string segment)
         : base(statement, HMIClauseType.EXPLICIT, 0, segment)
         {
-            if (this.verb == null)
-                this.verb = this.syntax;
+            this.macroValue = "TBD";
+            foreach (string candidate in Label.EXPLICIT)
+                if (segment.StartsWith(candidate, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    this.verb = candidate;
+                    this.macroName = segment.Substring(this.verb.Length).Trim();
+                    return;
+                }
+            this.verb = null;
+            this.macroName = null;
+            this.statement.Notify("error", "No valid verb provided: " + segment);
         }
         public override bool Parse()
         {
+            if (this.verb == SAVE)
+                return true;
+
             throw new NotImplementedException();
         }
         public override bool Execute()
         {
             if (this.errors.Count == 0)
             {
-                var result = new Macro(this.macroName, this.statement);
+                var result = new Macro(this.macroName, HMICommand.current);
                 if (result == null)
                 {
                     this.errors.Add("Could not create macro");

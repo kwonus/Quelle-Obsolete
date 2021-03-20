@@ -112,36 +112,37 @@ namespace QuelleHMI
             i = 0;
             // Eliminate duplicate segments (NOTE [-] polarity has precedence over [+] polarity)
             var inventory = new List<string>();
-            foreach (var parsed in negatives)
+            foreach (var parse in negatives)
             {
-                if (command.errors.Count > 0)
-                    break;
-
-                if (parsed.Value.Length > 0)
+                if (parse.Value.Length > 0)
                 {
-                    var squenched = SquenchAndNormalizeText(parsed.Value);
+                    var squenched = SquenchAndNormalizeText(parse.Value);
                     if (!inventory.Contains(squenched))
                     {
-                        var current = Actions.Action.CreateAction(this, parsed.Key, Actions.Action.HMIPolarity.NEGATIVE, parsed.Value);
+                        var current = Actions.Action.CreateAction(this, parse.Key, Actions.Action.HMIPolarity.NEGATIVE, parse.Value);
                         if (current.Parse())
-                        this.segmentation.Add(parsed.Key, current);
-                        i++;
+                        {
+                            this.segmentation.Add(parse.Key, current);
+                            i++;
+                        }
+                        else Notify("error", "Unable to parse: " + squenched);
                     }
                 }
             }
-            foreach (var parsed in positives)
+            foreach (var parse in positives)
             {
-                if (command.errors.Count > 0)
-                    break;
-
-                if (parsed.Value.Length > 0)
+                if (parse.Value.Length > 0)
                 {
-                    var squenched = SquenchAndNormalizeText(parsed.Value);
+                    var squenched = SquenchAndNormalizeText(parse.Value);
                     if (!inventory.Contains(squenched))
                     {
-                        var current = Actions.Action.CreateAction(this, parsed.Key, Actions.Action.HMIPolarity.POSITIVE, parsed.Value);
-                        this.segmentation.Add(parsed.Key, current);
-                        i++;
+                        var current = Actions.Action.CreateAction(this, parse.Key, Actions.Action.HMIPolarity.POSITIVE, parse.Value);
+                        if (current.Parse())
+                        {
+                            this.segmentation.Add(parse.Key, current);
+                            i++;
+                        }
+                        else Notify("error", "Unable to parse: " + squenched);
                     }
                 }
             }
