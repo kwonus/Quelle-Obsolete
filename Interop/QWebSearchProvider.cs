@@ -48,7 +48,9 @@ namespace QuelleHMI
                 return outer.Status();
             }
             public IQuelleSearchResult Search(QRequestSearch request)  {
-                return outer.Search(request);
+                //return outer.Search(request);
+                outer.Test("foo");
+                return null;
             }
             public IQuelleFetchResult Fetch(QRequestFetch request) {
                 return outer.Fetch(request);
