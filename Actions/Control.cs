@@ -94,7 +94,7 @@ namespace QuelleHMI.Actions
             }
             return (null, null);  // NOT A CONTROL ... AND NO ERRORS
         }
-        public static string Help(string verb)  // SET or CLEAR
+        public static string Help(string topic)
         {
             return "";
         }

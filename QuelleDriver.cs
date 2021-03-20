@@ -61,29 +61,29 @@ namespace Quelle.DriverDefault
                     break;
                 }
 
-            switch (help)
-            {
-                case Search_Status.STATUS:           return Search_Status.Help();
-                case Search.FIND:                    return Search.Help();
-                     
-                case Control.SET:                    return Control.Help(Control.SET);
-                case Control.CLEAR:                  return Control.Help(Control.CLEAR);
-                case Control_Get.GET:                return Control_Get.Help();
+            // Look for verbs & topics
+            if (Search.IMPLICIT.Contains(help) || Search.SYNTAX.Equals(help, StringComparison.InvariantCultureIgnoreCase))
+                return Search.Help(help);
+            if (Search_Status.EXPLICIT.Contains(help))
+                return Control_Get.Help();
 
-                case Display.PRINT:                  return Display.Help();
+            if (Display.EXPLICIT.Contains(help) || Display.SYNTAX.Equals(help, StringComparison.InvariantCultureIgnoreCase))
+                return Display.Help(help);
 
-                case Label.SAVE:
-                case Label.DELETE:
-                case Label.SHOW:                     return Label.Help(help);
+            if (Label.EXPLICIT.Contains(help) || Label.SYNTAX.Equals(help, StringComparison.InvariantCultureIgnoreCase))
+                return Label.Help(help);
 
-                case QuelleHMI.Actions.History.REVIEW:
-                case QuelleHMI.Actions.History.EXPAND: return QuelleHMI.Actions.History.Help();
+            if (Control.IMPLICIT.Contains(help) || Control.SYNTAX.Equals(help, StringComparison.InvariantCultureIgnoreCase))
+                return Control.Help(help);
+            if (Control_Get.EXPLICIT.Contains(help))
+                return Control_Get.Help();
 
-                case QuelleHMI.Actions.System.GENERATE:
-                case QuelleHMI.Actions.System.REGENERATE:
-                case QuelleHMI.Actions.System.EXIT:
-                case QuelleHMI.Actions.System.HELP:    return QuelleHMI.Actions.System.Help();
-            }
+            if (QuelleHMI.Actions.System.EXPLICIT.Contains(help) || QuelleHMI.Actions.System.SYNTAX.Equals(help, StringComparison.InvariantCultureIgnoreCase))
+                return QuelleHMI.Actions.System.Help(help);
+
+            if (QuelleHMI.Actions.History.EXPLICIT.Contains(help) || QuelleHMI.Actions.History.SYNTAX.Equals(help, StringComparison.InvariantCultureIgnoreCase))
+                return QuelleHMI.Actions.History.Help(help);
+
             return this.Help();
         }
     }

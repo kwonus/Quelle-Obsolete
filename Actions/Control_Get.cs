@@ -114,7 +114,7 @@ namespace QuelleHMI.Actions
         }
         public static string Help()
         {
-            return "";
+            return Control.Help(GET);
         }
     }
 }

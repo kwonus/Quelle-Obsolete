@@ -347,7 +347,7 @@ namespace QuelleHMI.Actions
             }
             return true;
         }
-        public static string Help()
+        public static string Help(string topic)
         {
             return "";
         }

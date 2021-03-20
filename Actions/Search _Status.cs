@@ -29,7 +29,7 @@ namespace QuelleHMI.Actions
         }
         public static string Help()
         {
-            return "";
+            return Search.Help(STATUS);
         }
     }
 }

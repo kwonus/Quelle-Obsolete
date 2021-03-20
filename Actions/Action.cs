@@ -72,6 +72,8 @@ namespace QuelleHMI.Actions
                     return new Control_Get(statement, text);
                 if (System.EXPLICIT.Contains(verb))
                     return new System(statement, text);
+                if (History.EXPLICIT.Contains(verb))
+                    return new History(statement, text);
 
                 statement.Notify("error", "Unknown verb provided: " + verb);
                 return null;
