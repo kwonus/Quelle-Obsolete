@@ -91,15 +91,14 @@ Constructing a compound statement with multiple implicit actions, involves delim
 
 Even before we describe Quelle syntax generally, let's examine these concepts using examples:
 
-| Description                                  | Example                                       |
-| -------------------------------------------- | :-------------------------------------------- |
-| Explicit SYSTEM action                       | @help                                         |
-| Explicit DISPLAY action                      | @print [*]                                    |
-| Implicit single SEARCH action                | this is some text expected to be found        |
-| Compound statement: SEARCH & DISPLAY actions | this is some text expected to be found @print |
-| Compound statement: two SEARCH actions       | "this quoted text" ; other unquoted text      |
-| Compound statement: two CONTROL actions      | span=7 ; exact = true                         |
-| Compound statement: CONTROL & SEARCH         | span=7; "Moses said"                          |
+| Description                             | Example                                  |
+| --------------------------------------- | :--------------------------------------- |
+| Explicit SYSTEM action                  | @help                                    |
+| Explicit DISPLAY action                 | @print [*]                               |
+| Implicit single SEARCH action           | this is some text expected to be found   |
+| Compound statement: two SEARCH actions  | "this quoted text" ; other unquoted text |
+| Compound statement: two CONTROL actions | span=7 ; exact = true                    |
+| Compound statement: CONTROL & SEARCH    | span=7; "Moses said"                     |
 
 **TABLE 4-2** -- **Examples of Quelle statement types**
 
@@ -240,7 +239,7 @@ Due to the latter condition above, SEARCH, by default summarizes results (it doe
 
 "Jesus answered"			*this would summarize books that contain this phrase, with chapter references*
 
-"Jesus answered" @print [*]			*this would would print every matching verse*
+@print [*]			             *this would would print every matching verse*
 
 Consider this very general search
 

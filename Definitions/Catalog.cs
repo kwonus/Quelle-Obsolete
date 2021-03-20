@@ -1,6 +1,5 @@
 ﻿using QuelleHMI;
 using QuelleHMI.Definitions;
-using QuelleHMI.Definitions;
 using System;
 using System.Collections.Generic;
 

@@ -190,7 +190,7 @@ namespace QuelleHMI.Definitions
                         case EXACT:  this.exact  = value != null ? (value == "true") : null; return true;
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
                     ;
                 }

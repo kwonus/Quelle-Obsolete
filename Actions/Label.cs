@@ -5,7 +5,7 @@ using System.Text;
 
 namespace QuelleHMI.Actions
 {
-    public class Label : HMIClause
+    public class Label : Action
     {
         public const string SYNTAX = "LABEL";
         public override string syntax { get => SYNTAX; }
@@ -21,13 +21,13 @@ namespace QuelleHMI.Actions
         public string macroValue { get => this.statement.statement; }
 
 
-        public Label(HMIStatement statement, UInt32 segmentOrder, string segment)
-    : base(statement, segmentOrder, HMIPolarity.UNDEFINED, segment, HMIClauseType.EXPLICIT_DEPENDENT)
+        public Label(HMIStatement statement, string segment)
+        : base(statement, HMIClauseType.EXPLICIT, 0, segment)
         {
             if (this.verb == null)
                 this.verb = this.syntax;
         }
-        protected override bool Parse()
+        public override bool Parse()
         {
             throw new NotImplementedException();
         }

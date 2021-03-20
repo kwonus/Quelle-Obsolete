@@ -11,14 +11,12 @@ namespace QuelleHMI.Actions
         string segment { get; }
         char polarity { get; }
     }
-    public class Search : HMIClause, IQuelleSearchClause
+    public class Search : Actions.Action, IQuelleSearchClause
     {
         public const string SYNTAX = "SEARCH";
         public override string syntax { get => SYNTAX; }
         public const string FIND = "find";
-        public const string STATUS = "@status";
 
-        public static readonly List<string> EXPLICIT = new List<string>() { STATUS };
         public static readonly List<string> IMPLICIT = new List<string>() { FIND };
 
         protected Dictionary<UInt64, SearchFragment> searchFragments;
@@ -33,7 +31,7 @@ namespace QuelleHMI.Actions
 
         private Boolean quoted;
 
-        protected override bool Parse()
+        public override bool Parse()
         {
             this.quoted = this.ParseQuotedSearch() || (this.errors.Count > 0);
 
@@ -51,7 +49,7 @@ namespace QuelleHMI.Actions
         }
 
         public Search(HMIStatement statement, UInt32 segmentOrder, HMIPolarity polarity, string segment)
-            : base(statement, segmentOrder, polarity, segment, HMIClauseType.IMPLICIT)
+        : base(statement, HMIClauseType.IMPLICIT, segmentOrder, segment, polarity)
         {
             this.verb = FIND;
         }

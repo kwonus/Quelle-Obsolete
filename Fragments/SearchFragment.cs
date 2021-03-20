@@ -99,7 +99,7 @@ namespace QuelleHMI.Fragments
 			}
 		}
 
-		public SearchFragment(HMIClause segment, string fragment, uint sequence, SearchFragment prev = null)
+		public SearchFragment(Actions.Action segment, string fragment, uint sequence, SearchFragment prev = null)
 		: base(segment, fragment, sequence)
 		{
 			this.previous = prev;

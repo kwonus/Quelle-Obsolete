@@ -4,7 +4,7 @@ using System.Text;
 
 namespace QuelleHMI.Actions
 {
-    public class Control_Get : HMIClause
+    public class Control_Get : Action
     {
         public const string SYNTAX = "CONTROL";
         public override string syntax { get => SYNTAX; }
@@ -12,12 +12,11 @@ namespace QuelleHMI.Actions
         public static readonly List<string> EXPLICIT = new List<string>() { GET };
         public string[] parameters;
 
-        public Control_Get(HMIStatement statement, UInt32 segmentOrder, string segment)
-    : base(statement, segmentOrder, HMIPolarity.UNDEFINED, segment, HMIClauseType.EXPLICIT_INDEPENDENT)
+        public Control_Get(HMIStatement statement, string segment): base(statement, HMIClauseType.EXPLICIT, 0, segment)
         {
             this.verb = Control_Get.GET;
         }
-        protected override bool Parse()
+        public override bool Parse()
         {
             return true;
  //         throw new NotImplementedException();

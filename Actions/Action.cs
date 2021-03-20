@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Text;
 using static QuelleHMI.HMIStatement;
 
-namespace QuelleHMI
+namespace QuelleHMI.Actions
 {
-    public abstract class HMIClause
+    public abstract class Action
     {
-        abstract protected bool Parse();
+        abstract public bool Parse();
         abstract public bool Execute();
  
         protected List<string> errors { get => this.statement.command.errors; }
@@ -19,7 +19,7 @@ namespace QuelleHMI
         }
         public bool isExplicit()
         {
-            return type == HMIClauseType.EXPLICIT_DEPENDENT || type == HMIClauseType.EXPLICIT_INDEPENDENT;
+            return type == HMIClauseType.EXPLICIT;
         }
         public bool isDefined()
         {
@@ -43,13 +43,12 @@ namespace QuelleHMI
         }
         public enum HMIClauseType
         {
-            UNDEFINED = 0xF,
+            UNDEFINED = -1,
             IMPLICIT = 0,
-            EXPLICIT_DEPENDENT = 2,             // e.g. @save
-            EXPLICIT_INDEPENDENT = 1            // e.g. @print: not simple AND not dependent, but positionally similar to both
+            EXPLICIT = 1
         }
  
-        public static HMIClause CreateVerbClause(HMIStatement statement, uint order, HMIPolarity polarity, string text)
+        public static Action CreateAction(HMIStatement statement, uint order, HMIPolarity polarity, string text)
         {
             if (statement == null)
                 return null;
@@ -62,33 +61,32 @@ namespace QuelleHMI
             if (text[0] == '@')
             {
                 var tokens = text.Split(Whitespace, StringSplitOptions.RemoveEmptyEntries);
-                switch(tokens[0].ToLower())
-                {
-                    case Actions.Display.PRINT:     return new Actions.Display(statement, order, text);
+                var verb = tokens[0].ToLower();
 
-                    case Actions.Label.SHOW:
-                    case Actions.Label.SAVE:
-                    case Actions.Label.DELETE:      return new Actions.Label(statement, order, text);
+                // Look for explicit verbs
+                if (Display.EXPLICIT.Contains(verb))
+                    return new Display(statement, text);
+                if (Label.EXPLICIT.Contains(verb))
+                    return new Label(statement, text);
+                if (Control_Get.EXPLICIT.Contains(verb))
+                    return new Control_Get(statement, text);
+                if (System.EXPLICIT.Contains(verb))
+                    return new System(statement, text);
 
-                    case Actions.Control_Get.GET:   return new Actions.Control_Get(statement, order, text);
-
-                    case Actions.System.GENERATE:   return new Actions.System(statement, text, Actions.System.GENERATE);
-                    case Actions.System.REGENERATE: return new Actions.System(statement, text, Actions.System.REGENERATE);
-                }
-                statement.Notify("error", "Unknown verb provided: " + tokens[0]);
+                statement.Notify("error", "Unknown verb provided: " + verb);
                 return null;
             }
             //  Only CONTROL::SET/CONTROL::CLEAR can be implicitly recognized
             //
-            var controlAction = Actions.Control.GetAction(text);
+            var controlAction = Control.GetAction(statement, text, order);
             if (controlAction.error != null)
             {
                 statement.Notify("error", controlAction.error);
                 return null;
             }
-            else if (controlAction.verb != null && controlAction.tokens != null)
+            else if (controlAction.action != null)
             {
-                return new Actions.Control(statement, order, controlAction.verb, text);
+                return controlAction.action;
             }
             //  No other segments can be implicitly recognized, it defaults to SEARCH
             //
@@ -110,7 +108,7 @@ namespace QuelleHMI
 
         public readonly static string[] Whitespace = new string[] { " ", "\t" };
 
-        protected HMIClause(HMIStatement statement, UInt32 segmentOrder, HMIPolarity polarity, string segment, HMIClauseType clauseType)
+        protected Action(HMIStatement statement, HMIClauseType clauseType, UInt32 segmentOrder, string segment, HMIPolarity polarity = HMIPolarity.UNDEFINED)
         {
             this.statement = statement;
             this.type = clauseType;
@@ -126,8 +124,6 @@ namespace QuelleHMI
             this.segment = normalized;
             this.sequence = segmentOrder; 
             this.Polarity = polarity;
-
-            this.Parse();
         }
         public static string[] SmartSplit(string source, char delimit)
         {

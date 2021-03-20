@@ -4,7 +4,7 @@ using System.Text;
 
 namespace QuelleHMI.Actions
 {
-    public class History : HMIClause
+    public class History : Action
     {
         public const string SYNTAX = "HISTORY";
         public override string syntax { get => SYNTAX; }
@@ -14,12 +14,12 @@ namespace QuelleHMI.Actions
         public static readonly List<string> IMPLICIT = new List<string>() { EXPAND };
         public string[] parameters;
 
-        public History(HMIStatement statement, UInt32 segmentOrder, string segment)
-    : base(statement, segmentOrder, HMIPolarity.UNDEFINED, segment, HMIClauseType.EXPLICIT_INDEPENDENT)
+        public History(HMIStatement statement, string segment)
+        : base(statement, HMIClauseType.EXPLICIT, 0, segment)
         {
             this.verb = History.REVIEW;
         }
-        protected override bool Parse()
+        public override bool Parse()
         {
             return true;
  //         throw new NotImplementedException();

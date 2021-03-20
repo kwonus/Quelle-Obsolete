@@ -9,12 +9,12 @@ namespace QuelleHMI.Actions
     {
         string[] specification { get; }
     }
-    public class Display: HMIClause, IQuelleDisplayClause
+    public class Display: Action, IQuelleDisplayClause
     {
         public const string SYNTAX = "DISPLAY";
         public override string syntax { get => SYNTAX; }
         public const string PRINT = "@print";
-        public static readonly List<string> IMPLICIT = new List<string>() { PRINT };
+        public static readonly List<string> EXPLICIT = new List<string>() { PRINT };
         public Dictionary<UInt64, PrimativeFragment> fragments { get; private set; }
 
         public string[] specification
@@ -29,13 +29,12 @@ namespace QuelleHMI.Actions
             }
         }
 
-        public Display(HMIStatement statement, UInt32 segmentOrder, string segment)
-            : base(statement, segmentOrder, HMIPolarity.UNDEFINED, segment, HMIClauseType.EXPLICIT_INDEPENDENT)
+        public Display(HMIStatement statement, string segment)
+        : base(statement, HMIClauseType.EXPLICIT, 0, segment)
         {
             this.verb = PRINT;
-
         }
-        protected override bool Parse()
+        public override bool Parse()
         {
             var segment = this.segment.Trim();
             if (segment.StartsWith(PRINT))

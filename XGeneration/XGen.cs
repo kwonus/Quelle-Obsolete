@@ -25,11 +25,11 @@ namespace QuelleHMI
 		};
 
 		public static Type[] Enumerations = new Type[] {
-			typeof(HMIClause.HMIPolarity)
+			typeof(Actions.Action.HMIPolarity)
 		};
 
 		public static Type[] OtherTypes = new Type[] {
-			typeof(HMIStatement), typeof(HMIClause)
+			typeof(HMIStatement), typeof(Actions.Action)
 		};
 
 		protected abstract string export(Type c);

@@ -132,32 +132,43 @@ namespace QuelleHMI.Definitions
         {
             normalizedName = null;
 
+
             if ((candidate == null) || string.IsNullOrWhiteSpace(candidate))
                 return false;
 
             if (candidate.Contains('.'))
             {
-                var parts = HMIClause.SmartSplit(candidate, '.');
+                var parts = Actions.Action.SmartSplit(candidate, '.');
                 if (parts.Length != 2)
                     return false;
 
                 parts[0] = parts[0].ToLower();
                 parts[1] = parts[1].ToLower();
 
+                normalizedName = parts[0] + '.' + parts[1];
+
                 switch (parts[0])
                 { 
                     case QuelleControlConfig.SEARCH:  return QuelleControlConfig.search.CONTROLS.Contains(parts[1]);
                     case QuelleControlConfig.DISPLAY: return QuelleControlConfig.display.CONTROLS.Contains(parts[1]);
                     case QuelleControlConfig.SYSTEM:  return QuelleControlConfig.system.CONTROLS.Contains(parts[1]);
-                    default: return false;
+                    default:
+                        normalizedName = null;
+                        return false;
                 }
             }
             else
             {
-                candidate = candidate.ToLower();
-                return QuelleControlConfig.search.CONTROLS.Contains(candidate)
-                    || QuelleControlConfig.display.CONTROLS.Contains(candidate)
-                    || QuelleControlConfig.system.CONTROLS.Contains(candidate);
+                if (QuelleControlConfig.search.CONTROLS.Contains(candidate))
+                    normalizedName = QuelleControlConfig.SEARCH + '.' + candidate.ToLower();
+                else if (QuelleControlConfig.display.CONTROLS.Contains(candidate))
+                    normalizedName = QuelleControlConfig.DISPLAY + '.' + candidate.ToLower();
+                else if (QuelleControlConfig.system.CONTROLS.Contains(candidate))
+                    normalizedName = QuelleControlConfig.SYSTEM + '.' + candidate.ToLower();
+                else
+                    return false;
+
+                return true;
             }
         }
     }

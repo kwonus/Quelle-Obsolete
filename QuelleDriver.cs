@@ -36,7 +36,7 @@ namespace Quelle.DriverDefault
         {
             string text = "Help is available on each of these topics:\n";
 
-            foreach (var verb in new string[] { QuelleHMI.Actions.Search.FIND, Control.SET, Control.CLEAR, Label.SAVE, Label.DELETE, Label.SHOW, Display.PRINT, Control_Get.GET, Search.STATUS, QuelleHMI.Actions.System.GENERATE, QuelleHMI.Actions.System.REGENERATE, "@exit" })
+            foreach (var verb in new string[] { QuelleHMI.Actions.Search.FIND, Control.SET, Control.CLEAR, Label.SAVE, Label.DELETE, Label.SHOW, Display.PRINT, Control_Get.GET, Search_Status.STATUS, QuelleHMI.Actions.System.GENERATE, QuelleHMI.Actions.System.REGENERATE, "@exit" })
                 text += ("\n\t" + (verb.StartsWith('@') ? verb.Substring(1) : verb));
 
             text += "\n\n";
@@ -54,7 +54,7 @@ namespace Quelle.DriverDefault
             var help = topic.Trim().ToLower();
             if (help.StartsWith('@'))
                 help = help.Substring(1).Trim();
-            foreach (var verb in new string[] { QuelleHMI.Actions.Search.FIND, Control.SET, Control.CLEAR, Display.PRINT, Label.SAVE, Label.DELETE, Label.SHOW, Control_Get.GET, Search.STATUS, QuelleHMI.Actions.System.GENERATE, QuelleHMI.Actions.System.REGENERATE, "@exit" })
+            foreach (var verb in new string[] { QuelleHMI.Actions.Search.FIND, Control.SET, Control.CLEAR, Display.PRINT, Label.SAVE, Label.DELETE, Label.SHOW, Control_Get.GET, Search_Status.STATUS, QuelleHMI.Actions.System.GENERATE, QuelleHMI.Actions.System.REGENERATE, "@exit" })
                 if (verb.EndsWith(help) && verb.StartsWith('@'))
                 {
                     help = '@' + help;
@@ -63,7 +63,7 @@ namespace Quelle.DriverDefault
 
             switch (help)
             {
-                case Search.STATUS:
+                case Search_Status.STATUS:           return Search_Status.Help();
                 case Search.FIND:                    return Search.Help();
                      
                 case Control.SET:                    return Control.Help(Control.SET);

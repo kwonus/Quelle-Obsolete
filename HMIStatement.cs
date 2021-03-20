@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
-using static QuelleHMI.HMIClause;
 using QuelleHMI.Actions;
 using QuelleHMI.Definitions;
 
@@ -20,9 +19,9 @@ namespace QuelleHMI
         protected List<string> warnings { get => this.command.warnings; }
 
         public string statement { get; private set; }
-        public Dictionary<UInt32, HMIClause> segmentation { get; private set; }
+        public Dictionary<UInt32, Actions.Action> segmentation { get; private set; }
 
-        protected (bool simple, HMIClause explicitClause, HMIClause[] setters, HMIClause[] removals, HMIClause[] searches) normalized;
+        protected (bool simple, Actions.Action explicitClause, Actions.Action[] setters, Actions.Action[] removals, Actions.Action[] searches) normalized;
 
         public static string SquenchAndNormalizeText(string text)
         {
@@ -109,7 +108,7 @@ namespace QuelleHMI
                     }
                 }
             }
-            this.segmentation = new Dictionary<UInt32, HMIClause>();
+            this.segmentation = new Dictionary<UInt32, Actions.Action>();
             i = 0;
             // Eliminate duplicate segments (NOTE [-] polarity has precedence over [+] polarity)
             var inventory = new List<string>();
@@ -123,7 +122,8 @@ namespace QuelleHMI
                     var squenched = SquenchAndNormalizeText(parsed.Value);
                     if (!inventory.Contains(squenched))
                     {
-                        var current = HMIClause.CreateVerbClause(this, parsed.Key, HMIPolarity.NEGATIVE, parsed.Value);
+                        var current = Actions.Action.CreateAction(this, parsed.Key, Actions.Action.HMIPolarity.NEGATIVE, parsed.Value);
+                        if (current.Parse())
                         this.segmentation.Add(parsed.Key, current);
                         i++;
                     }
@@ -139,7 +139,7 @@ namespace QuelleHMI
                     var squenched = SquenchAndNormalizeText(parsed.Value);
                     if (!inventory.Contains(squenched))
                     {
-                        var current = HMIClause.CreateVerbClause(this, parsed.Key, HMIPolarity.POSITIVE, parsed.Value);
+                        var current = Actions.Action.CreateAction(this, parsed.Key, Actions.Action.HMIPolarity.POSITIVE, parsed.Value);
                         this.segmentation.Add(parsed.Key, current);
                         i++;
                     }
@@ -147,13 +147,13 @@ namespace QuelleHMI
             }
         }
 
-        private void Append(ref HMIClause[] array, HMIClause item)
+        private void Append(ref Actions.Action[] array, Actions.Action item)
         {
             if (array == null)
-                array = new HMIClause[] { item };
+                array = new Actions.Action[] { item };
             else
             {
-                HMIClause[] updated = new HMIClause[array.Length + 1];
+                Actions.Action[] updated = new Actions.Action[array.Length + 1];
                 for (int i = 0; i < array.Length; i++)
                     updated[i] = array[i];
                 updated[array.Length] = item;

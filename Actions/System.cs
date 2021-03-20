@@ -5,7 +5,7 @@ using System.Text;
 
 namespace QuelleHMI.Actions
 {
-    public class System : HMIClause
+    public class System : Action
     {
         public const string SYNTAX = "SYSTEM";
         public override string syntax { get => SYNTAX; }
@@ -25,19 +25,19 @@ namespace QuelleHMI.Actions
         private bool overwrite;
         private int arguments;
 
-        public System(HMIStatement statement,string segment, string verb)
-        : base(statement, 1, HMIPolarity.UNDEFINED, segment, HMIClauseType.EXPLICIT_INDEPENDENT)
+        public System(HMIStatement statement,string segment)
+        : base(statement, HMIClauseType.EXPLICIT, 0, segment)
         {
-            this.verb = verb;
+            ;
         }
-        protected override bool Parse()
+        public override bool Parse()
         {
             if (this.segment == null)
                 return false;
 
             var expanded = this.statement.statement.ToLower().Replace(">", " > ");
             var max = expanded.Contains('!') ? 6 : 5;
-            var tokens = expanded.Split(HMIClause.Whitespace, max, StringSplitOptions.RemoveEmptyEntries);
+            var tokens = expanded.Split(Action.Whitespace, max, StringSplitOptions.RemoveEmptyEntries);
 
             if (tokens[0] == System.GENERATE || tokens[0] == System.REGENERATE)
             {
