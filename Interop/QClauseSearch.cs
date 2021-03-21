@@ -21,7 +21,8 @@ namespace QuelleHMI
                     this.qfragments[i] = new QSearchFragment(value[i++]);
             }
         }
-        [Key(1)]
+        //[Key(1)]
+        [IgnoreMember]
         public QSearchFragment[] qfragments { get; set; }
         [Key(2)]
         public string segment { get; set; }

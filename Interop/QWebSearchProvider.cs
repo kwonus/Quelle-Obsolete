@@ -48,9 +48,9 @@ namespace QuelleHMI
                 return outer.Status();
             }
             public IQuelleSearchResult Search(QRequestSearch request)  {
-                //return outer.Search(request);
-                outer.Test("foo");
-                return null;
+                return outer.Search(request);
+                //outer.Test("foo");
+                //return null;
             }
             public IQuelleFetchResult Fetch(QRequestFetch request) {
                 return outer.Fetch(request);
@@ -104,11 +104,26 @@ namespace QuelleHMI
         internal const string mimetype = "application/msgpack";
         internal IQuelleSearchResult Search(QRequestSearch req)
         {
-            var cloud = new QWebClient(this.baseUrl);
-            var payload = MessagePackSerializer.Serialize(req);
+            var brief = new QRequestSearchBrief(req);
 
-            var packedRespospone = cloud.Post("/search", payload, mimetype);
-            //var response = MessagePackSerializer.Deserialize<IQuelleSearchResult>(packedRespospone.data);
+            var cloud = new QWebClient(this.baseUrl);
+            if (cloud != null)
+            {
+                try
+                {
+                    var payload = MessagePackSerializer.Serialize(brief);
+                    var packedRespospone = cloud.Post("/search", payload, mimetype);
+                    var response = MessagePackSerializer.Deserialize<IQuelleSearchResult>(packedRespospone.data);
+                    return response;
+                }
+                catch (Exception ex)
+                {
+                    var bad = new QSearchResult();
+                    bad.errors = new string[] { "Unable to pack message (befor calling search provider)" };
+                    bad.success = false;
+                    return bad;
+                }
+            }
             return null;
         }
         public IQuelleFetchResult Fetch(QRequestFetch req)
