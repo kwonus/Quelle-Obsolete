@@ -1,18 +1,18 @@
-﻿using MessagePack;
-using System;
+﻿using System;
+using System.Runtime.Serialization;
 
 namespace QuelleHMI
 {
-    [MessagePackObject]
+    [DataContract]
     public class QRequestPage: IQuellePageRequest
     {
         public QRequestPage(): base() { /*for msgpack*/ }
 
-        [Key(1)]
+        [DataMember]
         public Guid session { get; set; }
-        [Key(2)]
+        [DataMember]
         public string format { get; set; }
-        [Key(3)]
+        [DataMember]
         public UInt64 page { get; set; }
 
         public QRequestPage(IQuellePageRequest irequest)
@@ -22,20 +22,20 @@ namespace QuelleHMI
             this.page = irequest.page;
         }
     }
-    [MessagePackObject]
+    [DataContract]
     public class QPageResult : QResult, IQuellePageResult
     {
         public QPageResult() { /*for msgpack*/ }
 
-        [Key(4)]
+        [DataMember]
         public string result { get; set; }
-        [IgnoreMember]
+        //[IgnoreMember]
         public IQuellePageRequest request
         {
             get => this.qRequest;
             set => this.qRequest = new QRequestPage(value);
         }
-        [Key(5)]
+        [DataMember]
         public QRequestPage qRequest { get; set; }
 
         public QPageResult(IQuellePageResult iresult) : base((IQuelleResult)iresult)

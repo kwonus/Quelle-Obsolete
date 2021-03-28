@@ -1,14 +1,14 @@
-﻿using MessagePack;
-using QuelleHMI.Tokens;
+﻿using QuelleHMI.Tokens;
+using System.Runtime.Serialization;
 
 namespace QuelleHMI
 {
-    [MessagePackObject]
+    [DataContract]
     public class QTokenFeature : IQuelleTokenFeature
     {
         public QTokenFeature() { /*for msgpack*/ }
 
-        [Key(1)]
+        [DataMember]
         public string feature { get; set; }
 
         public QTokenFeature(IQuelleTokenFeature ifeature)

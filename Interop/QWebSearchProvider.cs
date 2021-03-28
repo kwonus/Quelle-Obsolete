@@ -1,4 +1,4 @@
-﻿using MessagePack;
+﻿using Utf8Json;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -111,9 +111,9 @@ namespace QuelleHMI
             {
                 try
                 {
-                    var payload = MessagePackSerializer.Serialize(brief);
+                    var payload = JsonSerializer.Serialize(brief);
                     var packedRespospone = cloud.Post("/search", payload, mimetype);
-                    var response = MessagePackSerializer.Deserialize<IQuelleSearchResult>(packedRespospone.data);
+                    var response = JsonSerializer.Deserialize<IQuelleSearchResult>(packedRespospone.data);
                     return response;
                 }
                 catch (Exception ex)

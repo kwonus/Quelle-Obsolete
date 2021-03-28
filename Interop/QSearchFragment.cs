@@ -1,17 +1,17 @@
-﻿using MessagePack;
-using QuelleHMI.Fragments;
+﻿using QuelleHMI.Fragments;
 using QuelleHMI.Tokens;
+using System.Runtime.Serialization;
 
 namespace QuelleHMI
 {
-    [MessagePackObject]
+    [DataContract]
     public class QSearchFragment : IQuelleSearchFragment
     {
         public QSearchFragment() { /*for msgpack*/ }
 
-        [Key(1)]
+        [DataMember]
         public uint[] positionAspects { get; set; }
-        [IgnoreMember]
+        //[IgnoreMember]
         public IQuelleTokenVector[] anyOf
         {
             get => this.qAnyOf;
@@ -23,9 +23,9 @@ namespace QuelleHMI
                     this.qAnyOf[i] = new QTokenVector(value[i++]);
             }
         }
-        [Key(2)]
+        [DataMember]
         public QTokenVector[] qAnyOf { get; set;  }
-        [Key(3)]
+        [DataMember]
         public string text { get; set; }
 
         public QSearchFragment(IQuelleSearchFragment ifragment)

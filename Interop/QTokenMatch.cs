@@ -1,16 +1,16 @@
-﻿using MessagePack;
-using QuelleHMI.Tokens;
+﻿using QuelleHMI.Tokens;
+using System.Runtime.Serialization;
 
 namespace QuelleHMI
 {
-    [MessagePackObject]
+    [DataContract]
     public class QTokenMatch : IQuelleTokenMatch
     {
         public QTokenMatch() { /*for msgpack*/ }
 
-        [Key(1)]
+        [DataMember]
         public string condition { get; set; }
-        [IgnoreMember]
+        //[IgnoreMember]
         public IQuelleTokenFeature[] anyFeature
         {
             get => this.qAnyFeature;
@@ -22,7 +22,7 @@ namespace QuelleHMI
                     this.qAnyFeature[i] = new QTokenFeature(value[i++]);
             }
         }
-        [Key(2)]
+        [DataMember]
         public QTokenFeature[] qAnyFeature { get; set; }
 
         public QTokenMatch(IQuelleTokenMatch imatch)

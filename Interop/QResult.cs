@@ -1,17 +1,18 @@
-﻿using MessagePack;
+﻿
+using System.Runtime.Serialization;
 
 namespace QuelleHMI
 {
-    [MessagePackObject]
+    [DataContract]
     public class QResult : IQuelleResult
     {
         public QResult() { /*for msgpack*/ }
 
-        [Key(1)]
+        [DataMember]
         public bool success { get; set; }
-        [Key(2)]
+        [DataMember]
         public string[] errors { get; set; }
-        [Key(3)]
+        [DataMember]
         public string[] warnings { get; set; }
 
         public QResult(IQuelleResult iresult)

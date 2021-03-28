@@ -1,15 +1,15 @@
-﻿using MessagePack;
-using QuelleHMI.Fragments;
+﻿using QuelleHMI.Fragments;
 using QuelleHMI.Actions;
+using System.Runtime.Serialization;
 
 namespace QuelleHMI
 {
-    [MessagePackObject]
+    [DataContract]
     public class QClauseSearch : IQuelleSearchClause
     {
         public QClauseSearch() { /*for msgpack*/ }
 
-        [IgnoreMember]
+        //[IgnoreMember]
         public IQuelleSearchFragment[] fragments
         {
             get => this.qfragments;
@@ -21,12 +21,11 @@ namespace QuelleHMI
                     this.qfragments[i] = new QSearchFragment(value[i++]);
             }
         }
-        //[Key(1)]
-        [IgnoreMember]
+        [DataMember]
         public QSearchFragment[] qfragments { get; set; }
-        [Key(2)]
+        [DataMember]
         public string segment { get; set; }
-        [Key(3)]
+        [DataMember]
         public char polarity { get; }
 
         public QClauseSearch(IQuelleSearchClause iclause)

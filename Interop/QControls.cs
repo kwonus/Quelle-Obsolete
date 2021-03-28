@@ -1,9 +1,9 @@
-﻿using MessagePack;
-using QuelleHMI.Definitions;
+﻿using QuelleHMI.Definitions;
+using System.Runtime.Serialization;
 
 namespace QuelleHMI
 {
-    [MessagePackObject]
+    [DataContract]
     public class QSearchControls: IQuelleSearchControls
     {
         public QSearchControls(): base() { /*for msgpack*/ }
@@ -13,25 +13,25 @@ namespace QuelleHMI
         public uint? span { get; set; }
         public bool? exact { get; set; }
 
-        [Key(1)]
+        [DataMember]
         public string Host
         {
             get => host;
             set => host = value;
         }
-        [Key(2)]
+        [DataMember]
         public string Domain
         {
             get => domain;
             set => domain = value;
         }
-        [Key(3)]
+        [DataMember]
         public uint Span
         {
             get => span.HasValue ? span.Value : CTLSearch.defaultSpan;
             set => span = value;
         }
-        [Key(4)]
+        [DataMember]
         public bool Exact
         {
             get => exact.HasValue ? exact.Value : CTLSearch.defaultExact;

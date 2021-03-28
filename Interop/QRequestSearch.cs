@@ -1,13 +1,13 @@
-﻿using MessagePack;
-using QuelleHMI.Definitions;
+﻿using QuelleHMI.Definitions;
 using QuelleHMI.Actions;
 using System.Linq;
 using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace QuelleHMI
 {
-    [MessagePackObject]
+    [DataContract]
     public class QRequestSearchBrief
     {
         public QRequestSearchBrief() { /*for msgpack*/ }
@@ -37,15 +37,15 @@ namespace QuelleHMI
                 this.controls.Add("host", QuelleControlConfig.search.host);
         }
 
-        [Key(1)]
+        [DataMember]
         public string[] clauses;
-        [Key(2)]
+        [DataMember]
         public Dictionary<string, string> controls;
-//        public QSearchControls qcontrols;
-        [Key(3)]
+        //        public QSearchControls qcontrols;
+        [DataMember]
         public UInt64 count { get; set; }
     }
-    [MessagePackObject]
+    [DataContract]
     public class QRequestSearch : IQuelleSearchRequest
     {
         public QRequestSearch() { /*for msgpack*/ }
@@ -72,7 +72,7 @@ namespace QuelleHMI
             this.qcontrols.span   = QuelleControlConfig.search.span.Value;
         }
 
-        [IgnoreMember]
+        //[IgnoreMember]
         public IQuelleSearchClause[] clauses
         {
             get => this.qclauses;
@@ -84,18 +84,18 @@ namespace QuelleHMI
                     this.qclauses[i++] = new QClauseSearch(val);
             }
         }
-        [IgnoreMember]
+        //[IgnoreMember]
         public IQuelleSearchControls controls
         {
             get => this.qcontrols;
             set => this.qcontrols = new QSearchControls(value);
         }
-        [Key(1)]
+        [DataMember]
         public QClauseSearch[] qclauses { get; set; }
 
-        [Key(2)]
+        [DataMember]
         public QSearchControls qcontrols;
-        [Key(3)]
+        [DataMember]
         public UInt64 count { get; set; }
 
         public QRequestSearch(IQuelleSearchRequest irequest)
@@ -105,19 +105,19 @@ namespace QuelleHMI
                 this.qclauses[i] = new QClauseSearch(irequest.clauses[i]);
         }
     }
-    [MessagePackObject]
+    [DataContract]
     public class QSearchResult : QResultFetch, IQuelleSearchResult
     {
         public QSearchResult() { /*for msgpack*/ }
 
-        [Key(8)]
+        [DataMember]
         public string summary { get; set; }
         public IQuelleSearchRequest enrichedRequest
         {
             get => this.qEnrichedRequest;
             set => this.qEnrichedRequest = new QRequestSearch(value);
         }
-        [Key(9)]
+        [DataMember]
         public QRequestSearch qEnrichedRequest { get; set; }
 
         QSearchResult(IQuelleSearchResult iresult): base((IQuelleFetchResult) iresult)

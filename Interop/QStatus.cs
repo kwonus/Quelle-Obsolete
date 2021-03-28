@@ -1,16 +1,16 @@
-﻿using MessagePack;
-using System;
+﻿using System;
+using System.Runtime.Serialization;
 
 namespace QuelleHMI
 {
-    [MessagePackObject]
+    [DataContract]
     public class QStatusResult: QResult, IQuelleStatusResult
     {
         public QStatusResult() { /*for msgpack*/ }
 
-        [Key(4)]
+        [DataMember]
         public Guid[] sessions { get; set; }
-        [Key(5)]
+        [DataMember]
         public string summary { get; set; }
 
 
