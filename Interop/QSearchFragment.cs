@@ -11,7 +11,7 @@ namespace QuelleHMI
 
         [DataMember]
         public uint[] positionAspects { get; set; }
-        //[IgnoreMember]
+        [IgnoreDataMember]
         public IQuelleTokenVector[] anyOf
         {
             get => this.qAnyOf;

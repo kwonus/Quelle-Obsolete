@@ -17,7 +17,6 @@ namespace QuelleHMI
         IQuelleSearchClause[] clauses { get;  }
         IQuelleSearchControls controls { get; }
         UInt64 count { get; }
-
     }
     public interface IQuelleFetchRequest
     {
@@ -76,9 +75,7 @@ namespace QuelleHMI
     {
         IQuelleResultString        Read(string setting);                     // Show *
         IQuelleResultInt           ReadInt(string setting);                  // Show
-
         IQuelleResult              Remove(string setting);                  // Remove *
-
         IQuelleResult              Write(string setting, string value);     // Config *
         IQuelleResult              Write(string setting, Int64 value);      // Config
     }

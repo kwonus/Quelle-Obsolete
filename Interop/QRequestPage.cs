@@ -29,7 +29,7 @@ namespace QuelleHMI
 
         [DataMember]
         public string result { get; set; }
-        //[IgnoreMember]
+        [IgnoreDataMember]
         public IQuellePageRequest request
         {
             get => this.qRequest;

@@ -10,7 +10,7 @@ namespace QuelleHMI
 
         [DataMember]
         public string specification { get; set;  }
-        //[IgnoreMember]
+        [IgnoreDataMember]
         public IQuelleTokenMatch[] matchAll
         {
             get => this.qMatchAll;

@@ -101,7 +101,7 @@ namespace QuelleHMI
             this.api = new QuelleSearchProvider(this);
             this.vanilla = new QuelleSearchProviderVanilla(this);
         }
-        internal const string mimetype = "application/msgpack";
+        internal const string mimetype = "application/json";
         internal IQuelleSearchResult Search(QRequestSearch req)
         {
             var brief = new QRequestSearchBrief(req);
@@ -113,7 +113,7 @@ namespace QuelleHMI
                 {
                     var payload = JsonSerializer.Serialize(brief);
                     var packedRespospone = cloud.Post("/search", payload, mimetype);
-                    var response = JsonSerializer.Deserialize<IQuelleSearchResult>(packedRespospone.data);
+                    var response = JsonSerializer.Deserialize<QSearchResult>(packedRespospone.data);
                     return response;
                 }
                 catch (Exception ex)

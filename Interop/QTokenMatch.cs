@@ -10,7 +10,7 @@ namespace QuelleHMI
 
         [DataMember]
         public string condition { get; set; }
-        //[IgnoreMember]
+        [IgnoreDataMember]
         public IQuelleTokenFeature[] anyFeature
         {
             get => this.qAnyFeature;

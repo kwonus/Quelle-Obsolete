@@ -48,7 +48,7 @@ namespace QuelleHMI
     [DataContract]
     public class QRequestSearch : IQuelleSearchRequest
     {
-        public QRequestSearch() { /*for msgpack*/ }
+        public QRequestSearch() { /*for serialization*/ }
 
         public QRequestSearch(HMIStatement statement)
         {
@@ -58,51 +58,57 @@ namespace QuelleHMI
                 if (clause.verb == Search.FIND)
                     cnt++;
             }
-            this.qclauses = new QClauseSearch[cnt];
+            this.Clauses = new QClauseSearch[cnt];
             cnt = 0;
             var searches = (from key in statement.segmentation.Keys orderby key select statement.segmentation[key]);
             foreach (var clause in searches)
             {
                 if (clause.verb == Search.FIND)
-                    this.qclauses[cnt++] = new QClauseSearch((Search) clause);
+                    this.Clauses[cnt++] = new QClauseSearch((Search) clause);
             }
-            this.qcontrols = new QSearchControls();
-            this.qcontrols.domain = QuelleControlConfig.search.domain;
-            this.qcontrols.exact  = QuelleControlConfig.search.exact.Value;
-            this.qcontrols.span   = QuelleControlConfig.search.span.Value;
+            this.Controls = new QSearchControls();
+            this.Controls.domain = QuelleControlConfig.search.domain;
+            this.Controls.exact  = QuelleControlConfig.search.exact.Value;
+            this.Controls.span   = QuelleControlConfig.search.span.Value;
         }
 
-        //[IgnoreMember]
+        [IgnoreDataMember]
         public IQuelleSearchClause[] clauses
         {
-            get => this.qclauses;
+            get => this.Clauses;
             set
             {
-                this.qclauses = new QClauseSearch[value.Length];
+                this.clauses = new QClauseSearch[value.Length];
                 int i = 0;
                 foreach (var val in value)
-                    this.qclauses[i++] = new QClauseSearch(val);
+                    this.clauses[i++] = new QClauseSearch(val);
             }
         }
-        //[IgnoreMember]
+        [IgnoreDataMember]
         public IQuelleSearchControls controls
         {
-            get => this.qcontrols;
-            set => this.qcontrols = new QSearchControls(value);
+            get => this.Controls;
+            set => this.Controls = new QSearchControls(value);
+        }
+        [IgnoreDataMember]
+        public UInt64 count
+        {
+            get => this.Count;
+            set => this.Count = value;
         }
         [DataMember]
-        public QClauseSearch[] qclauses { get; set; }
+        public QClauseSearch[] Clauses { get; set; }
 
         [DataMember]
-        public QSearchControls qcontrols;
+        public QSearchControls Controls;
         [DataMember]
-        public UInt64 count { get; set; }
+        public UInt64 Count { get; set; }
 
         public QRequestSearch(IQuelleSearchRequest irequest)
         {
-            this.qclauses = new QClauseSearch[irequest.clauses.Length];
+            this.Clauses = new QClauseSearch[irequest.clauses.Length];
             for (int i = 0; i < irequest.clauses.Length; i++)
-                this.qclauses[i] = new QClauseSearch(irequest.clauses[i]);
+                this.Clauses[i] = new QClauseSearch(clauses[i]);
         }
     }
     [DataContract]

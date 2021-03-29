@@ -6,7 +6,7 @@ namespace QuelleHMI
     [DataContract]
     public class QSearchControls: IQuelleSearchControls
     {
-        public QSearchControls(): base() { /*for msgpack*/ }
+        public QSearchControls(): base() { /*for serialization*/ }
 
         public string host { get; set; }
         public string domain { get; set; }

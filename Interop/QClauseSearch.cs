@@ -9,7 +9,7 @@ namespace QuelleHMI
     {
         public QClauseSearch() { /*for msgpack*/ }
 
-        //[IgnoreMember]
+        [IgnoreDataMember]
         public IQuelleSearchFragment[] fragments
         {
             get => this.qfragments;
