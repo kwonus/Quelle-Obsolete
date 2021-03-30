@@ -16,13 +16,13 @@ namespace QuelleHMI
         [DataMember]
         public string Host
         {
-            get => host;
+            get => host != null ? host : CTLSearch.defaultHost;
             set => host = value;
         }
         [DataMember]
         public string Domain
         {
-            get => domain;
+            get => domain != null ? domain : CTLSearch.defaultDomain;
             set => domain = value;
         }
         [DataMember]

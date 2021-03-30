@@ -3,7 +3,6 @@ using System.Net.Http;
 using QuelleHMI;
 using QuelleHMI.Definitions;
 using QuelleHMI.Actions;
-using static QuelleHMI.HMISession;
 
 //  This driver implementation depends upon QuelleHMI library
 //

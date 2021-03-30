@@ -9,7 +9,7 @@ namespace QuelleHMI.Actions
     {
         IQuelleSearchFragment[] fragments { get; }
         string segment { get; }
-        char polarity { get; }
+        byte polarity { get; }
     }
     public class Search : Actions.Action, IQuelleSearchClause
     {

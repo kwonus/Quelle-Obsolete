@@ -9,7 +9,7 @@ namespace QuelleHMI
     //
     public interface ISearchProviderAsync
     {
-        ValueTask<IQuelleStatusResult> StatusAsync();
+        //ValueTask<IQuelleStatusResult> StatusAsync();
         ValueTask<IQuelleSearchResult> SearchAsync(QRequestSearch request);
         ValueTask<IQuelleFetchResult> FetchAsync(IQuelleFetchRequest request);
         ValueTask<IQuellePageResult> PageAsync(QRequestPage request);
@@ -17,7 +17,7 @@ namespace QuelleHMI
     }
     public interface ISearchProvider
     {
-        IQuelleStatusResult Status();
+        //IQuelleStatusResult Status();
         IQuelleSearchResult Search(QRequestSearch request);
         IQuelleFetchResult Fetch(QRequestFetch request);
         IQuellePageResult Page(QRequestPage request);
@@ -25,7 +25,7 @@ namespace QuelleHMI
     }
     public interface ISearchProviderVanilla
     {
-        IQuelleStatusResult Status();
+        //IQuelleStatusResult Status();
         IQuelleSearchResult Search(IQuelleSearchRequest request);
         IQuelleFetchResult Fetch(IQuelleFetchRequest request);
         IQuellePageResult Page(IQuellePageRequest request);
@@ -44,9 +44,9 @@ namespace QuelleHMI
             public QuelleSearchProvider(SearchProviderClient outer)  {
                 this.outer = outer;
             }
-            public IQuelleStatusResult Status() {
-                return outer.Status();
-            }
+            //public IQuelleStatusResult Status() {
+            //    return outer.Status();
+            //}
             public IQuelleSearchResult Search(QRequestSearch request)  {
                 return outer.Search(request);
                 //outer.Test("foo");
@@ -69,10 +69,10 @@ namespace QuelleHMI
             {
                 this.outer = outer;
             }
-            public IQuelleStatusResult Status()
-            {
-                return outer.Status();
-            }
+            //public IQuelleStatusResult Status()
+            //{
+            //    return outer.Status();
+            //}
             public IQuelleSearchResult Search(IQuelleSearchRequest request)
             {
                 var qrequest = new QRequestSearch(request);
@@ -104,14 +104,12 @@ namespace QuelleHMI
         internal const string mimetype = "application/json";
         internal IQuelleSearchResult Search(QRequestSearch req)
         {
-            var brief = new QRequestSearchBrief(req);
-
             var cloud = new QWebClient(this.baseUrl);
             if (cloud != null)
             {
                 try
                 {
-                    var payload = JsonSerializer.Serialize(brief);
+                    var payload = JsonSerializer.Serialize(req);
                     var packedRespospone = cloud.Post("/search", payload, mimetype);
                     var response = JsonSerializer.Deserialize<QSearchResult>(packedRespospone.data);
                     return response;
@@ -119,8 +117,7 @@ namespace QuelleHMI
                 catch (Exception ex)
                 {
                     var bad = new QSearchResult();
-                    bad.errors = new string[] { "Unable to pack message (befor calling search provider)" };
-                    bad.success = false;
+                    bad.messages["error"] = "Unable to pack message (befor calling search provider)";
                     return bad;
                 }
             }
@@ -134,7 +131,7 @@ namespace QuelleHMI
         {
             return null;
         }
-        public IQuelleStatusResult Status()
+        public string Status()
         {
             var cloud = new QWebClient(this.baseUrl);
 
@@ -142,7 +139,7 @@ namespace QuelleHMI
             Console.WriteLine("Result from get /status:");
             Console.WriteLine(result);
 
-            return null;
+            return result;
         }
         public string Test(string req)
         {

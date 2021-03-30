@@ -25,25 +25,31 @@ namespace QuelleHMI
     }
 
     [DataContract]
-    public class QResultFetch : QResult, IQuelleFetchResult
+    public class QResultFetch: IQuelleFetchResult
     {
-        public QResultFetch(): base() { /*for msgpack*/ }
+        public QResultFetch() { /*for serialization*/ }
 
+        [DataMember]
+        public byte[] session { get; set; } // MD5/GUID
+        [DataMember]
+        public Dictionary<UInt32, String> abstracts { get; set; }
         [DataMember]
         public UInt64 cursor { get; set; }
         [DataMember]
+        public UInt64 count { get; set; }
+        [DataMember]
         public UInt64 remainder { get; set; }
         [DataMember]
-        public Guid session { get; set; }
-        [DataMember]
-        public Dictionary<UInt64, string> records { get; set; }
+        public Dictionary<string, string> messages { get; set; }
 
-        public QResultFetch(IQuelleFetchResult iresult) : base ((IQuelleResult) iresult)
+        public QResultFetch(IQuelleFetchResult iresult)
         {
+            this.abstracts = iresult.abstracts;
             this.cursor = iresult.cursor;
+            this.count = iresult.count;
             this.remainder = iresult.remainder;
             this.session = iresult.session;
-            this.records = iresult.records;
+            this.messages = iresult.messages;
         }
     }
 }

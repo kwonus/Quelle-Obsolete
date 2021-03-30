@@ -56,7 +56,7 @@ namespace QuelleHMI
 			var request = new QRequestSearch(this.statement); // (IQuelleSearchRequest)
 			IQuelleSearchResult response = client.api.Search(request);
 
-			return (response != null) && response.success;
+			return response != null && response.messages.Count == 0;
         }
 	}
 }

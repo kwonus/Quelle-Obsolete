@@ -105,7 +105,7 @@ namespace QuelleHMI.Actions
         protected UInt32 sequence { get; private set; }  // Sequence number of segment
         public string segment { get; protected set; }
         public HMIPolarity Polarity { get; private set; }
-        public char polarity { get => Polarity == HMIPolarity.POSITIVE ? '+' : Polarity == HMIPolarity.NEGATIVE ? '-' : '\0'; }
+        public byte polarity { get => (byte) this.Polarity; }
 
 
         public readonly static string[] Whitespace = new string[] { " ", "\t" };

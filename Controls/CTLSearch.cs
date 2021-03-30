@@ -28,6 +28,8 @@ namespace QuelleHMI.Definitions
         public const uint maxSpan = 1000;
         public const uint minSpan = 0;
         public const uint defaultSpan = 0;
+        public const string defaultDomain = "Bible.AV";
+        public const string defaultHost = "http://127.0.0.1:7878";
 
         public const bool defaultExact = false;
 

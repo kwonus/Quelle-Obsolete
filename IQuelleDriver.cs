@@ -6,12 +6,6 @@ using System.Text;
 
 namespace QuelleHMI
 {
-    public interface IQuelleResult
-    {
-        bool success { get; }
-        string[] errors { get; }
-        string[] warnings { get; }
-    }
     public interface IQuelleSearchRequest
     {
         IQuelleSearchClause[] clauses { get;  }
@@ -24,60 +18,30 @@ namespace QuelleHMI
         UInt64 cursor { get; }
         UInt64 count { get; }
     }
-    public interface IQuelleFetchResult : IQuelleResult
+    public interface IQuelleFetchResult
     {
+        byte[] session { get; } // MD5/GUID
+        Dictionary<UInt32, String> abstracts { get; }
         UInt64 cursor { get; }
+        UInt64 count { get; }
         UInt64 remainder { get; }
-        Guid session { get; }
-        Dictionary<UInt64, string> records { get; }     // The UInt16 is a key to be used with the session to retrieve a specific result
-                                                        // the string is th abstract for the record
+        Dictionary<string, string> messages { get; }
     }
     public interface IQuelleSearchResult : IQuelleFetchResult
     {
+        Dictionary<byte, Dictionary<byte, Dictionary<byte, Dictionary<byte, UInt64>>>> records { get; }
         string summary { get; }
-        IQuelleSearchRequest enrichedRequest { get; }
-    }
-    public interface IQuelleStatusResult : IQuelleResult
-    {
-        public string summary { get; }
-        public Guid[] sessions { get; }
     }
     public interface IQuellePageRequest
     {
-        Guid session { get; }
+        byte[] session { get; }
         string format { get; }
         UInt64 page { get; }
     }
-    public interface IQuellePageResult : IQuelleResult  // GET the HTML, TEXT, or MD representation of page
+    public interface IQuellePageResult  // GET the HTML, TEXT, or MD representation of page
     {
         string result { get; }
-        IQuellePageRequest request { get; }
-    }
-    public interface IQuelleResultObject : IQuelleResult
-    {
-        object result { get;  }
-    }
-
-    public interface IQuelleResultString : IQuelleResult
-    {
-        string result { get; }
-    }
-    public interface IQuelleResultInt : IQuelleResult
-    {
-        Int64 result { get; }
-    }
-    public interface IClaritResultStringyArray : IQuelleResult
-    {
-        string[] results { get; }
-    }
-
-    public interface IQuelleConfig
-    {
-        IQuelleResultString        Read(string setting);                     // Show *
-        IQuelleResultInt           ReadInt(string setting);                  // Show
-        IQuelleResult              Remove(string setting);                  // Remove *
-        IQuelleResult              Write(string setting, string value);     // Config *
-        IQuelleResult              Write(string setting, Int64 value);      // Config
+        Dictionary<string, string> messages { get; }
     }
     public interface IQuelleHelp
     {

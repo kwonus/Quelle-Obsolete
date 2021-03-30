@@ -5,48 +5,48 @@ using System.Runtime.Serialization;
 namespace QuelleHMI
 {
     [DataContract]
-    public class QClauseSearch : IQuelleSearchClause
+    public class QClauseSearch
     {
-        public QClauseSearch() { /*for msgpack*/ }
+        public QClauseSearch() { /*for serialization*/ }
 
-        [IgnoreDataMember]
-        public IQuelleSearchFragment[] fragments
-        {
-            get => this.qfragments;
-            set
-            {
-                this.qfragments = new QSearchFragment[value.Length];
-                int i = 0;
-                foreach (var frag in value)
-                    this.qfragments[i] = new QSearchFragment(value[i++]);
-            }
-        }
         [DataMember]
-        public QSearchFragment[] qfragments { get; set; }
+        public string[] fragments { get; set; }
         [DataMember]
         public string segment { get; set; }
         [DataMember]
-        public char polarity { get; }
+        public byte polarity { get; set; }
 
         public QClauseSearch(IQuelleSearchClause iclause)
         {
-            this.qfragments = iclause.fragments != null ? new QSearchFragment[iclause.fragments.Length] : null;
-            this.segment = HMIStatement.SquenchText(iclause.segment);
-            this.polarity = iclause.polarity;
+            if (iclause != null)
+            {
+                this.segment = HMIStatement.SquenchText(iclause.segment);
+                this.polarity = iclause.polarity;
 
-            if (this.qfragments != null)
-                for (int i = 0; i < iclause.fragments.Length; i++)
-                    this.qfragments[i] = new QSearchFragment(iclause.fragments[i]);
+                this.fragments = iclause.fragments != null ? new string[iclause.fragments.Length] : null;
+                if (this.fragments != null)
+                {
+                    int i = 0;
+                    foreach (var f in iclause.fragments)
+                        this.fragments[i++] = f.text;
+                }
+            }
         }
         public QClauseSearch(Search hclause)
         {
-            int cnt = hclause.fragments != null ? hclause.fragments.Length : 0;
-            this.qfragments = cnt > 0 ? new QSearchFragment[cnt] : null;
+            if (hclause != null)
+            {
+                this.segment = HMIStatement.SquenchText(hclause.segment);
+                this.polarity = hclause.polarity;
 
-            for (int i = 0; i < cnt; i++)
-                this.qfragments[i] = new QSearchFragment(hclause.fragments[i]);
-            this.segment = hclause.segment;
-            this.polarity = hclause.polarity;
+                this.fragments = hclause.fragments != null ? new string[hclause.fragments.Length] : null;
+                if (this.fragments != null)
+                {
+                    int i = 0;
+                    foreach (var f in hclause.fragments)
+                        this.fragments[i++] = f.text;
+                }
+            }
         }
     }
 }

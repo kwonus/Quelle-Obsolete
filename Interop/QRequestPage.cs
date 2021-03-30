@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace QuelleHMI
@@ -6,10 +7,10 @@ namespace QuelleHMI
     [DataContract]
     public class QRequestPage: IQuellePageRequest
     {
-        public QRequestPage(): base() { /*for msgpack*/ }
+        public QRequestPage(): base() { /*for serialization*/ }
 
         [DataMember]
-        public Guid session { get; set; }
+        public byte[] session { get; set; }
         [DataMember]
         public string format { get; set; }
         [DataMember]
@@ -23,25 +24,19 @@ namespace QuelleHMI
         }
     }
     [DataContract]
-    public class QPageResult : QResult, IQuellePageResult
+    public class QPageResult : IQuellePageResult
     {
-        public QPageResult() { /*for msgpack*/ }
+        public QPageResult() { /*for serialization*/ }
 
         [DataMember]
         public string result { get; set; }
-        [IgnoreDataMember]
-        public IQuellePageRequest request
-        {
-            get => this.qRequest;
-            set => this.qRequest = new QRequestPage(value);
-        }
         [DataMember]
-        public QRequestPage qRequest { get; set; }
+        public Dictionary<string, string> messages { get; set; }
 
-        public QPageResult(IQuellePageResult iresult) : base((IQuelleResult)iresult)
+        public QPageResult(IQuellePageResult iresult)
         {
             this.result = iresult.result;
-            this.qRequest = new QRequestPage(iresult.request);
+            this.messages = iresult.messages;
         }
     }
 }

@@ -8,7 +8,7 @@ namespace QuelleHMI.Fragments
 {
 	public interface IQuelleSearchFragment
     {
-		uint[] positionAspects { get; }
+		UInt32[] positionAspects { get; }
 		IQuelleTokenVector[] anyOf { get; }
 		string text { get; }
 	}

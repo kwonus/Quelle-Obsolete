@@ -21,7 +21,7 @@ namespace QuelleHMI
         public string statement { get; private set; }
         public Dictionary<UInt32, Actions.Action> segmentation { get; private set; }
 
-        protected (bool simple, Actions.Action explicitClause, Actions.Action[] setters, Actions.Action[] removals, Actions.Action[] searches) normalized;
+        protected (bool simple, Actions.Action explicitAction, Actions.Action[] setters, Actions.Action[] removals, Actions.Action[] searches) normalized;
 
         public static string SquenchAndNormalizeText(string text)
         {
@@ -183,7 +183,12 @@ namespace QuelleHMI
                     this.Notify("error", "The type of clause could not be identified");
 
                 if (!clause.isImplicit())
-                    this.normalized.explicitClause = clause;
+                {
+                    if (this.normalized.explicitAction == null)
+                        this.normalized.explicitAction = clause;
+                    else
+                        this.Notify("error", "Cannot have more than one explicit action. Both " + this.normalized.explicitAction.verb + " and " + clause.verb + " encountered in the same statement");
+                }
 
                 else if (clause.verb == Actions.Search.FIND)
                     Append(ref this.normalized.searches, clause);
@@ -213,7 +218,7 @@ namespace QuelleHMI
 
                 if (normalized.simple)
                 {
-                    ok = normalized.explicitClause.Execute();
+                    ok = normalized.explicitAction.Execute();
                 }
                 else
                 {
@@ -243,9 +248,9 @@ namespace QuelleHMI
                     }
                     if (ok)
                     {
-                        if (normalized.explicitClause != null)  // DO WE STILL NEED THIS?  OR CAN WE JUST DO DEFINE/PRINT LAST?
+                        if (normalized.explicitAction != null)  // DO WE STILL NEED THIS?  OR CAN WE JUST DO DEFINE/PRINT LAST?
                         {
-                            ok = normalized.explicitClause.Execute();
+                            ok = normalized.explicitAction.Execute();
                         }
                         else if (normalized.searches != null)
                         {
