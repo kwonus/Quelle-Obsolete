@@ -110,8 +110,9 @@ namespace QuelleHMI
                 try
                 {
                     var payload = JsonSerializer.Serialize(req);
-                    var packedRespospone = cloud.Post("/search", payload, mimetype);
-                    var response = JsonSerializer.Deserialize<QSearchResult>(packedRespospone.data);
+                    var packedResponse = cloud.Post("/search", payload, mimetype);
+                    var str = System.Text.Encoding.Default.GetString(packedResponse.data).Trim();
+                    var response = JsonSerializer.Deserialize<QSearchResult>(packedResponse.data);
                     return response;
                 }
                 catch (Exception ex)
