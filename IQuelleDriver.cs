@@ -20,7 +20,7 @@ namespace QuelleHMI
     }
     public interface IQuelleFetchResult
     {
-        byte[] session { get; } // MD5/GUID
+        Guid session { get; } // MD5/GUID
         Dictionary<UInt32, String> abstracts { get; }
         UInt64 cursor { get; }
         UInt64 count { get; }
@@ -34,7 +34,7 @@ namespace QuelleHMI
     }
     public interface IQuellePageRequest
     {
-        byte[] session { get; }
+        Guid session { get; }
         string format { get; }
         UInt64 page { get; }
     }

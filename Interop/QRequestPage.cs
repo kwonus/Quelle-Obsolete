@@ -10,7 +10,7 @@ namespace QuelleHMI
         public QRequestPage(): base() { /*for serialization*/ }
 
         [DataMember]
-        public byte[] session { get; set; }
+        public Guid session { get; set; }
         [DataMember]
         public string format { get; set; }
         [DataMember]

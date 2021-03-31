@@ -30,7 +30,7 @@ namespace QuelleHMI
         public QResultFetch() { /*for serialization*/ }
 
         [DataMember]
-        public byte[] session { get; set; } // MD5/GUID
+        public Guid session { get; set; } // MD5/GUID
         [DataMember]
         public Dictionary<UInt32, String> abstracts { get; set; }
         [DataMember]
