@@ -58,7 +58,7 @@ namespace QuelleHMI.Actions
         }
         public static (Action action, string error) GetAction(HMIStatement statement, string segment, uint order)
         {
-            string text = statement.statement;
+            string text = segment;
             int equals = text.IndexOf('=');
             if (equals > 0 && equals+1 < text.Length)
             {
