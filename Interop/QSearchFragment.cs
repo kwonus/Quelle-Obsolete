@@ -13,14 +13,14 @@ namespace QuelleHMI
         [IgnoreDataMember]
         public UInt32[] positionAspects { get; set; }
         [IgnoreDataMember]
-        public IQuelleTokenVector[] anyOf { get; set; }
+        public IQuelleFeatureSpec[] spec { get; set; }
         [DataMember]
         public string text { get; set; }
 
         public QSearchFragment(IQuelleSearchFragment ifragment)
         {
             this.positionAspects = ifragment.positionAspects;
-            this.anyOf = ifragment.anyOf;
+            this.spec = ifragment.spec;
             this.text = HMIStatement.SquenchText(ifragment.text);
         }
     }

@@ -9,7 +9,7 @@ namespace QuelleHMI.Fragments
 	public interface IQuelleSearchFragment
     {
 		UInt32[] positionAspects { get; }
-		IQuelleTokenVector[] anyOf { get; }
+		IQuelleFeatureSpec[] spec { get; }  // spec is "All Of" features in the specification
 		string text { get; }
 	}
     public class SearchFragment: Fragment, IQuelleSearchFragment
@@ -174,7 +174,7 @@ namespace QuelleHMI.Fragments
 			}
 		}
 		*/
-		public IQuelleTokenVector[] anyOf
+		public IQuelleFeatureSpec[] spec
         {
             get
             {

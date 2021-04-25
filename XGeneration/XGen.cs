@@ -21,7 +21,7 @@ namespace QuelleHMI
 
 			typeof(IQuelleSearchControls), typeof(IQuelleSearchClause),
 			typeof(IQuelleSearchFragment),
-			typeof(Tokens.IQuelleTokenFeature), typeof(Tokens.IQuelleTokenMatch), typeof(Tokens.IQuelleTokenVector)
+			typeof(Tokens.IQuelleFeature), typeof(Tokens.IQuelleFeatureMatch), typeof(Tokens.IQuelleFeatureSpec)
 		};
 
 		public static Type[] Enumerations = new Type[] {

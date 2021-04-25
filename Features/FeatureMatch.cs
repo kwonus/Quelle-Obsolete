@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace QuelleHMI.Tokens
-{public interface IQuelleTokenMatch
+{public interface IQuelleFeatureMatch
     {
         string condition { get; }
-        IQuelleTokenFeature[] anyFeature { get; }
+        IQuelleFeature[] features { get; }
     }
 }
