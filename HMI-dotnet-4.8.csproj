@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <AssemblyName>QuelleHMI</AssemblyName>
+    <RootNamespace>QuelleHMI</RootNamespace>
+    <Authors>Kevin Wonus</Authors>
+    <Company>AV Text Ministries</Company>
+    <Product>Quelle-HMI</Product>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Utf8Json" Version="1.3.7" />
+  </ItemGroup>
+
+</Project>
