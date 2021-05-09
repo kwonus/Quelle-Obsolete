@@ -11,13 +11,13 @@ namespace QuelleHMI
         public QWebClient(string site)
         {
             this.site = site != null ? site : "127.0.0.1";
-            if (this.site.EndsWith('/'))
+            if (this.site.EndsWith("/"))
                 this.site = this.site.Substring(0, site.Length-1);
         }
 
         public string Get(string endpoint, UInt16 maxResponseLength = 1024)
         {
-            string url = site + (endpoint != null ? endpoint.StartsWith('/') ? endpoint : "/" + endpoint : "");
+            string url = site + (endpoint != null ? endpoint.StartsWith("/") ? endpoint : "/" + endpoint : "");
             Console.WriteLine("Getting " + url);
 
             HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(url);
@@ -46,7 +46,7 @@ namespace QuelleHMI
         }
         public (byte[] data, int length) Post(string endpoint, byte[] payload, string mimetype, UInt16 maxResponseLength = 1024)
         {
-            string url = site + (endpoint != null ? endpoint.StartsWith('/') ? endpoint : "/" + endpoint : "");
+            string url = site + (endpoint != null ? endpoint.StartsWith("/") ? endpoint : "/" + endpoint : "");
             Console.WriteLine("Post to " + url);
 
             HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(url);

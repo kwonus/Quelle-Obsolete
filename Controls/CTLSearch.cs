@@ -188,8 +188,8 @@ namespace QuelleHMI.Definitions
                     {
                         case HOST:   this.host   = value;   return true;
                         case DOMAIN: this.domain = value;   return true;
-                        case SPAN:   this.span   = value != null ? uint.Parse(value) : null; return true;
-                        case EXACT:  this.exact  = value != null ? (value == "true") : null; return true;
+                        case SPAN:   this.span   = value != null ? (uint?) uint.Parse(value) : (uint?) null; return true;
+                        case EXACT:  this.exact  = value != null ? (bool?) (value == "true") : (bool?) null; return true;
                     }
                 }
                 catch (Exception ex)

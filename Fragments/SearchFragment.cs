@@ -117,7 +117,7 @@ namespace QuelleHMI.Fragments
 				this.elipses = true;
 				token = token.Substring(3);
 			}
-			if (token.StartsWith('[') && token.EndsWith(']'))
+			if (token.StartsWith("[") && token.EndsWith("]"))
 			{
 				if (!this.isBracketed)
 				{
@@ -129,7 +129,7 @@ namespace QuelleHMI.Fragments
 				segment.Notify("warning", "A single token with square brackets has no effect on ordering.");
 				token = token.Substring(1, token.Length - 2).Trim();
 			}
-			else if (token.StartsWith('['))
+			else if (token.StartsWith("["))
 			{
 				if (!this.isBracketed)
 				{
@@ -140,7 +140,7 @@ namespace QuelleHMI.Fragments
 				this.bracketStart = true;
 				token = token.Substring(1).Trim();
 			}
-			else if (token.EndsWith(']'))
+			else if (token.EndsWith("]"))
 			{
 				if (!this.isBracketed)
 				{

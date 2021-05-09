@@ -96,8 +96,8 @@ namespace QuelleHMI
         public SearchProviderClient(string host)
         {
             this.baseUrl = host != null ? host : "http://127.0.0.1:7878/";
-            if (!this.baseUrl.EndsWith('/'))
-                this.baseUrl += '/';
+            if (!this.baseUrl.EndsWith("/"))
+                this.baseUrl += "/";
             this.api = new QuelleSearchProvider(this);
             this.vanilla = new QuelleSearchProviderVanilla(this);
         }

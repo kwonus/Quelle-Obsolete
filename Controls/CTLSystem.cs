@@ -59,7 +59,7 @@ namespace QuelleHMI.Definitions
                 {
                     switch (key)
                     {
-                        case INDENTATION:   this.indentation = value != null ? uint.Parse(value) : null;
+                        case INDENTATION:   this.indentation = value != null ? (uint?) uint.Parse(value) : (uint?) null;
                                             return true;
                     }
                 }

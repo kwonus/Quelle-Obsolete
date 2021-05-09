@@ -10,7 +10,9 @@ namespace QuelleHMI.Definitions
     {
         string label { get; }
         string expansion { get; }
-
+    }
+    public abstract class IEXPAND
+    {
         static IExpand Create(string label, HMIStatement statement)
         {
             if (string.IsNullOrEmpty(label) || (statement == null || statement.segmentation.Count < 1))

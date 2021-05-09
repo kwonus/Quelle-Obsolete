@@ -301,7 +301,7 @@ namespace QuelleHMI.Actions
         {
             this.searchFragments = new Dictionary<UInt64, SearchFragment>();
 
-            if (!(this.segment.StartsWith('"') && this.segment.EndsWith('"')))
+            if (!(this.segment.StartsWith('"'.ToString()) && this.segment.EndsWith('"'.ToString())))
             {
                 return false;
             }

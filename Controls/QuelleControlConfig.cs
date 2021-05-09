@@ -117,7 +117,7 @@ namespace QuelleHMI.Definitions
                     {
                         dir = dir.Trim();
 
-                        while (dir.EndsWith('/') || dir.EndsWith('\\'))
+                        while (dir.EndsWith("/") || dir.EndsWith("\\"))
                             dir = dir.Substring(0, dir.Length - 1).TrimEnd();
 
                         if (dir == null || dir.Trim().Length == 0)
@@ -139,7 +139,7 @@ namespace QuelleHMI.Definitions
             if ((candidate == null) || string.IsNullOrWhiteSpace(candidate))
                 return false;
 
-            if (candidate.Contains('.'))
+            if (candidate.Contains("."))
             {
                 var parts = Actions.Action.SmartSplit(candidate, '.');
                 if (parts.Length != 2)

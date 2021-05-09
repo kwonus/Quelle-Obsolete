@@ -36,7 +36,7 @@ namespace QuelleHMI.Actions
                 return false;
 
             var expanded = this.statement.statement.ToLower().Replace(">", " > ");
-            var max = expanded.Contains('!') ? 6 : 5;
+            var max = expanded.Contains("!") ? 6 : 5;
             var tokens = expanded.Split(Action.Whitespace, max, StringSplitOptions.RemoveEmptyEntries);
 
             if (tokens[0] == System.GENERATE || tokens[0] == System.REGENERATE)
