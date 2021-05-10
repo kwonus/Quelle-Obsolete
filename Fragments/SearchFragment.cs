@@ -156,7 +156,12 @@ namespace QuelleHMI.Fragments
         {
             get
             {
-				return null;
+				var specs = this.text.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+				var array = new IQuelleFeatureSpec[specs.Length];
+				int i = 0;
+				foreach (var text in specs)
+					array[i++] = new FeatureSpec(text);
+				return array;
             }
         }
 	}
