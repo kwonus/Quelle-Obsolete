@@ -207,7 +207,7 @@ namespace QuelleHMI
             }
             return this.errors.Count == 0;
         }
-        public bool Execute()
+        public bool Execute(ISearchProvider provider)
         {
             bool ok = (command.errors.Count == 0);
 
@@ -244,7 +244,7 @@ namespace QuelleHMI
                             if (!ok)
                                 break;
                         }
-                        ok = ok && this.command.Search();
+                        ok = ok && this.command.Search(provider);
                     }
                     if (ok)
                     {

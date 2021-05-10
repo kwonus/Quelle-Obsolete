@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace QuelleHMI
 {
@@ -11,7 +12,6 @@ namespace QuelleHMI
     {
         //ValueTask<IQuelleStatusResult> StatusAsync();
         ValueTask<IQuelleSearchResult> SearchAsync(QRequestSearch request);
-        ValueTask<IQuelleFetchResult> FetchAsync(IQuelleFetchRequest request);
         ValueTask<IQuellePageResult> PageAsync(QRequestPage request);
         ValueTask<string> TestAsync(string request);
     }
@@ -19,20 +19,63 @@ namespace QuelleHMI
     {
         //IQuelleStatusResult Status();
         IQuelleSearchResult Search(QRequestSearch request);
-        IQuelleFetchResult Fetch(QRequestFetch request);
         IQuellePageResult Page(QRequestPage request);
         string Test(string request);
+    }
+    public class AbstractQuelleSearchResult: IQuelleSearchResult    // for C++/CLI support
+    {
+        public Dictionary<byte, Dictionary<byte, Dictionary<byte, byte[]>>> matches { get; }
+        public Dictionary<byte, Dictionary<byte, Dictionary<byte, Dictionary<byte, string>>>> labels { get; }
+        public string summary { get; }
+        public Guid session { get; } // MD5/GUID
+        public Dictionary<UInt32, String> abstracts { get; }
+        public UInt64 cursor { get; }
+        public UInt64 count { get; }
+        public UInt64 remainder { get; }
+        public Dictionary<string, string> messages { get; }
+    }
+    public class AbstractQuellePageResult: IQuellePageResult    // for C++/CLI support
+    {
+        public string result { get; }
+        public Dictionary<string, string> messages { get; }
+    }
+    public abstract class AbstractQuelleSearchProvider    // for C++/CLI support
+    {
+        //IQuelleStatusResult Status();
+        public abstract AbstractQuelleSearchResult Search(QRequestSearch request);
+         public abstract AbstractQuellePageResult Page(QRequestPage request);
+        public abstract string Test(string request);
+    }
+    public class InstantiatedQuelleSearchProvider: ISearchProvider    // for C++/CLI support
+    {
+        private AbstractQuelleSearchProvider instance;
+        public InstantiatedQuelleSearchProvider(AbstractQuelleSearchProvider provider)
+        {
+            this.instance = provider;
+        }
+        //IQuelleStatusResult Status();
+        public IQuelleSearchResult Search(QRequestSearch request)
+        {
+            return instance != null ? instance.Search(request) : null;
+        }
+        public IQuellePageResult Page(QRequestPage request)
+        {
+            return instance != null ? instance.Page(request) : null;
+        }
+        public string Test(string request)
+        {
+            return instance != null ? instance.Test(request) : null;
+        }
     }
     public interface ISearchProviderVanilla
     {
         //IQuelleStatusResult Status();
         IQuelleSearchResult Search(IQuelleSearchRequest request);
-        IQuelleFetchResult Fetch(IQuelleFetchRequest request);
         IQuellePageResult Page(IQuellePageRequest request);
         string Test(string request);
     }
 
-    public class SearchProviderClient
+    public class SearchProviderClient: ISearchProvider
     {
         private String baseUrl;
         public ISearchProvider api { get; private set; }
@@ -40,26 +83,23 @@ namespace QuelleHMI
 
         public class QuelleSearchProvider: ISearchProvider
         {
-            private SearchProviderClient outer;
-            public QuelleSearchProvider(SearchProviderClient outer)  {
+            private ISearchProvider outer;
+            public QuelleSearchProvider(ISearchProvider outer)  {
                 this.outer = outer;
             }
             //public IQuelleStatusResult Status() {
             //    return outer.Status();
             //}
             public IQuelleSearchResult Search(QRequestSearch request)  {
-                return outer.Search(request);
+                return this.outer.Search(request);
                 //outer.Test("foo");
                 //return null;
             }
-            public IQuelleFetchResult Fetch(QRequestFetch request) {
-                return outer.Fetch(request);
-            }
             public IQuellePageResult Page(QRequestPage request) {       // GET HTML, TEXT, or MD page
-                return outer.Page(request);
+                return this.outer.Page(request);
             }
             public string Test(string request) {
-                return outer.Test(request);
+                return this.outer.Test(request);
             }
         }
         public class QuelleSearchProviderVanilla : ISearchProviderVanilla
@@ -78,11 +118,6 @@ namespace QuelleHMI
                 var qrequest = new QRequestSearch(request);
                 return outer.Search(qrequest);
             }
-            public IQuelleFetchResult Fetch(IQuelleFetchRequest request)
-            {
-                var qrequest = new QRequestFetch(request);
-                return outer.Fetch(qrequest);
-            }
             public IQuellePageResult Page(IQuellePageRequest request)
             {       // GET HTML, TEXT, or MD page
                 var qrequest = new QRequestPage(request);
@@ -93,6 +128,14 @@ namespace QuelleHMI
                 return outer.Test(request);
             }
         }
+        public SearchProviderClient(ISearchProvider inprocProvider)
+        {
+            this.baseUrl = "";
+            if (!this.baseUrl.EndsWith("/"))
+                this.baseUrl += "/";
+            this.api = new QuelleSearchProvider(inprocProvider);
+            this.vanilla = new QuelleSearchProviderVanilla(this);
+        }
         public SearchProviderClient(string host)
         {
             this.baseUrl = host != null ? host : "http://127.0.0.1:7878/";
@@ -102,7 +145,7 @@ namespace QuelleHMI
             this.vanilla = new QuelleSearchProviderVanilla(this);
         }
         internal const string mimetype = "application/json";
-        internal IQuelleSearchResult Search(QRequestSearch req)
+        public IQuelleSearchResult Search(QRequestSearch req)
         {
             var cloud = new QWebClient(this.baseUrl);
             if (cloud != null)
@@ -118,14 +161,10 @@ namespace QuelleHMI
                 catch (Exception ex)
                 {
                     var bad = new QSearchResult();
-                    bad.messages["error"] = "Unable to pack message (befor calling search provider)";
+                    bad.messages["error"] = "Unable to pack message (before calling search provider)";
                     return bad;
                 }
             }
-            return null;
-        }
-        public IQuelleFetchResult Fetch(QRequestFetch req)
-        {
             return null;
         }
         public IQuellePageResult Page(QRequestPage req)

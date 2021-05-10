@@ -51,10 +51,17 @@ namespace QuelleHMI
         }
 
 		public bool Search()
-        {
+		{
 			var client = new SearchProviderClient(QuelleControlConfig.search.host);
 			var request = new QRequestSearch(this.statement); // (IQuelleSearchRequest)
 			IQuelleSearchResult response = client.api.Search(request);
+
+			return response != null && response.messages.Count == 0;
+		}
+		public bool Search(ISearchProvider provider)
+        {
+			var request = new QRequestSearch(this.statement); // (IQuelleSearchRequest)
+			IQuelleSearchResult response = provider != null ? provider.Search(request) : null;
 
 			return response != null && response.messages.Count == 0;
         }

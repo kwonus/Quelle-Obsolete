@@ -153,27 +153,6 @@ namespace QuelleHMI.Fragments
 			}
 			this.text = token.Trim();
 		}
-		/*
-		public string identity
-		{
-			get
-			{
-				BitArray s;
-				if (this.segment != null)
-				{
-					s = new BitArray((int)this.segment.sequence);
-					s.Set(0, true);
-				}
-				else s = new BitArray(0, false);
-
-				var f = new BitArray((int)this.sequence);
-				f.Set(0, true);
-
-				var id = new AVXSearchBitsSerializable(s, f);
-				return id.segments + ":" + id.fragments;
-			}
-		}
-		*/
 		public IQuelleFeatureSpec[] spec
         {
             get

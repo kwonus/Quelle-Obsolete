@@ -1,12 +1,13 @@
-﻿using System;
+﻿using QuelleHMI.Interop;
+using System;
 using System.IO;
 using System.Net;
 
 namespace QuelleHMI
 {
-    public class QWebClient
+    public class QWebClient: IQClient
     {
-        string site;
+        private string site;
 
         public QWebClient(string site)
         {

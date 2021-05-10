@@ -16,7 +16,6 @@ namespace QuelleHMI
 
 		public static Type[] Interfaces = new Type[] {
 			typeof(IQuelleSearchRequest), typeof(IQuelleSearchResult),
-			typeof(IQuelleFetchRequest), typeof(IQuelleFetchResult),
 			typeof(IQuellePageRequest), typeof(IQuellePageResult),
 
 			typeof(IQuelleSearchControls), typeof(IQuelleSearchClause),

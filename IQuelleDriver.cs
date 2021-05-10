@@ -10,27 +10,24 @@ namespace QuelleHMI
     {
         IQuelleSearchClause[] clauses { get;  }
         IQuelleSearchControls controls { get; }
-        UInt64 count { get; }
-    }
-    public interface IQuelleFetchRequest
-    {
         Guid session { get; }
         UInt64 cursor { get; }
         UInt64 count { get; }
     }
-    public interface IQuelleFetchResult
+    public interface IQuelleSearchResult
     {
+        //         b                c                v     w [compact bit array]        
+        Dictionary<byte, Dictionary<byte, Dictionary<byte, byte[]>>> matches { get; }
+        //         b                c                v                w        
+        Dictionary<byte, Dictionary<byte, Dictionary<byte, Dictionary<byte, string>>>> labels { get; }
+        string summary { get; }
         Guid session { get; } // MD5/GUID
         Dictionary<UInt32, String> abstracts { get; }
         UInt64 cursor { get; }
         UInt64 count { get; }
         UInt64 remainder { get; }
         Dictionary<string, string> messages { get; }
-    }
-    public interface IQuelleSearchResult : IQuelleFetchResult
-    {
-        Dictionary<byte, Dictionary<byte, Dictionary<byte, Dictionary<byte, UInt64>>>> records { get; }
-        string summary { get; }
+
     }
     public interface IQuellePageRequest
     {

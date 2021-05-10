@@ -42,6 +42,10 @@ namespace QuelleHMI
         [DataMember]
         public QSearchControls controls;
         [DataMember]
+        public Guid session { get; set; }
+        [DataMember]
+        public UInt64 cursor { get; set; }
+        [DataMember]
         public UInt64 count { get; set; }
 
         public QRequestSearch(IQuelleSearchRequest irequest, UInt64 cnt = 10)
@@ -51,22 +55,46 @@ namespace QuelleHMI
                 this.clauses[i] = new QClauseSearch(irequest.clauses[i]);
             this.count = cnt;
             this.controls = new QSearchControls(true);
+            this.session = irequest.session;
+            this.cursor = irequest.cursor;
+            this.count = irequest.count;
         }
     }
     [DataContract]
-    public class QSearchResult : QResultFetch, IQuelleSearchResult
+    public class QSearchResult : IQuelleSearchResult
     {
         public QSearchResult() { /*for serialization*/ }
 
         [DataMember]
-        public Dictionary<byte, Dictionary<byte, Dictionary<byte, Dictionary<byte, UInt64>>>> records { get; set; }
+        public Dictionary<byte, Dictionary<byte, Dictionary<byte, byte[]>>> matches { get; set; }
+        [DataMember]
+        public Dictionary<byte, Dictionary<byte, Dictionary<byte, Dictionary<byte, string>>>> labels { get; set; }
         [DataMember]
         public string summary { get; set; }
+        [DataMember]
+        public Guid session { get; set; } // MD5/GUID
+        [DataMember]
+        public Dictionary<UInt32, String> abstracts { get; set; }
+        [DataMember]
+        public UInt64 cursor { get; set; }
+        [DataMember]
+        public UInt64 count { get; set; }
+        [DataMember]
+        public UInt64 remainder { get; set; }
+        [DataMember]
+        public Dictionary<string, string> messages { get; set; }
 
-        QSearchResult(IQuelleSearchResult iresult): base((IQuelleFetchResult) iresult)
+        QSearchResult(IQuelleSearchResult iresult)
         {
             this.summary = iresult.summary;
-            this.records = iresult.records;
+            this.matches = iresult.matches;
+            this.labels = iresult.labels;
+            this.abstracts = iresult.abstracts;
+            this.cursor = iresult.cursor;
+            this.count = iresult.count;
+            this.remainder = iresult.remainder;
+            this.session = iresult.session;
+            this.messages = iresult.messages;
         }
     }
  }
