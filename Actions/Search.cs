@@ -284,7 +284,7 @@ namespace QuelleHMI.Actions
                 if (frag.token != null)
                 {
                     ++sequence;
-                    var current = new SearchFragment(this, frag.token, sequence);
+                    var current = new SearchFragment(this, frag.token, false, sequence);
                     this.searchFragments.Add(sequence, current);
                 }
                 if (frag.offset >= len)
@@ -334,7 +334,7 @@ namespace QuelleHMI.Actions
                 {
                     uint order = frag.ordered ? sequence : 0;
                     sequence++;
-                    var current = new SearchFragment(this, frag.token, order);
+                    var current = new SearchFragment(this, frag.token, true, order);
                     this.searchFragments.Add(sequence, current);
                 }
                 if (frag.offset >= len)

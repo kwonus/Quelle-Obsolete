@@ -10,16 +10,19 @@ namespace QuelleHMI
     {
         public QSearchFragment() { /*for serialization*/ }
 
-        [IgnoreDataMember]
-        public UInt32[] positionAspects { get; set; }
-        [IgnoreDataMember]
+        [DataMember]
+        public byte AdjacencyOrAnchorage { get; set; }
+        [DataMember]
+        public UInt16 UnorderedSubgroupIndex { get; set; }
+        [DataMember]
         public IQuelleFeatureSpec[] spec { get; set; }
         [DataMember]
         public string text { get; set; }
 
         public QSearchFragment(IQuelleSearchFragment ifragment)
         {
-            this.positionAspects = ifragment.positionAspects;
+            this.AdjacencyOrAnchorage = ifragment.AdjacencyOrAnchorage;
+            this.UnorderedSubgroupIndex = ifragment.UnorderedSubgroupIndex;
             this.spec = ifragment.spec;
             this.text = HMIStatement.SquenchText(ifragment.text);
         }

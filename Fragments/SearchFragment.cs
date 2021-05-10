@@ -8,12 +8,14 @@ namespace QuelleHMI.Fragments
 {
 	public interface IQuelleSearchFragment
     {
-		UInt32[] positionAspects { get; }
+		byte AdjacencyOrAnchorage { get; }
+		UInt16 UnorderedSubgroupIndex { get; }
 		IQuelleFeatureSpec[] spec { get; }  // spec is "All Of" features in the specification
 		string text { get; }
 	}
     public class SearchFragment: Fragment, IQuelleSearchFragment
 	{
+		protected bool quoted;
 		protected UInt32 absolute;
 		protected bool elipses;
 		protected bool bracketStart;
@@ -46,63 +48,60 @@ namespace QuelleHMI.Fragments
 			}
 		}
 
-		public UInt32[] positionAspects
+		public byte AdjacencyOrAnchorage
 		{
 			get
 			{
-				UInt32[] aspects = null;
+				if (!this.quoted)
+                {
+					return 0;
+                }
+				switch (this.absolute)
+				{
+					case 0: return 0;
+					case 1: return 0xFF;
+					default: return 1;
+				}
+			}
+		}
+		public UInt16 UnorderedSubgroupIndex
+		{
+			get
+			{
+				if (!this.quoted)
+					return 1;
 
 				if (this.absolute > 0)
-					return new UInt32[] { this.absolute };
+					return 0;
 
 				else if (this.previous == null) // unquoted fragment or pole position (but pole position would have absolute == 1)
-					return null;
+					return 0;
 
 				UInt32 zero = !this.elipses ? 0u : 1u;
 
-				if (this.previous.bracketEnd)
-				{
-					UInt32 bracketed = this.previous.getStartBracket();
-					UInt32 len = this.sequence - bracketed;
-					aspects = new uint[len + 1];
-					aspects[0] = zero;
-					for (var i = 1; i <= len; i++)
-						aspects[i] = bracketed++;
-				}
-				else if (this.isBracketed)
-				{
-					SearchFragment start;
-					UInt32 bracketed = this.previous.getStartBracket(out start);
-
-					if (start != null && start.previous != null)
-					{
-						if (start.previous.bracketEnd)
-						{
-							UInt32 previuosBracketed = this.previous.getStartBracket();
-							UInt32 len = bracketed - previuosBracketed;
-							aspects = new uint[len + 1];
-							aspects[0] = zero;
-							for (var i = 1; i <= len; i++)
-								aspects[i] = previuosBracketed++;
-						}
+				if (this.bracketStart)
+                {
+					for (var prev = this.previous; prev != null; prev = prev.previous)
+                    {
+						var prevIdx = prev.UnorderedSubgroupIndex;
+						if (prevIdx > 0)
+							return ++prevIdx;
 					}
-					else
-					{
-						aspects = new uint[] { zero, bracketed - 1 };
-					}
+					return 1;
+                }
+				else if (!this.previous.bracketEnd)
+                {
+					return this.previous.UnorderedSubgroupIndex;
 				}
-				else
-				{
-					aspects = new uint[] { zero, this.sequence - 1 };
-				}
-				return aspects;
+				return 0;
 			}
 		}
 
-		public SearchFragment(Actions.Action segment, string fragment, uint sequence, SearchFragment prev = null)
+		public SearchFragment(Actions.Action segment, string fragment, bool quoted, uint sequence, SearchFragment prev = null)
 		: base(segment, fragment, sequence)
 		{
 			this.previous = prev;
+			this.quoted = quoted;
 			this.bracketStart = false;
 			this.bracketEnd = false;
 
