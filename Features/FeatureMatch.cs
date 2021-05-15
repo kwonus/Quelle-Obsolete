@@ -22,7 +22,7 @@ namespace QuelleHMI.Tokens
                 foreach (var text in any)
                     array[i++] = new Feature(text);
 
-                return null;
+                return array;
             }
         }
 

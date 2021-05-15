@@ -12,7 +12,7 @@ namespace QuelleHMI.Tokens
     public class FeatureSpec: IQuelleFeatureSpec
     {
         public string matchSpec { get; set; }
-        public IQuelleFeatureMatch[] matchAny
+        public IQuelleFeatureMatch[] matchAny 
         {
             get
             {
@@ -22,7 +22,7 @@ namespace QuelleHMI.Tokens
                 foreach (var text in any)
                     array[i++] = new FeatureMatch(text);
 
-                return null;
+                return array;
             }
         }
 

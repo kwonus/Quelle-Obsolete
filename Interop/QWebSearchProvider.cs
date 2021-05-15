@@ -43,7 +43,7 @@ namespace QuelleHMI
     {
         //IQuelleStatusResult Status();
         public abstract AbstractQuelleSearchResult Search(QRequestSearch request);
-         public abstract AbstractQuellePageResult Page(QRequestPage request);
+        public abstract AbstractQuellePageResult Page(QRequestPage request);
         public abstract string Test(string request);
     }
     public class InstantiatedQuelleSearchProvider: ISearchProvider    // for C++/CLI support
