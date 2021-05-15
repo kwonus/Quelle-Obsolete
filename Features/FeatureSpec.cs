@@ -12,23 +12,31 @@ namespace QuelleHMI.Tokens
     public class FeatureSpec: IQuelleFeatureSpec
     {
         public string matchSpec { get; set; }
-        public IQuelleFeatureMatch[] matchAny 
+        private IQuelleFeatureMatch[] _matchAny;
+        public IQuelleFeatureMatch[] matchAny
         {
             get
             {
-                var any = this.matchSpec.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
-                var array = new IQuelleFeatureMatch[any.Length];
-                int i = 0;
-                foreach (var text in any)
-                    array[i++] = new FeatureMatch(text);
-
-                return array;
+                if (this._matchAny == null)
+                {
+                    var any = this.matchSpec.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+                    this._matchAny = new IQuelleFeatureMatch[any.Length];
+                    int i = 0;
+                    foreach (var text in any)
+                        this._matchAny[i++] = new FeatureMatch(text);
+                }
+                return this._matchAny;
+            }
+            set
+            {
+                this._matchAny = value;
             }
         }
 
         public FeatureSpec(string spec)
         {
             this.matchSpec = spec;
+            this._matchAny = null;
         }
     }
 }

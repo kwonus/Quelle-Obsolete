@@ -10,7 +10,7 @@ namespace QuelleHMI
         public QClauseSearch() { /*for serialization*/ }
 
         [DataMember]
-        public string[] fragments { get; set; }
+        public QSearchFragment[] fragments { get; set; }
         [DataMember]
         public string segment { get; set; }
         [DataMember]
@@ -23,12 +23,16 @@ namespace QuelleHMI
                 this.segment = HMIStatement.SquenchText(iclause.segment);
                 this.polarity = iclause.polarity;
 
-                this.fragments = iclause.fragments != null ? new string[iclause.fragments.Length] : null;
+                this.fragments = iclause.fragments != null ? new QSearchFragment[iclause.fragments.Length] : null;
                 if (this.fragments != null)
                 {
                     int i = 0;
                     foreach (var f in iclause.fragments)
-                        this.fragments[i++] = f.text;
+                    {
+                        this.fragments[i] = new QSearchFragment();
+                        this.fragments[i].text = f.text;
+                        i++;
+                    }
                 }
             }
         }
@@ -39,12 +43,16 @@ namespace QuelleHMI
                 this.segment = HMIStatement.SquenchText(hclause.segment);
                 this.polarity = hclause.polarity;
 
-                this.fragments = hclause.fragments != null ? new string[hclause.fragments.Length] : null;
+                this.fragments = hclause.fragments != null ? new QSearchFragment[hclause.fragments.Length] : null;
                 if (this.fragments != null)
                 {
                     int i = 0;
                     foreach (var f in hclause.fragments)
-                        this.fragments[i++] = f.text;
+                    {
+                        this.fragments[i] = new QSearchFragment();
+                        this.fragments[i].text = f.text;
+                        i++;
+                    }
                 }
             }
         }
