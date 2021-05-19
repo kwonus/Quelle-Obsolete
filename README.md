@@ -1,16 +1,13 @@
 # Quelle-HMI
 
-#### version 1.0.1.3E
+#### version 1.0.1.5i
 
 With the C# code contained herein, and companion github/kwonus projects, the
 simplicity of creating a Quelle driver using this Quelle HMI library is exemplified.
 This code can be used as a template to create your own driver, or it can be subclassed
 to extend behavior.
 <br/></br>
-A tandem Rust project will land on github soon.  It will be a REST server built on Gotham and Askana.
-The message transport will be MessagePack as it has great support on both Rust and DotNet 5.  The REST server combined with Quelle interpreter will provide a complete working  reference implementation.
-<br/></br>
-The value proposition here is that parsing is tedious. And starting your search CLI with a concise syntax
+The value proposition of Quelle is that parsing is tedious. And starting your search CLI with a concise syntax
 with an easy to digest parsing library could easily save your team a person-year in design-time and coding.
 Quelle source code is licensed with a liberal MIT license.
 <br/></br>
@@ -27,3 +24,6 @@ https://github.com/kwonus/Quelle/blob/master/Quelle.md
 Developer notes about the implementation can be found at:</br>
 
 https://github.com/kwonus/Quelle/blob/master/Quelle-Developer-Notes.md
+
+<br/></br>
+Tandem C++ projects, AVXLib and AVXLib-dotnet, are also on github that implement a working Quelle driver for the text of the KJV bible.  Interop between dotnet 5 and native C++ libraries on Linux and MacOS hosts is still being investigated.  A brute-force integration using Microsoft C++/CLR for dotnet framework 4.8 is the only current working reference implementation (and, being dotnet 4.8, it is WIndows only).  Still, the HMI library itself, being dotnet 5, works on macOS, Linux, and Windows.  
