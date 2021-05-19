@@ -120,6 +120,8 @@ namespace QuelleHMI.Actions
                     }
                     parenthetical = false;
                     result.token = text.Substring(offset, ++result.offset - offset);
+                    var updateSyntax = result.token.Replace("(", "").Replace(")", "").Split(new char[] { ' ', '\t', '(', ')' }, StringSplitOptions.RemoveEmptyEntries);
+                    result.token = string.Join("|", updateSyntax);
                     break;
                 }
             }

@@ -31,7 +31,7 @@ namespace QuelleHMI
         [DataMember]
         public string result { get; set; }
         [DataMember]
-        public Dictionary<string, string> messages { get; set; }
+        public Dictionary<string, List<string>> messages { get; set; }
 
         public QPageResult(IQuellePageResult iresult)
         {

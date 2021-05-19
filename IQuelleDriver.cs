@@ -26,7 +26,7 @@ namespace QuelleHMI
         UInt64 cursor { get; }
         UInt64 count { get; }
         UInt64 remainder { get; }
-        Dictionary<string, string> messages { get; }
+        Dictionary<string, List<string>> messages { get; }
 
     }
     public interface IQuellePageRequest
@@ -38,7 +38,7 @@ namespace QuelleHMI
     public interface IQuellePageResult  // GET the HTML, TEXT, or MD representation of page
     {
         string result { get; }
-        Dictionary<string, string> messages { get; }
+        Dictionary<string, List<string>> messages { get; }
     }
     public interface IQuelleHelp
     {

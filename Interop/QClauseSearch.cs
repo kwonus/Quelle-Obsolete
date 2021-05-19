@@ -49,8 +49,7 @@ namespace QuelleHMI
                     int i = 0;
                     foreach (var f in hclause.fragments)
                     {
-                        this.fragments[i] = new QSearchFragment();
-                        this.fragments[i].text = f.text;
+                        this.fragments[i] = new QSearchFragment(f);
                         i++;
                     }
                 }

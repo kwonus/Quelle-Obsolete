@@ -32,12 +32,36 @@ namespace QuelleHMI
         public UInt64 cursor { get; }
         public UInt64 count { get; }
         public UInt64 remainder { get; }
-        public Dictionary<string, string> messages { get; }
+        public Dictionary<string, List<string>> messages { get; set; }
+        public void AddWarning(string message)
+        {
+            if (this.messages == null)
+                this.messages = new Dictionary<string, List<string>>();
+            var list = this.messages.ContainsKey("warnings") ? this.messages["warnings"] : null;
+            if (list == null)
+            {
+                list = new List<string>();
+                this.messages.Add("warnings", list);
+            }
+            list.Add(message);
+        }
+        public void AddError(string message)
+        {
+            if (this.messages == null)
+                this.messages = new Dictionary<string, List<string>>();
+            var list = this.messages.ContainsKey("errors") ? this.messages["errors"] : null;
+            if (list == null)
+            {
+                list = new List<string>();
+                this.messages.Add("errors", list);
+            }
+            list.Add(message);
+        }
     }
     public class AbstractQuellePageResult: IQuellePageResult    // for C++/CLI support
     {
         public string result { get; }
-        public Dictionary<string, string> messages { get; }
+        public Dictionary<string, List<string>> messages { get; }
     }
     public abstract class AbstractQuelleSearchProvider    // for C++/CLI support
     {
@@ -161,7 +185,7 @@ namespace QuelleHMI
                 catch (Exception ex)
                 {
                     var bad = new QSearchResult();
-                    bad.messages["error"] = "Unable to pack message (before calling search provider)";
+                    bad.AddError("Unable to pack message (before calling search provider)");
                     return bad;
                 }
             }

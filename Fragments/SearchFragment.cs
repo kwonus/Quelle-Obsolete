@@ -10,7 +10,7 @@ namespace QuelleHMI.Fragments
     {
 		byte AdjacencyOrAnchorage { get; }
 		UInt16 UnorderedSubgroupIndex { get; }
-		IQuelleFeatureSpec[] spec { get; }  // spec is "All Of" features in the specification
+		IQuelleFeatureSpec[] specifications { get; }  // spec is "All Of" features in the specification
 		string text { get; }
 	}
     public class SearchFragment: Fragment, IQuelleSearchFragment
@@ -152,16 +152,24 @@ namespace QuelleHMI.Fragments
 			}
 			this.text = token.Trim();
 		}
-		public IQuelleFeatureSpec[] spec
-        {
+		private IQuelleFeatureSpec[] _specs;
+		public IQuelleFeatureSpec[] specifications
+		{
             get
             {
-				var specs = this.text.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-				var array = new IQuelleFeatureSpec[specs.Length];
-				int i = 0;
-				foreach (var text in specs)
-					array[i++] = new FeatureSpec(text);
-				return array;
+				if (this._specs == null)
+				{
+					var specs = this.text.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+					this._specs = new IQuelleFeatureSpec[specs.Length];
+					int i = 0;
+					foreach (var text in specs)
+						this._specs[i++] = new FeatureSpec(text);
+				}
+				return this._specs;
+            }
+			set
+            {
+				this._specs = value;
             }
         }
 	}

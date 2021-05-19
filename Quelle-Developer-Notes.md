@@ -205,8 +205,9 @@ extract fragment-array
 
 ADD specialized fragments to Quelle 2.0
 ========================================
-/SYMbol/	(any punctuation or symbol / i.e non-alpha-numeric)
-/PUNCtuation/	(any punctuation or symbol / i.e non-alpha-numeric)
+! (reve)
+/SYMbol/	(any non-punctuation symbol / i.e non-alpha-numeric)
+/PUNCtuation/	(any punctuation / i.e non-alpha-numeric)
 /,./	(comma or period)
 /EoV/	(end of verse)
 /BoV/	(beginning of verse)

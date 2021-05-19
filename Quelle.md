@@ -1,6 +1,6 @@
 # Quelle HMI Specification
 
-##### version 1.0.1.3H
+##### version 1.0.1.5i
 
 ### I. Background
 
@@ -70,9 +70,9 @@ Learning just five verbs is all that is necessary to effectively use Quelle. In 
 
 | Verb       | Action Type | Syntax Category | Required Parameters     | Required Operators | Optional Operators |
 | ---------- | :---------: | :-------------- | ----------------------- | :----------------: | :----------------: |
-| *find*     |  implicit   | SEARCH          | **1**: *search spec*    |                    |  **" " [ ] ( )**   |
+| *find*     |  implicit   | SEARCH          | **1**: *search spec*    |                    | **" " [ ] \| & !** |
 | *set*      |  implicit   | CONTROL         | **2**: *name* = *value* |       **=**        |                    |
-| **@print** |  explicit   | DISPLAY         | **0+**: *identifiers*   |                    |   **[ ]  !  >**    |
+| **@print** |  explicit   | DISPLAY         | **0+**: *identifiers*   |                    |    **[ ]  > !**    |
 | **@help**  |  explicit   | SYSTEM          | 0 or 1                  |                    |                    |
 | **@exit**  |  explicit   | SYSTEM          | 0                       |                    |                    |
 
@@ -130,7 +130,7 @@ Now consider a different search:
 
 Next, consider a search to find that God created heaven or earth:
 
-*God created (earth heaven)*
+*God created earth|heaven*
 
 The order in which the search terms are provided is insignificant. Additionally, the type-case is insignificant. 
 
@@ -140,7 +140,7 @@ Of course, there are times when word order is significant. Accordingly, searchin
 
 These constructs can even be combined. For example:
 
-*”God created ... (Heaven Earth)”*
+*”God created ... Heaven|Earth”*
 
 The search criteria above is equivalent to this search:
 
@@ -156,7 +156,7 @@ Of course, translating the commands into actual search results might not be triv
 
 Quelle is designed to be intuitive. It provides the ability to invoke Boolean logic on how term matching should be performed. As we saw earlier, parenthesis can be used to invoke Boolean multiplication upon the terms that compose a search expression. For instance, there are situations where the exact word within a phrase is not precisely known. For example, when searching the KJV bible, one might not recall which form of the second person pronoun was used in an otherwise familiar passage. Attempting to locate the serpent’s words to Eve in Genesis, one might execute a search such as:
 
-*(you thou ye) shall not surely die*
+*you|thou|ye shall not surely die*
 
 This statement uses Boolean multiplication and is equivalent to this lengthier statement:
 
@@ -174,7 +174,7 @@ Consider a query for all passages that contain God AND created, but NOT containi
 
 *created AND God, but NOT Heaven AND NOT Earth)*
 
-The simplest form to find ALL of three words (in the beginning):
+The simplest form to find ALL of three words:
 
 *in the beginning*
 
@@ -194,7 +194,7 @@ If a specific string should be match, this can be stated explicitly:
 
 If you are unsure what article should match, you could issue this statement:
 
-"in (a the that) beginning"
+"in a|the|that beginning"
 
 Boolean multiplication would match only these strings of text:
 
@@ -327,7 +327,7 @@ Type this to terminate the Quelle interpreter:
 
 | Verb        | Action Type | Syntax Category | Required Parameters     | Required Operators | Optional Operators | Primary Verb |
 | ----------- | :---------: | --------------- | ----------------------- | :----------------: | ------------------ | ------------ |
-| *find*      |  implicit   | SEARCH          | **1**: *search spec*    |                    | **" " [ ] ( )**    | yes          |
+| *find*      |  implicit   | SEARCH          | **1**: *search spec*    |                    | **" " [ ] \| &**   | yes          |
 | **@status** |  explicit   | SEARCH          | 0                       |                    |                    |              |
 | *set*       |  implicit   | CONTROL         | **2**: *name* = *value* |       **=**        |                    | yes          |
 | *clear*     |  implicit   | CONTROL         | **1**: *control_name*   |       **=@**       |                    |              |
@@ -557,11 +557,11 @@ In all cases, any number of spaces can be used between operators and terms.
 
 Also noteworthy: The reference Quelle implementation automatically adjusts the span of your to be inclusive of the number of search terms for the most broad search clause. So if you were to express:
 
-**find span=1 ; in the beginning (God Lord Jesus Christ Messiah)**
+**find span=1 ; in the beginning God|Lord|Jesus|Christ|Messiah**
 
 The minimum span has to be four(4). So the Quelle parser will adjust the search criteria as if the following command had been issued:
 
-**find span=4 ; in the beginning (God Lord Jesus Christ Messiah)**
+**find span=4 ; in the beginning God|Lord|Jesus|Christ|Messiah**
 
 
 
@@ -577,7 +577,7 @@ The subject of this sentence is "you understood".  Similarly, all Quelle verbs a
 
 Go Home!
 
-Like the earlier example, the subject is "you understood".  The object this time is defined, and insists that "you" should go home.  Some verbs always have objects, others sometimes do, and still others never do. Quelle follows this same pattern and each some Quelle verbs require direct-objects; and some do not.  See Table 4-1 where the column identified as "Parameter Count" identifies objects of the verb. 
+Like the earlier example, the subject is "you understood".  The object this time is defined, and insists that "you" should go home.  Some verbs always have objects, others sometimes do, and still others never do. Quelle follows this same pattern and some Quelle verbs require direct-objects; and some do not.  See Table 4-1 where the column identified as "Parameter Count" identifies objects of the verb. 
 
 **Statement**: A statement is composed of one or more *actions*. If there is more than one SEARCH actions issued by the statement, then search action is logically OR’ed together.
 

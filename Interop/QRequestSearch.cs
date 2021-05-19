@@ -82,9 +82,9 @@ namespace QuelleHMI
         [DataMember]
         public UInt64 remainder { get; set; }
         [DataMember]
-        public Dictionary<string, string> messages { get; set; }
+        public Dictionary<string, List<string>> messages { get; set; }
 
-        QSearchResult(IQuelleSearchResult iresult)
+        public QSearchResult(IQuelleSearchResult iresult)
         {
             this.summary = iresult.summary;
             this.matches = iresult.matches;
@@ -95,6 +95,31 @@ namespace QuelleHMI
             this.remainder = iresult.remainder;
             this.session = iresult.session;
             this.messages = iresult.messages;
+        }
+
+        public void AddWarning(string message)
+        {
+            if (this.messages == null)
+                this.messages = new Dictionary<string, List<string>>();
+            var list = this.messages.ContainsKey("warnings") ? this.messages["warnings"] : null;
+            if (list == null)
+            {
+                list = new List<string>();
+                this.messages.Add("warnings", list);
+            }
+            list.Add(message);
+        }
+        public void AddError(string message)
+        {
+            if (this.messages == null)
+                this.messages = new Dictionary<string, List<string>>();
+            var list = this.messages.ContainsKey("errors") ? this.messages["errors"] : null;
+            if (list == null)
+            {
+                list = new List<string>();
+                this.messages.Add("errors", list);
+            }
+            list.Add(message);
         }
     }
  }
