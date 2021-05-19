@@ -474,7 +474,7 @@ span = 7 ; exact = true ; eternal power
 
 | Verb        | Action Type | Syntax Category | Required Arguments     | Required Operators | Optional Operators |
 | ----------- | ----------- | --------------- | ---------------------- | :----------------: | :----------------: |
-| **@save**   | dependent   | LABEL           | **1**: *macro_label*   |                    |                    |
+| **@save**   | dependent   | LABEL           | **1**: *macro_label*   |      **{ }**       |                    |
 | **@delete** | independent | LABEL           | **1+**: *macro_label*s |      **{ }**       |                    |
 | **@show**   | independent | LABEL           | **0+**: *macro_labels* |                    |      **{ }**       |
 | *execute*   | implicit    | LABEL           | 1: *macro_label*       |      **{ }**       |                    |
