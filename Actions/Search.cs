@@ -10,6 +10,7 @@ namespace QuelleHMI.Actions
         IQuelleSearchFragment[] fragments { get; }
         string segment { get; }
         byte polarity { get; }
+        bool quoted { get; }
     }
     public class Search : Actions.Action, IQuelleSearchClause
     {
@@ -29,7 +30,7 @@ namespace QuelleHMI.Actions
             }
         }
 
-        private Boolean quoted;
+        public Boolean quoted { get; protected set; }
 
         public override bool Parse()
         {
@@ -274,7 +275,6 @@ namespace QuelleHMI.Actions
 
             int len = this.segment.Length;
             string error = null;
-            uint sequence = 0;
 
             for (var frag = GetNextUnquotedSearchToken(this.segment); (frag.error == null) && (frag.offset > 0) && (frag.offset <= len || frag.token != null);
                      frag = GetNextUnquotedSearchToken(this.segment, frag.offset))
@@ -286,8 +286,7 @@ namespace QuelleHMI.Actions
                 }
                 if (frag.token != null)
                 {
-                    ++sequence;
-                    var current = new SearchFragment(this, frag.token, false, sequence);
+                    var current = new SearchFragment(this, frag.token, false, 0, 1);
                     this.searchFragments.Add(sequence, current);
                 }
                 if (frag.offset >= len)
@@ -302,6 +301,8 @@ namespace QuelleHMI.Actions
         }
         private bool ParseQuotedSearch()
         {
+            bool wasBracketed = false;
+
             this.searchFragments = new Dictionary<UInt64, SearchFragment>();
 
             if (!(this.segment.StartsWith('"'.ToString()) && this.segment.EndsWith('"'.ToString())))
@@ -323,11 +324,23 @@ namespace QuelleHMI.Actions
 
             int len = this.segment.Length;
             string error = null;
-            uint sequence = 1;
-
+            byte subgroup = 0;
+            bool wasEllipsis = false;
             for (var frag = GetNextQuotedSearchToken(this.segment); (frag.error == null) && (frag.offset > 0) && (frag.offset <= len || frag.token != null);
                      frag = GetNextQuotedSearchToken(this.segment, frag.offset, frag.bracketed))
             {
+                bool ellipsis = frag.token == "...";
+                if (ellipsis)
+                {
+                    wasEllipsis = true;
+                    continue;
+                }
+                if (frag.bracketed && !wasBracketed)
+                {
+                    subgroup++;
+                    if (subgroup == 0) // overflow
+                        subgroup = 1;
+                }
                 if (frag.error != null)
                 {
                     error = frag.error;
@@ -335,13 +348,18 @@ namespace QuelleHMI.Actions
                 }
                 if (frag.token != null)
                 {
+                    byte unordered = frag.ordered ? (byte)0 : subgroup;
+                    byte adjacency = wasEllipsis || (frag.bracketed && !wasBracketed) ? (byte)0 : (byte)1;
                     uint order = frag.ordered ? sequence : 0;
-                    sequence++;
-                    var current = new SearchFragment(this, frag.token, true, order);
+
+                    var current = new SearchFragment(this, frag.token, true, adjacency, unordered);
                     this.searchFragments.Add(sequence, current);
                 }
                 if (frag.offset >= len)
                     break;
+
+                wasEllipsis = false;
+                wasBracketed = frag.bracketed;
             }
             if (error != null)
             {

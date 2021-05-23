@@ -6,8 +6,8 @@ namespace QuelleHMI.Fragments
 {
     public class PrimativeFragment: Fragment
     {
-		public PrimativeFragment(Actions.Action segment, string fragment, uint sequence)
-			: base(segment, fragment, sequence)
+		public PrimativeFragment(Actions.Action segment, string fragment, byte adjacency, byte group)
+			 : base(segment, fragment, adjacency, group)
 		{
 			if (this.segment == null)
 			{

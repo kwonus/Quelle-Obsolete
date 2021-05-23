@@ -15,6 +15,9 @@ namespace QuelleHMI
         public string segment { get; set; }
         [DataMember]
         public byte polarity { get; set; }
+        [DataMember]
+        public bool quoted { get; set; }
+
 
         public QClauseSearch(IQuelleSearchClause iclause)
         {
@@ -22,6 +25,7 @@ namespace QuelleHMI
             {
                 this.segment = HMIStatement.SquenchText(iclause.segment);
                 this.polarity = iclause.polarity;
+                this.quoted = iclause.quoted;
 
                 this.fragments = iclause.fragments != null ? new QSearchFragment[iclause.fragments.Length] : null;
                 if (this.fragments != null)

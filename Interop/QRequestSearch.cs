@@ -10,7 +10,7 @@ namespace QuelleHMI
     [DataContract]
     public class QRequestSearch
     {
-        public QRequestSearch()
+        public QRequestSearch(bool quoted)
         {
             this.clauses  = null;
             this.controls = new QSearchControls(true);
@@ -47,6 +47,8 @@ namespace QuelleHMI
         public UInt64 cursor { get; set; }
         [DataMember]
         public UInt64 count { get; set; }
+        [DataMember]
+        public bool quoted { get; set; }
 
         public QRequestSearch(IQuelleSearchRequest irequest, UInt64 cnt = 10)
         {

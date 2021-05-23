@@ -4,7 +4,9 @@ using System.Text;
 
 namespace QuelleHMI.Tokens
 {
-    abstract class Type
+/*
+    // These are redundantly defined in managed space (also in C++ domain):
+    public abstract class Type
     {
         public const UInt16 typeNOT        = 0x8000;
         public const UInt16 typeWord       = 0x0800;
@@ -25,8 +27,9 @@ namespace QuelleHMI.Tokens
         public const UInt16 typeReserved4  = 0x0004;
         public const UInt16 typeReserved2  = 0x0002;
         public const UInt16 typeReserved1  = 0x0001;
-    }
 
+    }
+*/
 
     public interface IQuelleFeature
     {

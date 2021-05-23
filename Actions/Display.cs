@@ -42,7 +42,7 @@ namespace QuelleHMI.Actions
 
             int len = segment.Length;
             string error = null;
-            uint sequence = 1;
+            byte sequence = 1;
 
             for (var frag = this.GetNextPrintToken(segment); (frag.error == null) && (frag.offset > 0) && (frag.offset <= len || frag.token != null);
                      frag = this.GetNextPrintToken(segment, frag.offset))
@@ -55,7 +55,7 @@ namespace QuelleHMI.Actions
                 if (frag.token != null)
                 {
                     sequence++;
-                    var current = new PrimativeFragment(this, frag.token, sequence);
+                    var current = new PrimativeFragment(this, frag.token, 0, sequence);
                     this.fragments.Add(sequence, current);
                 }
                 if (frag.offset >= len)

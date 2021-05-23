@@ -11,9 +11,9 @@ namespace QuelleHMI
         public QSearchFragment() { /*for serialization*/ }
 
         [DataMember]
-        public byte AdjacencyOrAnchorage { get; set; }
+        public byte adjacency { get; protected set; }
         [DataMember]
-        public UInt16 UnorderedSubgroupIndex { get; set; }
+        public byte group { get; protected set; }
         private IQuelleFeatureSpec[] _specs { get; set; }
         [DataMember]
         public IQuelleFeatureSpec[] specifications
@@ -42,8 +42,8 @@ namespace QuelleHMI
 
         public QSearchFragment(IQuelleSearchFragment ifragment)
         {
-            this.AdjacencyOrAnchorage = ifragment.AdjacencyOrAnchorage;
-            this.UnorderedSubgroupIndex = ifragment.UnorderedSubgroupIndex;
+            this.adjacency = ifragment.adjacency;
+            this.group = ifragment.group;
             this._specs = ifragment.specifications;
             this.text = HMIStatement.SquenchText(ifragment.text);
         }
