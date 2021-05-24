@@ -9,7 +9,9 @@ namespace QuelleHMI.Actions
     {
         abstract public bool Parse();
         abstract public bool Execute();
- 
+        protected static UInt32 currentSequence;
+
+
         protected List<string> errors { get => this.statement.command.errors; }
         protected List<string> warnings { get => this.statement.command.warnings; }
         protected HMIClauseType type;
@@ -55,6 +57,8 @@ namespace QuelleHMI.Actions
 
             if (text == null || text.Length < 1)
                 return null;
+
+            Action.currentSequence = 0;
 
             //  Look first for explicit verb references:
             //

@@ -80,7 +80,35 @@ namespace QuelleHMI
         //IQuelleStatusResult Status();
         public IQuelleSearchResult Search(QRequestSearch request)
         {
-            return instance != null ? instance.Search(request) : null;
+            if (instance != null)
+            {
+                var errors = new List<String>();
+                var warnings = new List<String>();
+
+                var result = instance.Search(request);
+                foreach (var entry in result.messages)
+                    if (entry.Key == "errors")
+                        foreach (var message in entry.Value)
+                            if (!errors.Contains(message))
+                                errors.Add(message);
+                foreach (var entry in result.messages)
+                    if (entry.Key != "errors")
+                        foreach (var message in entry.Value)
+                            if (!warnings.Contains(message))
+                                warnings.Add(message);
+                foreach (var error in errors)
+                    Console.Out.WriteLine("Error: " + error);
+
+                foreach (var warning in warnings)
+                    Console.Out.WriteLine("Warning: " + warning);
+
+                return result;
+            }
+            else
+            {
+                Console.Out.WriteLine("Error: " + "Could not locate a Quelle search provider/instance");
+                return null;
+            }
         }
         public IQuellePageResult Page(QRequestPage request)
         {

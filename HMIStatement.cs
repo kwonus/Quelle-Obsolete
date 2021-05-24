@@ -137,7 +137,7 @@ namespace QuelleHMI
                     if (!inventory.Contains(squenched))
                     {
                         var current = Actions.Action.CreateAction(this, parse.Key, Actions.Action.HMIPolarity.POSITIVE, parse.Value);
-                        if (current.Parse())
+                        if ((current != null) && current.Parse())
                         {
                             this.segmentation.Add(parse.Key, current);
                             i++;

@@ -34,14 +34,16 @@ namespace QuelleHMI.Actions
 
         public override bool Parse()
         {
-            this.quoted = this.ParseQuotedSearch() || (this.errors.Count > 0);
+            ++Action.currentSequence;
+
+            this.quoted = this.ParseQuotedSearch(Action.currentSequence) || (this.errors.Count > 0);
 
             if (this.errors.Count > 0)
                 return false;
             else if (this.quoted)
                 return true;
 
-            return this.ParseUnquotedSearch();
+            return this.ParseUnquotedSearch(Action.currentSequence);
         }
         public override bool Execute()
         {
@@ -269,13 +271,13 @@ namespace QuelleHMI.Actions
             }
             return result;
         }
-        private bool ParseUnquotedSearch()
+        private bool ParseUnquotedSearch(UInt32 sequence)
         {
             this.searchFragments = new Dictionary<UInt64, SearchFragment>();
 
             int len = this.segment.Length;
             string error = null;
-
+            UInt32 nextFragmentIdx = 0;
             for (var frag = GetNextUnquotedSearchToken(this.segment); (frag.error == null) && (frag.offset > 0) && (frag.offset <= len || frag.token != null);
                      frag = GetNextUnquotedSearchToken(this.segment, frag.offset))
             {
@@ -286,8 +288,9 @@ namespace QuelleHMI.Actions
                 }
                 if (frag.token != null)
                 {
+
                     var current = new SearchFragment(this, frag.token, false, 0, 1);
-                    this.searchFragments.Add(sequence, current);
+                    this.searchFragments.Add(nextFragmentIdx++, current);
                 }
                 if (frag.offset >= len)
                     break;
@@ -299,7 +302,7 @@ namespace QuelleHMI.Actions
             }
             return true;
         }
-        private bool ParseQuotedSearch()
+        private bool ParseQuotedSearch(UInt32 sequence)
         {
             bool wasBracketed = false;
 

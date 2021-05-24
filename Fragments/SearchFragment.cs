@@ -34,7 +34,9 @@ namespace QuelleHMI.Fragments
 					this._specs = new IQuelleFeatureSpec[specs.Length];
 					int i = 0;
 					foreach (var text in specs)
+					{
 						this._specs[i++] = new FeatureSpec(text);
+					}
 				}
 				return this._specs;
             }
