@@ -24,6 +24,59 @@ using QuelleHMI.Actions;
 
 namespace Quelle.DriverDefault
 {
+    static class Utility
+    {
+        private static byte CountBits(UInt16 segment)
+        {
+            byte cnt = 0;
+            do
+            {
+                if ((segment & 0x1) != 0)
+                    cnt++;
+                segment >>= 1;
+            }   while (segment != 0);
+            return cnt;
+        }
+        // see XBitArray::CreateByteArray() for reference, but this method has different implementation and is dotnet
+        public static byte[] ExpandBitArray(UInt16[] bits)
+        {
+            if (bits == null || bits.Length < 1)
+                return null;
+
+            byte cnt = 0;
+            if (bits[0] != 0)
+                for (var s = 1; s < bits.Length; s++)
+                    cnt += CountBits(bits[s]);
+
+            var result = new byte[cnt];
+            if (cnt == 0)
+                return result;
+
+            byte baseline = 0;
+            byte current = 1;
+            byte idx = 0;
+            UInt16 bitSegment = bits[0];
+            do {
+                if ((bitSegment & 0x1) != 0) {
+                    for (UInt16 bit = 0x1; bit != 0; bit <<= 1) {
+                        if ((bits[current] & bit) != 0) {
+                            byte value = baseline;
+                            result[idx++] = ++value;
+                        }
+                        baseline++;
+                    }
+                    current++;
+                }
+                else
+                {
+                    baseline += 16;
+                }
+                bitSegment >>= 1;
+            }   while (bitSegment != 0);
+
+            return result;
+        }
+    }
     public class QuelleDriver : IQuelleHelp
     {
         public QuelleDriver()

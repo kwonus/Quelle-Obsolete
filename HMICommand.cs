@@ -63,6 +63,51 @@ namespace QuelleHMI
 			var request = new QRequestSearch(this.statement); // (IQuelleSearchRequest)
 			IQuelleSearchResult response = provider != null ? provider.Search(request) : null;
 
+			if (response != null)
+            {
+				var messages = response.messages;
+				var errors = new List<String>();
+				var warnings = new List<String>();
+
+				if (messages != null)
+				{
+					foreach (var entry in messages)
+						if (entry.Key == "errors")
+							foreach (var message in entry.Value)
+								if (!errors.Contains(message))
+									errors.Add(message);
+					foreach (var entry in messages)
+						if (entry.Key != "errors")
+							foreach (var message in entry.Value)
+								if (!warnings.Contains(message))
+									warnings.Add(message);
+
+					foreach (var error in errors)
+						Console.Out.WriteLine("Error: " + error);
+
+					foreach (var warning in warnings)
+						Console.Out.WriteLine("Warning: " + warning);
+				}
+			}
+			if (errors.Count == 0 && response.matches != null)
+            {
+				foreach (var book in response.matches)
+                {
+					UInt16 b = book.Key;
+					var chapters = response.matches[book.Key];
+					foreach (var chapter in book.Value)
+                    {
+						UInt16 c = chapter.Key;
+						var verses = Quelle.DriverDefault.Utility.ExpandBitArray(chapter.Value);
+						foreach(var verse in verses)
+                        {
+							UInt16 v = verse;
+							Console.Out.WriteLine(b.ToString() + ':' + c.ToString() + ':' + v.ToString());
+						}
+					}
+				}
+			}
+
 			return response != null && (response.messages == null || response.messages.Count == 0);
         }
 	}

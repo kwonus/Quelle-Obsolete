@@ -68,9 +68,8 @@ namespace QuelleHMI
         public QSearchResult() { /*for serialization*/ }
 
         [DataMember]
-        public Dictionary<byte, Dictionary<byte, Dictionary<byte, byte[]>>> matches { get; set; }
-        [DataMember]
-        public Dictionary<byte, Dictionary<byte, Dictionary<byte, Dictionary<byte, string>>>> labels { get; set; }
+        //         b                c     v [compact bit array]        
+        public Dictionary<byte, Dictionary<byte, UInt16[]>> matches { get; set; }
         [DataMember]
         public string summary { get; set; }
         [DataMember]
@@ -90,7 +89,6 @@ namespace QuelleHMI
         {
             this.summary = iresult.summary;
             this.matches = iresult.matches;
-            this.labels = iresult.labels;
             this.abstracts = iresult.abstracts;
             this.cursor = iresult.cursor;
             this.count = iresult.count;

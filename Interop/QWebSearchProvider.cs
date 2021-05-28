@@ -24,13 +24,13 @@ namespace QuelleHMI
     }
     public class AbstractQuelleSearchResult: IQuelleSearchResult    // for C++/CLI support
     {
-        public Dictionary<byte, Dictionary<byte, Dictionary<byte, byte[]>>> matches { get; }
-        public Dictionary<byte, Dictionary<byte, Dictionary<byte, Dictionary<byte, string>>>> labels { get; }
-        public string summary { get; }
+        //                b                c     v [compact bit array]        
+        public virtual Dictionary<byte, Dictionary<byte, UInt16[]>> matches { get; }
+        public virtual string summary { get; }
         public Guid session { get; } // MD5/GUID
         public Dictionary<UInt32, String> abstracts { get; }
         public UInt64 cursor { get; }
-        public UInt64 count { get; }
+        public virtual UInt64 count { get; }
         public UInt64 remainder { get; }
         public Dictionary<string, List<string>> messages { get; set; }
         public void AddWarning(string message)
@@ -66,8 +66,8 @@ namespace QuelleHMI
     public abstract class AbstractQuelleSearchProvider    // for C++/CLI support
     {
         //IQuelleStatusResult Status();
-        public abstract AbstractQuelleSearchResult Search(QRequestSearch request);
-        public abstract AbstractQuellePageResult Page(QRequestPage request);
+        public abstract IQuelleSearchResult Search(QRequestSearch request);
+        public abstract IQuellePageResult Page(QRequestPage request);
         public abstract string Test(string request);
     }
     public class InstantiatedQuelleSearchProvider: ISearchProvider    // for C++/CLI support
@@ -82,26 +82,7 @@ namespace QuelleHMI
         {
             if (instance != null)
             {
-                var errors = new List<String>();
-                var warnings = new List<String>();
-
                 var result = instance.Search(request);
-                foreach (var entry in result.messages)
-                    if (entry.Key == "errors")
-                        foreach (var message in entry.Value)
-                            if (!errors.Contains(message))
-                                errors.Add(message);
-                foreach (var entry in result.messages)
-                    if (entry.Key != "errors")
-                        foreach (var message in entry.Value)
-                            if (!warnings.Contains(message))
-                                warnings.Add(message);
-                foreach (var error in errors)
-                    Console.Out.WriteLine("Error: " + error);
-
-                foreach (var warning in warnings)
-                    Console.Out.WriteLine("Warning: " + warning);
-
                 return result;
             }
             else
