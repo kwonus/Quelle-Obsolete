@@ -20,13 +20,12 @@ namespace QuelleHMI.Actions
 
         public static readonly List<string> IMPLICIT = new List<string>() { FIND };
 
-        protected Dictionary<UInt64, SearchFragment> searchFragments;
+        protected List<SearchFragment> searchFragments;
         public IQuelleSearchFragment[] fragments
         {
             get
             {
-                var list = (from key in this.searchFragments.Keys orderby key select this.searchFragments[key]);
-                return list.ToArray();
+                return searchFragments.ToArray();
             }
         }
 
@@ -36,14 +35,14 @@ namespace QuelleHMI.Actions
         {
             ++Action.currentSequence;
 
-            this.quoted = this.ParseQuotedSearch(Action.currentSequence) || (this.errors.Count > 0);
+            this.quoted = this.ParseQuotedSearch();
 
             if (this.errors.Count > 0)
                 return false;
             else if (this.quoted)
                 return true;
 
-            return this.ParseUnquotedSearch(Action.currentSequence);
+            return this.ParseUnquotedSearch();
         }
         public override bool Execute()
         {
@@ -271,9 +270,9 @@ namespace QuelleHMI.Actions
             }
             return result;
         }
-        private bool ParseUnquotedSearch(UInt32 sequence)
+        private bool ParseUnquotedSearch()
         {
-            this.searchFragments = new Dictionary<UInt64, SearchFragment>();
+            this.searchFragments = new List<SearchFragment>();
 
             int len = this.segment.Length;
             string error = null;
@@ -290,7 +289,7 @@ namespace QuelleHMI.Actions
                 {
 
                     var current = new SearchFragment(this, frag.token, false, 0, 1);
-                    this.searchFragments.Add(nextFragmentIdx++, current);
+                    this.searchFragments.Add(current);
                 }
                 if (frag.offset >= len)
                     break;
@@ -302,11 +301,11 @@ namespace QuelleHMI.Actions
             }
             return true;
         }
-        private bool ParseQuotedSearch(UInt32 sequence)
+        private bool ParseQuotedSearch()
         {
             bool wasBracketed = false;
 
-            this.searchFragments = new Dictionary<UInt64, SearchFragment>();
+            this.searchFragments = new List<SearchFragment>();
 
             if (!(this.segment.StartsWith('"'.ToString()) && this.segment.EndsWith('"'.ToString())))
             {
@@ -353,10 +352,9 @@ namespace QuelleHMI.Actions
                 {
                     byte unordered = frag.ordered ? (byte)0 : subgroup;
                     byte adjacency = wasEllipsis || (frag.bracketed && !wasBracketed) ? (byte)0 : (byte)1;
-                    uint order = frag.ordered ? sequence : 0;
 
                     var current = new SearchFragment(this, frag.token, true, adjacency, unordered);
-                    this.searchFragments.Add(sequence, current);
+                    this.searchFragments.Add(current);
                 }
                 if (frag.offset >= len)
                     break;

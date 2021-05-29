@@ -47,8 +47,6 @@ namespace QuelleHMI
         public UInt64 cursor { get; set; }
         [DataMember]
         public UInt64 count { get; set; }
-        [DataMember]
-        public bool quoted { get; set; }
 
         public QRequestSearch(IQuelleSearchRequest irequest, UInt64 cnt = 10)
         {
