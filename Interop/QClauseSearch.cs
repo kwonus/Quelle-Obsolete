@@ -18,7 +18,6 @@ namespace QuelleHMI
         [DataMember]
         public bool quoted { get; set; }
 
-
         public QClauseSearch(IQuelleSearchClause iclause)
         {
             if (iclause != null)
