@@ -45,6 +45,7 @@ namespace QuelleHMI
             {
                 this.segment = HMIStatement.SquenchText(hclause.segment);
                 this.polarity = hclause.polarity;
+                this.quoted = hclause.quoted;
 
                 this.fragments = hclause.fragments != null ? new QSearchFragment[hclause.fragments.Length] : null;
                 if (this.fragments != null)

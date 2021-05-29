@@ -39,9 +39,9 @@ namespace QuelleHMI.Actions
 
         public enum HMIPolarity
         {
-            NEGATIVE = (-1),
+            NEGATIVE = (byte) '-',
             UNDEFINED = 0,
-            POSITIVE = 1
+            POSITIVE = (byte) '+'
         }
         public enum HMIClauseType
         {

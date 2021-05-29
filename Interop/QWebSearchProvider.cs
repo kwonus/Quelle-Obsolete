@@ -82,7 +82,7 @@ namespace QuelleHMI
         {
             if (instance != null)
             {
-                var result = instance.Search(request);
+                var result = instance.Search(request);  // if exception is thrown here, recompile the C++ code
                 return result;
             }
             else
