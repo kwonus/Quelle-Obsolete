@@ -15,13 +15,14 @@ namespace QuelleHMI
 		public FeatureSpec[] specifications { get; protected set; }
 		public byte adjacency { get; protected set; }
 		public byte group { get; protected set; }
-
+		public UInt64 bit { get; protected set; }
 		protected Fragment(Actions.Action segment, string fragment, byte adjacency, byte group)
 		{
 			this.text = fragment != null ? fragment.Trim() : "";
 			this.segment = segment;
 			this.adjacency = adjacency;
 			this.group = group;
+			this.bit = segment.GetNextBit();
 
 			var specs = this.text.Split(Fragment.whitespace, StringSplitOptions.RemoveEmptyEntries);
 			this.specifications = new FeatureSpec[specs.Length];

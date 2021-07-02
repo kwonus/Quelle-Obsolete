@@ -40,6 +40,9 @@ namespace QuelleHMI
         [DataMember]
         public string text { get; set; }
 
+        [DataMember]
+        public UInt64 bit { get; set; }
+
         public QSearchFragment(IQuelleSearchFragment ifragment)
         {
             this.adjacency = ifragment.adjacency;

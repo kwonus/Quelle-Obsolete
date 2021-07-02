@@ -261,5 +261,51 @@ namespace QuelleHMI
             }
             return ok;
         }
+        public IQuelleSearchResult ExecuteEx(ISearchProvider provider)
+        {
+            bool ok = (command.errors.Count == 0);
+
+            if (ok)
+            {
+                if (!this.Normalize())
+                    return null;
+
+                if (normalized.simple)
+                {
+                    ok = normalized.explicitAction.Execute();
+                }
+                else
+                {
+                    if (normalized.setters != null)
+                        foreach (var clause in normalized.setters)
+                        {
+                            ok = clause.Execute();
+                            if (!ok)
+                                break;
+                        }
+                    if (ok && (normalized.removals != null))
+                        foreach (var clause in normalized.removals)
+                        {
+                            ok = clause.Execute();
+                            if (!ok)
+                                break;
+                        }
+                    if (ok && (normalized.searches != null))
+                    {
+                        foreach (var clause in normalized.searches)
+                        {
+                            ok = clause.Execute();
+                            if (!ok)
+                                break;
+                        }
+                        var request = new QRequestSearch(this); // (IQuelleSearchRequest)
+                        IQuelleSearchResult response = provider != null ? provider.Search(request) : null;
+
+                        return response;
+                    }
+                }
+            }
+            return null;
+        }
     }
 }

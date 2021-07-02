@@ -12,6 +12,7 @@ namespace QuelleHMI.Fragments
 		byte group { get; }
 		IQuelleFeatureSpec[] specifications { get; }  // spec is "All Of" features in the specification
 		string text { get; }
+		UInt64 bit { get; }
 	}
     public class SearchFragment: Fragment, IQuelleSearchFragment
 	{

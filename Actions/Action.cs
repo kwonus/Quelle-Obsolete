@@ -10,7 +10,18 @@ namespace QuelleHMI.Actions
         abstract public bool Parse();
         abstract public bool Execute();
         protected static UInt32 currentSequence;
-
+        private static UInt64 nextBit = 1;
+        public UInt64 GetNextBit()
+        {
+            var result = nextBit;
+            if (result != 0xFFFFFFFFFFFFFFFF)
+            {
+                nextBit <<= 1;
+                if (nextBit == 0)
+                    nextBit = 0xFFFFFFFFFFFFFFFF;
+            }
+            return result;
+        }
 
         protected List<string> errors { get => this.statement.command.errors; }
         protected List<string> warnings { get => this.statement.command.warnings; }

@@ -24,7 +24,7 @@ using QuelleHMI.Actions;
 
 namespace Quelle.DriverDefault
 {
-    static class Utility
+    public static class Utility
     {
         private static byte CountBits(UInt16 segment)
         {
