@@ -1,6 +1,7 @@
 ﻿using QuelleHMI.Fragments;
 using QuelleHMI.Actions;
 using System.Runtime.Serialization;
+using System;
 
 namespace QuelleHMI
 {
@@ -17,6 +18,8 @@ namespace QuelleHMI
         public byte polarity { get; set; }
         [DataMember]
         public bool quoted { get; set; }
+        [DataMember]
+        public UInt16 index { get; set; }
 
         public QClauseSearch(IQuelleSearchClause iclause)
         {
@@ -39,10 +42,12 @@ namespace QuelleHMI
                 }
             }
         }
-        public QClauseSearch(Search hclause)
+        public QClauseSearch(Search hclause, UInt16 idx)
         {
             if (hclause != null)
             {
+                this.index = idx;
+
                 this.segment = HMIStatement.SquenchText(hclause.segment);
                 this.polarity = hclause.polarity;
                 this.quoted = hclause.quoted;
@@ -57,6 +62,10 @@ namespace QuelleHMI
                         i++;
                     }
                 }
+            }
+            else
+            {
+                this.index = 0;
             }
         }
     }

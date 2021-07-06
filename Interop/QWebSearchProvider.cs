@@ -25,7 +25,7 @@ namespace QuelleHMI
     public class AbstractQuelleSearchResult: IQuelleSearchResult    // for C++/CLI support
     {
         //                b                c     v [compact bit array]        
-        public virtual Dictionary<byte, Dictionary<byte, UInt16[]>> matches { get; }
+        public virtual Dictionary<byte, Dictionary<byte, UInt32>> matches { get; }
         public virtual string summary { get; }
         public Guid session { get; } // MD5/GUID
         public Dictionary<UInt32, String> abstracts { get; }

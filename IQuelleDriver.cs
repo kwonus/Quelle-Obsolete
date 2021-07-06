@@ -17,7 +17,7 @@ namespace QuelleHMI
     public interface IQuelleSearchResult
     {
         //         b                c     v [compact bit array]        
-        Dictionary<byte, Dictionary<byte, UInt16[]>> matches { get; }
+        Dictionary<byte, Dictionary<byte, UInt32>> matches { get; }
         string summary { get; }
         Guid session { get; } // MD5/GUID
         Dictionary<UInt32, String> abstracts { get; }

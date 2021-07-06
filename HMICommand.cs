@@ -98,12 +98,15 @@ namespace QuelleHMI
 					foreach (var chapter in book.Value)
                     {
 						UInt16 c = chapter.Key;
-						var verses = Quelle.DriverDefault.Utility.ExpandBitArray(chapter.Value);
+						// NEW OMMISSION:
+						/*
+						var verses = Quelle..DriverDefault.Utility.ExpandBitArray(chapter.Value);
 						foreach(var verse in verses)
                         {
 							UInt16 v = verse;
 							Console.Out.WriteLine(b.ToString() + ':' + c.ToString() + ':' + v.ToString());
 						}
+						*/
 					}
 				}
 			}

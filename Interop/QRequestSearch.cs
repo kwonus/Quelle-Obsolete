@@ -67,7 +67,7 @@ namespace QuelleHMI
 
         [DataMember]
         //         b                c     v [compact bit array]        
-        public Dictionary<byte, Dictionary<byte, UInt16[]>> matches { get; set; }
+        public Dictionary<byte, Dictionary<byte, UInt32>> matches { get; set; }
         [DataMember]
         public string summary { get; set; }
         [DataMember]

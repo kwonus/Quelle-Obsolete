@@ -11,6 +11,7 @@ namespace QuelleHMI.Actions
         string segment { get; }
         byte polarity { get; }
         bool quoted { get; }
+        UInt16 index { get; }
     }
     public class Search : Actions.Action, IQuelleSearchClause
     {
@@ -19,6 +20,7 @@ namespace QuelleHMI.Actions
         public const string FIND = "find";
 
         public static readonly List<string> IMPLICIT = new List<string>() { FIND };
+        public UInt16 index { get; private set; }
 
         protected List<SearchFragment> searchFragments;
         public IQuelleSearchFragment[] fragments
