@@ -89,28 +89,6 @@ namespace QuelleHMI
 						Console.Out.WriteLine("Warning: " + warning);
 				}
 			}
-			if (errors.Count == 0 && response.matches != null)
-            {
-				foreach (var book in response.matches)
-                {
-					UInt16 b = book.Key;
-					var chapters = response.matches[book.Key];
-					foreach (var chapter in book.Value)
-                    {
-						UInt16 c = chapter.Key;
-						// NEW OMMISSION:
-						/*
-						var verses = Quelle..DriverDefault.Utility.ExpandBitArray(chapter.Value);
-						foreach(var verse in verses)
-                        {
-							UInt16 v = verse;
-							Console.Out.WriteLine(b.ToString() + ':' + c.ToString() + ':' + v.ToString());
-						}
-						*/
-					}
-				}
-			}
-
 			return response != null && (response.messages == null || response.messages.Count == 0);
         }
 	}

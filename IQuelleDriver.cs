@@ -6,6 +6,59 @@ using System.Text;
 
 namespace QuelleHMI
 {
+    public static class SegmentElement  // slight compacting to store/encode 98-bits in a 64-bit ulong [this avoids overhead of classes and tuples]
+    {
+        // SSSS CCCC IIIIIIII
+        // IIIIIIII      [UInt32] is the widx of the starting writ of the matched segment
+        // IIIIIIII+CCCC [UInt32] is the widx of the ending writ of the matched segment
+        // SSSS          [UInt16] is the segment index (cooresponding to the request) of the matched segment [this is NOT bit-wise, which allows UInt16.Max segments per query]
+        // 
+        public static UInt32 GetStart(UInt64 encoded)
+        {
+            var widx = (UInt32)(encoded & 0xFFFFFFFF);
+            return widx;
+        }
+        public static UInt32 GetEnd(UInt64 encoded)
+        {
+            var last = (UInt32) (encoded & 0xFFFFFFFF);
+            var cnt = (UInt32) ((encoded & 0xFFFF00000000) >> 32);  // cnt really represents cnt-1
+            last += cnt;
+            return last;
+        }
+        public static UInt16 GetSegmentIndex(UInt64 encoded)
+        {
+            var segmentIdx = (UInt16)((encoded & 0xFFFF000000000000) >> 48);
+            return segmentIdx;
+        }
+        public static UInt64 Create(UInt32 start, UInt32 end, UInt16 segmentIndex)
+        {
+            UInt64 result = (UInt64)segmentIndex;
+            result <<= 48;
+            result |= start;
+
+            if (end > start)
+            {
+                UInt64 cnt = end - start;   // cnt really represents cnt-1
+                cnt <<= 32;
+                result |= cnt;
+            }
+            return result;
+        }
+        public static UInt64 Create(UInt32 widx, UInt16 wcnt, UInt16 segmentIndex)
+        {
+            UInt64 result = (UInt64)segmentIndex;
+            result <<= 48;
+            result |= widx;
+
+            if (wcnt > 1)
+            {
+                UInt64 cnt = (UInt64) wcnt-1;   // cnt really represents wcnt-1
+                cnt <<= 32;
+                result |= cnt;
+            }
+            return result;
+        }
+    }
     public interface IQuelleSearchRequest
     {
         IQuelleSearchClause[] clauses { get;  }
@@ -16,8 +69,8 @@ namespace QuelleHMI
     }
     public interface IQuelleSearchResult
     {
-        //         b                c     v [compact bit array]        
-        Dictionary<byte, Dictionary<byte, UInt32>> matches { get; }
+        HashSet<UInt64> segments { get; }  // formerly "matches": each segment match is a UInt64 encoded via SegmentElement
+        Dictionary<UInt32, UInt64> tokens { get; }  // formerly "matches": up to 64 unique tokens across all segments; one dictionary entry for each token match
         string summary { get; }
         Guid session { get; } // MD5/GUID
         Dictionary<UInt32, String> abstracts { get; }
