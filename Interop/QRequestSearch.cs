@@ -14,10 +14,9 @@ namespace QuelleHMI
         {
             this.clauses  = null;
             this.controls = new QSearchControls(true);
-            this.count    = 10;
         }
 
-        public QRequestSearch(HMIStatement statement, UInt64 cnt = 10)
+        public QRequestSearch(HMIStatement statement)
         {
             int size = 0;
             foreach (var clause in statement.segmentation.Values)
@@ -34,7 +33,6 @@ namespace QuelleHMI
                     this.clauses[size++] = new QClauseSearch((Search) clause);
             }
             this.controls = new QSearchControls(true);
-            this.count = cnt;
         }
         [DataMember]
         public QClauseSearch[] clauses { get; set; }
@@ -43,21 +41,14 @@ namespace QuelleHMI
         public QSearchControls controls;
         [DataMember]
         public Guid session { get; set; }
-        [DataMember]
-        public UInt64 cursor { get; set; }
-        [DataMember]
-        public UInt64 count { get; set; }
 
-        public QRequestSearch(IQuelleSearchRequest irequest, UInt64 cnt = 10)
+        public QRequestSearch(IQuelleSearchRequest irequest)
         {
             this.clauses = new QClauseSearch[irequest.clauses.Length];
             for (int i = 0; i < irequest.clauses.Length; i++)
                 this.clauses[i] = new QClauseSearch(irequest.clauses[i]);
-            this.count = cnt;
             this.controls = new QSearchControls(true);
             this.session = irequest.session;
-            this.cursor = irequest.cursor;
-            this.count = irequest.count;
         }
     }
     [DataContract]
@@ -76,12 +67,6 @@ namespace QuelleHMI
         [DataMember]
         public Dictionary<UInt32, String> abstracts { get; set; }
         [DataMember]
-        public UInt64 cursor { get; set; }
-        [DataMember]
-        public UInt64 count { get; set; }
-        [DataMember]
-        public UInt64 remainder { get; set; }
-        [DataMember]
         public Dictionary<string, List<string>> messages { get; set; }
 
         public QSearchResult(IQuelleSearchResult iresult)
@@ -89,9 +74,6 @@ namespace QuelleHMI
             this.summary = iresult.summary;
             this.tokens = iresult.tokens;
             this.abstracts = iresult.abstracts;
-            this.cursor = iresult.cursor;
-            this.count = iresult.count;
-            this.remainder = iresult.remainder;
             this.session = iresult.session;
             this.messages = iresult.messages;
         }

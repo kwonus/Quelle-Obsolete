@@ -64,8 +64,6 @@ namespace QuelleHMI
         IQuelleSearchClause[] clauses { get;  }
         IQuelleSearchControls controls { get; }
         Guid session { get; }
-        UInt64 cursor { get; }
-        UInt64 count { get; }
     }
     public interface IQuelleSearchResult
     {
@@ -74,9 +72,6 @@ namespace QuelleHMI
         string summary { get; }
         Guid session { get; } // MD5/GUID
         Dictionary<UInt32, String> abstracts { get; }
-        UInt64 cursor { get; }
-        UInt64 count { get; }
-        UInt64 remainder { get; }
         Dictionary<string, List<string>> messages { get; }
 
     }
