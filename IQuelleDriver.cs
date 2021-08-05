@@ -67,8 +67,8 @@ namespace QuelleHMI
     }
     public interface IQuelleSearchResult
     {
-        HashSet<UInt64> segments { get; }  // formerly "matches": each segment match is a UInt64 encoded via SegmentElement
-        Dictionary<UInt32, UInt64> tokens { get; }  // formerly "matches": up to 64 unique tokens across all segments; one dictionary entry for each token match
+        HashSet<UInt64> segments { get; set; }  // formerly "matches": each segment match is a UInt64 encoded via SegmentElement
+        Dictionary<UInt32, UInt64> tokens { get; set; }  // formerly "matches": up to 64 unique tokens across all segments; one dictionary entry for each token match
         string summary { get; }
         Guid session { get; } // MD5/GUID
         Dictionary<UInt32, String> abstracts { get; }

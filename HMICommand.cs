@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using static QuelleHMI.SearchProviderClient;
+//using static QuelleHMI.SearchProviderClient;
 
 namespace QuelleHMI
 {
@@ -50,14 +50,14 @@ namespace QuelleHMI
 			}
         }
 
-		public bool Search()
-		{
-			var client = new SearchProviderClient(QuelleControlConfig.search.host);
-			var request = new QRequestSearch(this.statement); // (IQuelleSearchRequest)
-			IQuelleSearchResult response = client.api.Search(request);
+		//public bool Search()
+		//{
+			//var client = new SearchProviderClient(QuelleControlConfig.search.host);
+			//var request = new QRequestSearch(this.statement); // (IQuelleSearchRequest)
+			//IQuelleSearchResult response = client.api.Search(request);
 
-			return response != null && response.messages.Count == 0;
-		}
+			//return response != null && response.messages.Count == 0;
+		//}
 		public bool Search(ISearchProvider provider)
         {
 			var request = new QRequestSearch(this.statement); // (IQuelleSearchRequest)

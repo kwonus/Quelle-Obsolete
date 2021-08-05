@@ -6,12 +6,12 @@ using System;
 namespace QuelleHMI
 {
     [DataContract]
-    public class QClauseSearch
+    public class QClauseSearch: IQuelleSearchClause
     {
         public QClauseSearch() { /*for serialization*/ }
 
         [DataMember]
-        public QSearchFragment[] fragments { get; set; }
+        public IQuelleSearchFragment[] fragments { get; set; }
         [DataMember]
         public string segment { get; set; }
         [DataMember]
@@ -36,7 +36,7 @@ namespace QuelleHMI
                     foreach (var f in iclause.fragments)
                     {
                         this.fragments[i] = new QSearchFragment();
-                        this.fragments[i].text = f.text;
+                        ((QSearchFragment)this.fragments[i]).text = f.text;
                         i++;
                     }
                 }

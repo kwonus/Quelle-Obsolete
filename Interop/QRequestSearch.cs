@@ -8,7 +8,7 @@ using System.Runtime.Serialization;
 namespace QuelleHMI
 { 
     [DataContract]
-    public class QRequestSearch
+    public class QRequestSearch: IQuelleSearchRequest
     {
         public QRequestSearch(bool quoted)
         {
@@ -35,10 +35,10 @@ namespace QuelleHMI
             this.controls = new QSearchControls(true);
         }
         [DataMember]
-        public QClauseSearch[] clauses { get; set; }
+        public IQuelleSearchClause[] clauses { get; set; }
 
         [DataMember]
-        public QSearchControls controls;
+        public IQuelleSearchControls controls { get; set; }
         [DataMember]
         public Guid session { get; set; }
 

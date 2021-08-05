@@ -11,17 +11,18 @@ namespace QuelleHMI
     public interface ISearchProviderAsync
     {
         //ValueTask<IQuelleStatusResult> StatusAsync();
-        ValueTask<IQuelleSearchResult> SearchAsync(QRequestSearch request);
-        ValueTask<IQuellePageResult> PageAsync(QRequestPage request);
+        ValueTask<IQuelleSearchResult> SearchAsync(IQuelleSearchRequest request);
+        ValueTask<IQuellePageResult> PageAsync(IQuellePageRequest request);
         ValueTask<string> TestAsync(string request);
     }
     public interface ISearchProvider
     {
         //IQuelleStatusResult Status();
-        IQuelleSearchResult Search(QRequestSearch request);
-        IQuellePageResult Page(QRequestPage request);
-        string Test(string request);
+        IQuelleSearchResult Search(IQuelleSearchRequest request);
+        IQuellePageResult Page(IQuellePageRequest request);
+        //string Test(string request);
     }
+    
     public class AbstractQuelleSearchResult: IQuelleSearchResult    // for C++/CLI support
     {
         public HashSet<UInt64> segments { get; set; } 
@@ -78,11 +79,12 @@ namespace QuelleHMI
             this.instance = provider;
         }
         //IQuelleStatusResult Status();
-        public IQuelleSearchResult Search(QRequestSearch request)
+        public IQuelleSearchResult Search(IQuelleSearchRequest request)
         {
             if (instance != null)
             {
-                var result = instance.Search(request);  // if exception is thrown here, recompile the C++ code
+                var req = new QRequestSearch(request);
+                var result = instance.Search(req);  // if exception is thrown here, recompile the C++ code
                 return result;
             }
             else
@@ -91,15 +93,17 @@ namespace QuelleHMI
                 return null;
             }
         }
-        public IQuellePageResult Page(QRequestPage request)
+        public IQuellePageResult Page(IQuellePageRequest request)
         {
-            return instance != null ? instance.Page(request) : null;
+            var req = new QRequestPage(request);
+            return instance != null ? instance.Page(req) : null;
         }
         public string Test(string request)
         {
             return instance != null ? instance.Test(request) : null;
         }
     }
+#if OBSOLETE
     public interface ISearchProviderVanilla
     {
         //IQuelleStatusResult Status();
@@ -113,7 +117,6 @@ namespace QuelleHMI
         private String baseUrl;
         public ISearchProvider api { get; private set; }
         public ISearchProviderVanilla vanilla { get; private set; }
-
         public class QuelleSearchProvider: ISearchProvider
         {
             private ISearchProvider outer;
@@ -130,9 +133,6 @@ namespace QuelleHMI
             }
             public IQuellePageResult Page(QRequestPage request) {       // GET HTML, TEXT, or MD page
                 return this.outer.Page(request);
-            }
-            public string Test(string request) {
-                return this.outer.Test(request);
             }
         }
         public class QuelleSearchProviderVanilla : ISearchProviderVanilla
@@ -225,4 +225,5 @@ namespace QuelleHMI
             return result;
         }
     }
+#endif
 }

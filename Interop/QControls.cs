@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace QuelleHMI
 {
     [DataContract]
-    public class QSearchControls
+    public class QSearchControls: IQuelleSearchControls
     {
         public QSearchControls()    /* for serialization*/
         {
@@ -51,13 +51,13 @@ namespace QuelleHMI
             set => xdomain = value;
         }
         [DataMember]
-        public uint span
+        public uint? span
         {
             get => xspan.HasValue ? xspan.Value : CTLSearch.defaultSpan;
             set => xspan = value;
         }
         [DataMember]
-        public bool exact
+        public bool? exact
         {
             get => xexact.HasValue ? xexact.Value : CTLSearch.defaultExact;
             set => xexact = value;
