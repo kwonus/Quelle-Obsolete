@@ -57,9 +57,9 @@ namespace QuelleHMI
         public QSearchResult() { /*for serialization*/ }
 
         [DataMember]
-        public HashSet<UInt64> segments { get; set; } 
+        public HashSet<UInt16> verses { get; set; }
         [DataMember]
-        public Dictionary<UInt32, UInt64> tokens { get; set; }
+        public HashSet<UInt32> tokens { get; set; }
         [DataMember]
         public string summary { get; set; }
         [DataMember]

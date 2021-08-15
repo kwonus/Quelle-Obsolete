@@ -2,7 +2,6 @@
 using QuelleHMI.Actions;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace QuelleHMI
 {
@@ -67,8 +66,9 @@ namespace QuelleHMI
     }
     public interface IQuelleSearchResult
     {
-        HashSet<UInt64> segments { get; set; }  // formerly "matches": each segment match is a UInt64 encoded via SegmentElement
-        Dictionary<UInt32, UInt64> tokens { get; set; }  // formerly "matches": up to 64 unique tokens across all segments; one dictionary entry for each token match
+//      HashSet<UInt64> segments { get; set; }  // formerly "matches": each segment match is a UInt64 encoded via SegmentElement
+        HashSet<UInt16> verses { get; set; }  
+        HashSet<UInt32> tokens { get; set; } 
         string summary { get; }
         Guid session { get; } // MD5/GUID
         Dictionary<UInt32, String> abstracts { get; }

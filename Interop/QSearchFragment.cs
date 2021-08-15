@@ -13,7 +13,7 @@ namespace QuelleHMI
         [DataMember]
         public byte adjacency { get; protected set; }
         [DataMember]
-        public byte group { get; protected set; }
+        public byte bracketed { get; protected set; }
         private IQuelleFeatureSpec[] _specs { get; set; }
         [DataMember]
         public IQuelleFeatureSpec[] specifications
@@ -46,7 +46,7 @@ namespace QuelleHMI
         public QSearchFragment(IQuelleSearchFragment ifragment)
         {
             this.adjacency = ifragment.adjacency;
-            this.group = ifragment.group;
+            this.bracketed = ifragment.bracketed;
             this._specs = ifragment.specifications;
             this.text = HMIStatement.SquenchText(ifragment.text);
         }

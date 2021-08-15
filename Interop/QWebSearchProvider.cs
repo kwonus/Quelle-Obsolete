@@ -1,6 +1,4 @@
-﻿using Utf8Json;
-using System;
-using System.IO;
+﻿using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
@@ -25,8 +23,8 @@ namespace QuelleHMI
     
     public class AbstractQuelleSearchResult: IQuelleSearchResult    // for C++/CLI support
     {
-        public HashSet<UInt64> segments { get; set; } 
-        public virtual Dictionary<UInt32, UInt64> tokens { get; set; }
+        public HashSet<UInt32> tokens { get; set; }
+        public HashSet<UInt16> verses { get; set; }
         public virtual string summary { get; }
         public Guid session { get; } // MD5/GUID
         public Dictionary<UInt32, String> abstracts { get; }

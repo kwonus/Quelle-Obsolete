@@ -14,14 +14,14 @@ namespace QuelleHMI
 		public string text { get; protected set; }
 		public FeatureSpec[] specifications { get; protected set; }
 		public byte adjacency { get; protected set; }
-		public byte group { get; protected set; }
+		public byte bracketed { get; protected set; }
 		public UInt64 bit { get; protected set; }
 		protected Fragment(Actions.Action segment, string fragment, byte adjacency, byte group)
 		{
 			this.text = fragment != null ? fragment.Trim() : "";
 			this.segment = segment;
 			this.adjacency = adjacency;
-			this.group = group;
+			this.bracketed = group;
 			this.bit = segment.GetNextBit();
 
 			var specs = this.text.Split(Fragment.whitespace, StringSplitOptions.RemoveEmptyEntries);

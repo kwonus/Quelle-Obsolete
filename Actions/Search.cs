@@ -275,10 +275,9 @@ namespace QuelleHMI.Actions
         private bool ParseUnquotedSearch()
         {
             this.searchFragments = new List<SearchFragment>();
-
             int len = this.segment.Length;
             string error = null;
-            UInt32 nextFragmentIdx = 0;
+
             for (var frag = GetNextUnquotedSearchToken(this.segment); (frag.error == null) && (frag.offset > 0) && (frag.offset <= len || frag.token != null);
                      frag = GetNextUnquotedSearchToken(this.segment, frag.offset))
             {
@@ -289,8 +288,7 @@ namespace QuelleHMI.Actions
                 }
                 if (frag.token != null)
                 {
-
-                    var current = new SearchFragment(this, frag.token, false, 0, 1);
+                    var current = new SearchFragment(this, frag.token, false, 0, 1, null);
                     this.searchFragments.Add(current);
                 }
                 if (frag.offset >= len)
@@ -306,8 +304,11 @@ namespace QuelleHMI.Actions
         private bool ParseQuotedSearch()
         {
             bool wasBracketed = false;
+            byte previousGroup = 0;
 
             this.searchFragments = new List<SearchFragment>();
+            List<SearchFragment> bracketedFragments = null;
+            byte group = 0;
 
             if (!(this.segment.StartsWith('"'.ToString()) && this.segment.EndsWith('"'.ToString())))
             {
@@ -339,7 +340,7 @@ namespace QuelleHMI.Actions
                     wasEllipsis = true;
                     continue;
                 }
-                if (frag.bracketed && !wasBracketed)
+                if (frag.bracketed && (frag.bracketed == wasBracketed))
                 {
                     subgroup++;
                     if (subgroup == 0) // overflow
@@ -355,8 +356,19 @@ namespace QuelleHMI.Actions
                     byte unordered = frag.ordered ? (byte)0 : subgroup;
                     byte adjacency = wasEllipsis || (frag.bracketed && !wasBracketed) ? (byte)0 : (byte)1;
 
-                    var current = new SearchFragment(this, frag.token, true, adjacency, unordered);
+                    if (unordered != 0)
+                    {
+                        if (bracketedFragments == null || subgroup != previousGroup)
+                            bracketedFragments = new List<SearchFragment>();
+                    }
+                    else
+                    {
+                        bracketedFragments = null;
+                    }
+                    var current = new SearchFragment(this, frag.token, true, adjacency, unordered, bracketedFragments);
                     this.searchFragments.Add(current);
+
+                    previousGroup = subgroup;
                 }
                 if (frag.offset >= len)
                     break;
