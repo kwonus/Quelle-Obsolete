@@ -8,7 +8,7 @@ namespace QuelleHMI
     [DataContract]
     public class QSearchFragment : IQuelleSearchFragment
     {
-        public QSearchFragment() { /*for serialization*/ }
+        private QSearchFragment() { /*for serialization ; make public when needed */ }
 
         [DataMember]
         public byte adjacency { get; protected set; }
@@ -42,6 +42,8 @@ namespace QuelleHMI
 
         [DataMember]
         public UInt64 bit { get; set; }
+        [DataMember]
+        public UInt16 span { get; set; }
 
         public QSearchFragment(IQuelleSearchFragment ifragment)
         {
@@ -49,6 +51,8 @@ namespace QuelleHMI
             this.bracketed = ifragment.bracketed;
             this._specs = ifragment.specifications;
             this.text = HMIStatement.SquenchText(ifragment.text);
+            this.span = ifragment.span;
+            this.bit = ifragment.bit;
         }
     }
 }
