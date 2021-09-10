@@ -9,6 +9,14 @@
     <Product>Quelle-HMI</Product>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>dotnet48\Debug</OutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>dotnet48\Release</OutputPath>
+  </PropertyGroup>
+
   <ItemGroup>
     <Compile Remove="defunct\**" />
     <EmbeddedResource Remove="defunct\**" />
